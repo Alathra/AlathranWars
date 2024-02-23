@@ -57,7 +57,7 @@ public class CommandUtil {
         );
     }*/
 
-    static public Argument<Nation> customNationArgument(String nodeName) {
+    public static Argument<Nation> customNationArgument(String nodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argNationName = info.input();
 
@@ -76,7 +76,7 @@ public class CommandUtil {
         }));
     }
 
-    static public Argument<Town> customTownArgument(String nodeName) {
+    public static Argument<Town> customTownArgument(String nodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argTownName = info.input();
 
@@ -95,7 +95,7 @@ public class CommandUtil {
         }));
     }
 
-    static public Argument<Nation> customNationNotInWarArgument(String nodeName, String warNodeName, boolean hideNationsInWar) {
+    public static Argument<Nation> customNationNotInWarArgument(String nodeName, String warNodeName, boolean hideNationsInWar) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argNationName = info.input();
 
@@ -140,7 +140,7 @@ public class CommandUtil {
         }));
     }
 
-    static public Argument<Town> customTownNotInWarArgument(String nodeName, String warNodeName, boolean hideTownsInWar) {
+    public static Argument<Town> customTownNotInWarArgument(String nodeName, String warNodeName, boolean hideTownsInWar) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argTownName = info.input();
 
@@ -178,7 +178,7 @@ public class CommandUtil {
         }));
     }
 
-    static public Argument<Nation> customNationInWarArgument(String nodeName, String warNodeName) {
+    public static Argument<Nation> customNationInWarArgument(String nodeName, String warNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").parseLegacy().build());
@@ -203,7 +203,7 @@ public class CommandUtil {
         }));
     }
 
-    static public Argument<Town> customTownInWarArgument(String nodeName, String warNodeName) {
+    public static Argument<Town> customTownInWarArgument(String nodeName, String warNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").parseLegacy().build());
@@ -236,7 +236,7 @@ public class CommandUtil {
      * @param hideTownsInWar the hide towns in war
      * @return the town or nation UUID
      */
-    static public Argument<UUID> customTownAndNationArgument(String nodeName, String warNodeName, boolean hideTownsInWar) {
+    public static Argument<UUID> customTownAndNationArgument(String nodeName, String warNodeName, boolean hideTownsInWar) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argTownOrNationName = info.input();
 
@@ -287,64 +287,6 @@ public class CommandUtil {
             nationNames.removeAll(removeNames);
 
             return nationNames;
-        }));
-    }
-
-    static public Argument<UUID> playerOrTownOrNationInWar(String nodeName, String warNodeName) {
-        return new CustomArgument<>(new StringArgument(nodeName), info -> {
-            final String argPlayerOrTownOrNationName = info.input();
-
-            if (!(info.previousArgs().get(warNodeName) instanceof War war)) {
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(
-                    ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!")
-                        .build()
-                );
-            }
-
-            final List<String> townNames = war.getTowns().stream().map(Town::getName).sorted().toList();
-            final List<String> nationNames = war.getNations().stream().map(Nation::getName).sorted().toList();
-            final List<String> playerNames = war.getPlayersIncludingOffline().stream()
-                .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
-                .filter(p -> p.getName() != null)
-                .map(OfflinePlayer::getName)
-                .sorted()
-                .toList();
-
-
-            if (townNames.contains(argPlayerOrTownOrNationName) && TownyAPI.getInstance().getTown(argPlayerOrTownOrNationName) != null)
-                return TownyAPI.getInstance().getTown(argPlayerOrTownOrNationName).getUUID();
-
-            if (nationNames.contains(argPlayerOrTownOrNationName) && TownyAPI.getInstance().getNation(argPlayerOrTownOrNationName) != null)
-                return TownyAPI.getInstance().getNation(argPlayerOrTownOrNationName).getUUID();
-
-            if (playerNames.contains(argPlayerOrTownOrNationName))
-                return Bukkit.getOfflinePlayer(argPlayerOrTownOrNationName).getUniqueId();
-
-            throw CustomArgument.CustomArgumentException.fromAdventureComponent(
-                ColorParser.of(UtilsChat.getPrefix() + "<red>The player, town or nation <name> is not in the war!")
-                    .parseMinimessagePlaceholder("name", argPlayerOrTownOrNationName)
-                    .build()
-            );
-        }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
-            if (!(info.previousArgs().get(warNodeName) instanceof War war)) {
-                return Collections.emptyList();
-            }
-
-            final List<String> nationNames = war.getNations().stream().map(Nation::getName).sorted().toList();
-            final List<String> townNames = war.getTowns().stream().map(Town::getName).sorted().toList();
-            final List<String> playerNames = war.getPlayersIncludingOffline().stream()
-                .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
-                .filter(p -> p.getName() != null)
-                .map(OfflinePlayer::getName)
-                .sorted()
-                .toList();
-
-            final List<String> recommendations = new ArrayList<>();
-            recommendations.addAll(nationNames);
-            recommendations.addAll(townNames);
-            recommendations.addAll(playerNames);
-
-            return recommendations;
         }));
     }
 
@@ -725,5 +667,106 @@ public class CommandUtil {
      */
     public static @NotNull List<String> getWarItems() {
         return new ArrayList<>(WarItemRegistry.getInstance().getItemRegistry().keySet());
+    }
+
+    public static class TownyIdentifierArgument {
+        public enum TownyIdentifierArgumentType {
+            PLAYER,
+            TOWN,
+            NATION
+        }
+
+        private TownyIdentifierArgumentType type;
+        private UUID uuid;
+
+        public TownyIdentifierArgument(TownyIdentifierArgumentType type, UUID uuid) {
+            this.type = type;
+            this.uuid = uuid;
+        }
+
+        public void setType(TownyIdentifierArgumentType type) {
+            this.type = type;
+        }
+
+        public TownyIdentifierArgumentType getType() {
+            return type;
+        }
+
+        public UUID getUUID() {
+            return uuid;
+        }
+
+        public void setUUID(UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
+
+    public static Argument<TownyIdentifierArgument> playerOrTownOrNationInWar(String nodeName, String warNodeName) {
+        return new CustomArgument<>(new StringArgument(nodeName), info -> {
+            final String argPlayerOrTownOrNationName = info.input();
+
+            if (!(info.previousArgs().get(warNodeName) instanceof War war)) {
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(
+                    ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!")
+                        .build()
+                );
+            }
+
+            final List<String> townNames = war.getTowns().stream()
+                .map(Town::getName)
+                .sorted()
+                .toList();
+            final List<String> nationNames = war.getNations().stream()
+                .map(Nation::getName)
+                .sorted()
+                .toList();
+            final List<String> playerNames = war.getPlayersIncludingOffline().stream()
+                .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
+                .filter(p -> p.getName() != null)
+                .map(OfflinePlayer::getName)
+                .sorted()
+                .toList();
+
+            if (townNames.contains(argPlayerOrTownOrNationName) && TownyAPI.getInstance().getTown(argPlayerOrTownOrNationName) != null)
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.TOWN, TownyAPI.getInstance().getTown(argPlayerOrTownOrNationName).getUUID());
+
+            if (nationNames.contains(argPlayerOrTownOrNationName) && TownyAPI.getInstance().getNation(argPlayerOrTownOrNationName) != null)
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.NATION, TownyAPI.getInstance().getNation(argPlayerOrTownOrNationName).getUUID());
+
+            if (playerNames.contains(argPlayerOrTownOrNationName))
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.PLAYER, Bukkit.getOfflinePlayer(argPlayerOrTownOrNationName).getUniqueId());
+
+            throw CustomArgument.CustomArgumentException.fromAdventureComponent(
+                ColorParser.of(UtilsChat.getPrefix() + "<red>The player, town or nation <name> is not in the war!")
+                    .parseMinimessagePlaceholder("name", argPlayerOrTownOrNationName)
+                    .build()
+            );
+        }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
+            if (!(info.previousArgs().get(warNodeName) instanceof War war)) {
+                return Collections.emptyList();
+            }
+
+            final List<String> nationNames = war.getNations().stream()
+                .map(Nation::getName)
+                .sorted()
+                .toList();
+            final List<String> townNames = war.getTowns().stream()
+                .map(Town::getName)
+                .sorted()
+                .toList();
+            final List<String> playerNames = war.getPlayersIncludingOffline().stream()
+                .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
+                .filter(p -> p.getName() != null)
+                .map(OfflinePlayer::getName)
+                .sorted()
+                .toList();
+
+            final List<String> recommendations = new ArrayList<>();
+            recommendations.addAll(nationNames);
+            recommendations.addAll(townNames);
+            recommendations.addAll(playerNames);
+
+            return recommendations;
+        }));
     }
 }

@@ -135,10 +135,10 @@ public class WarCommands {
 
     public static CommandAPICommand commandKick() {
         return new CommandAPICommand("kick")
+            .withPermission("AlathranWars.admin")
             .withArguments(
                 CommandUtil.warWarArgument("war", true, ALL_WARS, "player"),
                 CommandUtil.playerOrTownOrNationInWar("target", "war")
-                    .withPermission("AlathranWars.admin")
             )
             .executesPlayer(WarCommands::warKick);
     }
@@ -437,43 +437,38 @@ public class WarCommands {
         War war = (War) args.get("war");
         if (war == null) return;
 
-        UUID uuid = (UUID) args.get("target");
+        if (!(args.get("target") instanceof CommandUtil.TownyIdentifierArgument target))
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Failed to yeet from the war because the target is invalid.").build());
 
-        boolean isNation = TownyAPI.getInstance().getNation(uuid) != null;
-        boolean isTown = TownyAPI.getInstance().getTown(uuid) != null;
-        boolean isPlayer = Bukkit.getOfflinePlayer(uuid) != null;
+        CommandUtil.TownyIdentifierArgument.TownyIdentifierArgumentType targetType = target.getType();
+        UUID targetUuid = target.getUUID();
 
-        Nation nation = TownyAPI.getInstance().getNation(uuid);
-        Town town = TownyAPI.getInstance().getTown(uuid);
-        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-
-        Side sideNation = war.getNationSide(nation);
-        Side sideTown = war.getTownSide(town);
-        Side sidePlayer = war.getPlayerSide(uuid);
-
-        if (isNation && sideNation != null) {
-            sideNation.kickNation(nation);
-            p.sendMessage(ColorParser.of("Target yeeted.").build());
-            nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
-            return;
+        switch (targetType) {
+            case PLAYER -> {
+                OfflinePlayer player = Bukkit.getOfflinePlayer(targetUuid);
+                Side sidePlayer = war.getPlayerSide(targetUuid);
+                sidePlayer.kickPlayer(player.getUniqueId());
+                p.sendMessage(ColorParser.of("Target yeeted.").build());
+                if (player.getPlayer() != null)
+                    NameColorHandler.getInstance().calculatePlayerColors(player.getPlayer());
+            }
+            case TOWN -> {
+                Town town = TownyAPI.getInstance().getTown(targetUuid);
+                Side sideTown = war.getTownSide(town);
+                sideTown.kickTown(town);
+                p.sendMessage(ColorParser.of("Target yeeted.").build());
+                town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
+            }
+            case NATION -> {
+                Nation nation = TownyAPI.getInstance().getNation(targetUuid);
+                Side sideNation = war.getNationSide(nation);
+                sideNation.kickNation(nation);
+                p.sendMessage(ColorParser.of("Target yeeted.").build());
+                nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
+            }
+            default ->
+                throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Failed to yeet from the war because the target is not in it.").build());
         }
-
-        if (isTown && sideTown != null) {
-            sideTown.kickTown(town);
-            p.sendMessage(ColorParser.of("Target yeeted.").build());
-            town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
-            return;
-        }
-
-        if (isPlayer && sidePlayer != null) {
-            sidePlayer.kickPlayer(player.getUniqueId());
-            p.sendMessage(ColorParser.of("Target yeeted.").build());
-            if (player.getPlayer() != null)
-                NameColorHandler.getInstance().calculatePlayerColors(player.getPlayer());
-            return;
-        }
-
-        throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Failed to yeet from the war because the target is not in it.").build());
     }
 
     private static void warList(@NotNull Player p, CommandArguments args) throws WrapperCommandSyntaxException {
