@@ -103,6 +103,7 @@ public class AdminCommands {
                 WarCommands.commandSurrender(true),
                 WarCommands.commandList(),
                 WarCommands.commandInfo(),
+                WarCommands.commandInfoSide(),
                 WarCommands.commandKick()
             );
     }

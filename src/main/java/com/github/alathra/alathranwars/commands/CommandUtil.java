@@ -580,6 +580,35 @@ public class CommandUtil {
         ));
     }
 
+    public static Argument<Side> warSideArgument(final String nodeName, final String warNodeName, final boolean isAdmin, final boolean checkIfIn, final String playerNodeName) {
+        return new CustomArgument<>(new StringArgument(nodeName), info -> {
+            if (!(info.previousArgs().get(warNodeName) instanceof War war))
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").parseLegacy().build());
+
+            final String argSideName = info.input();
+
+            if (!war.isSideValid(argSideName))
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side does not exist.").parseLegacy().build());
+
+            final @Nullable Side side = war.getSide(argSideName);
+
+            if (side == null)
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side is invalid.").parseLegacy().build());
+
+            return side;
+        }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
+                if (!(info.previousArgs().get(warNodeName) instanceof War war))
+                    return Collections.emptyList();
+
+                final @NotNull List<String> sideNames = new ArrayList<>();
+                sideNames.add(war.getSide1().getName());
+                sideNames.add(war.getSide2().getName());
+
+                return sideNames;
+            }
+        ));
+    }
+
     public static Argument<TownyIdentifierArgument> warTargetCreateArgument(final String nodeName, final String warNodeName, final boolean isAdmin) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argTargetName = info.input();

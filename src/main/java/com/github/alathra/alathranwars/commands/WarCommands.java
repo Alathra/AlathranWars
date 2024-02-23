@@ -130,6 +130,15 @@ public class WarCommands {
             .executesPlayer(WarCommands::warInfo);
     }
 
+    public static CommandAPICommand commandInfoSide() {
+        return new CommandAPICommand("infoside")
+            .withArguments(
+                CommandUtil.warWarArgument("war", false, ALL_WARS, "player"),
+                CommandUtil.warSideArgument("side", "war", true, false, "")
+            )
+            .executesPlayer(WarCommands::warInfoSide);
+    }
+
     public static CommandAPICommand commandKick() {
         return new CommandAPICommand("kick")
             .withPermission("AlathranWars.admin")
@@ -507,6 +516,33 @@ public class WarCommands {
             msg.append("\n <grey>Players: <green>%s<grey>/<red>%s".formatted(side.getPlayersIncludingOffline().size(), side.getPlayersIncludingOffline().size() + side.getSurrenderedPlayersIncludingOffline().size()));
             msg.append("\n");
         }
+
+        p.sendMessage(
+            ColorParser.of(
+                msg.toString()
+            ).build()
+        );
+    }
+
+    private static void warInfoSide(Player p, CommandArguments args) throws WrapperCommandSyntaxException {
+        War war = (War) args.get("war");
+        if (war == null) return;
+
+        if (!(args.get("side") instanceof final Side side))
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a side.").build());
+
+
+        final StringBuilder msg = new StringBuilder();
+
+        msg.append("\n<white><bold>Nations:<reset>");
+        for (Nation nation : side.getNations()) {
+            msg.append("\n <grey>%s".formatted(nation.getName()));
+        }
+        msg.append("\n<white><bold>Towns:<reset>");
+        for (Town town : side.getTowns()) {
+            msg.append("\n <grey>%s".formatted(town.getName()));
+        }
+        msg.append("\n");
 
         p.sendMessage(
             ColorParser.of(
