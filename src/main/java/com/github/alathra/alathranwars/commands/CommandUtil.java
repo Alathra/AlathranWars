@@ -580,7 +580,7 @@ public class CommandUtil {
         ));
     }
 
-    public static Argument<String> warTargetCreateArgument(final String nodeName, final String warNodeName, final boolean isAdmin) {
+    public static Argument<TownyIdentifierArgument> warTargetCreateArgument(final String nodeName, final String warNodeName, final boolean isAdmin) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             final String argTargetName = info.input();
 
@@ -592,13 +592,13 @@ public class CommandUtil {
             final boolean isPlayer = Bukkit.getPlayer(argTargetName) != null;
 
             if (isNation && !war.getNations().stream().map(Nation::getName).toList().contains(argTargetName))
-                return argTargetName;
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.NATION, TownyAPI.getInstance().getNation(argTargetName).getUUID());
 
             if (isTown && !war.getTowns().stream().map(Town::getName).toList().contains(argTargetName))
-                return argTargetName;
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.TOWN, TownyAPI.getInstance().getTown(argTargetName).getUUID());
 
             if (isPlayer && !war.getPlayers().stream().map(Player::getName).toList().contains(argTargetName))
-                return argTargetName;
+                return new TownyIdentifierArgument(TownyIdentifierArgument.TownyIdentifierArgumentType.PLAYER, Bukkit.getPlayer(argTargetName).getUniqueId());
 
             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Invalid target.").build());
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> { // Returns list of every nation, town and player not in the war

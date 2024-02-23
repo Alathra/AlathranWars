@@ -92,9 +92,6 @@ public class WarCommands {
                 CommandUtil.warWarArgument("war", asAdmin, asAdmin ? ALL_WARS : OUT_WAR, ""),
                 CommandUtil.warSideCreateArgument("side", "war", asAdmin, !asAdmin, ""),
                 CommandUtil.warTargetCreateArgument("target", "war", asAdmin).setOptional(!asAdmin)
-//                new PlayerArgument("player").setOptional(true).withPermission("AlathranWars.admin.join"),
-//                new PlayerArgument("nation").setOptional(true).withPermission("AlathranWars.admin.join"),
-//                new PlayerArgument("town").setOptional(true).withPermission("AlathranWars.admin.join")
             )
             .executesPlayer((Player p, CommandArguments args) -> warJoin(p, args, asAdmin));
     }
@@ -219,37 +216,31 @@ public class WarCommands {
         if (!(args.get("side") instanceof final Side side))
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a side.").build());
 
-        // The target or empty string
-        if (!(args.getOptional("target").orElse("") instanceof String targetString))
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Invalid target name.").build());
+        if (!(args.getOptional("target").orElse(new CommandUtil.TownyIdentifierArgument(CommandUtil.TownyIdentifierArgument.TownyIdentifierArgumentType.PLAYER, p.getUniqueId())) instanceof CommandUtil.TownyIdentifierArgument target))
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Failed to yeet from the war because the target is invalid.").build());
 
-        // The target player or sender of the command
-        Player targetPlayer = args.getOptional("target").map(o -> Bukkit.getPlayer((String) o)).orElse(p);
+        CommandUtil.TownyIdentifierArgument.TownyIdentifierArgumentType targetType = target.getType();
+        UUID targetUuid = target.getUUID();
 
-        // Get the player resident
-        @Nullable Resident res = TownyAPI.getInstance().getResident(targetPlayer);
+        @Nullable Resident res = TownyAPI.getInstance().getResident(p);
         if (res == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Resident invalid.").build());
 
-        // Get nations and towns
-        @Nullable Nation nation = asAdmin ? TownyAPI.getInstance().getNation(targetString) : res.hasNation() ? res.getNationOrNull() : TownyAPI.getInstance().getNation(targetString);
-        @Nullable Town town = asAdmin ? TownyAPI.getInstance().getTown(targetString) : res.hasTown() ? res.getTownOrNull() : TownyAPI.getInstance().getTown(targetString);
+        switch (targetType) {
+            case NATION -> {
+                Nation nation = TownyAPI.getInstance().getNation(targetUuid);
 
-        final boolean isArgNation = nation != null;
-        final boolean isArgTown = town != null;
-        final boolean isArgPlayer = targetPlayer != null;
+                if (nation == null)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No nation of that name exists.").build());
 
-        // If no valid targets
-        if ((!isArgNation && !isArgTown && !isArgPlayer))
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Invalid target.").build());
+                if (war.isNationInWar(nation))
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Nation is already in that war.").build());
 
-        // Check if player can validly join or not
-        final boolean canKingJoin = (res.hasNation() && res.getNationOrNull().equals(nation) && res.isKing() && nation.isKing(res));
-        final boolean canMayorJoin = (res.hasTown() && res.getTownOrNull().equals(town) && res.isMayor() && town.isMayor(res));
+                final boolean canKingJoin = (res.hasNation() && res.getNationOrNull().equals(nation) && res.isKing() && nation.isKing(res));
 
-        if (!war.isEventWar()) {
-            // Join nation into war
-            if (isArgNation && nation != null && !war.isNationInWar(nation) && (asAdmin || canKingJoin)) {
+                if (!asAdmin && !canKingJoin)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your nation into the war.").build());
+
                 side.addNation(nation);
                 nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().calculatePlayerColors(player));
                 Bukkit.broadcast(
@@ -276,13 +267,21 @@ public class WarCommands {
                     player.showTitle(warTitle);
                     player.playSound(warSound);
                 });
-                return;
-            } else if (town == null && nation != null && (!canKingJoin || !asAdmin)) {
-                throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Nation is already in that war.").build());
             }
+            case TOWN -> {
+                Town town = TownyAPI.getInstance().getTown(targetUuid);
 
-            // Join town into war
-            if (isArgTown && town != null && !war.isTownInWar(town) && (asAdmin || canMayorJoin)) {
+                if (town == null)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No town of that name exists.").build());
+
+                if (war.isTownInWar(town))
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Town is already in that war.").build());
+
+                final boolean canMayorJoin = (res.hasTown() && res.getTownOrNull().equals(town) && res.isMayor() && town.isMayor(res));
+
+                if (!asAdmin && !canMayorJoin)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your town into the war.").build());
+
                 side.addTown(town);
                 town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().getPlayerNameColor(player));
                 Bukkit.broadcast(
@@ -309,40 +308,39 @@ public class WarCommands {
                     player.showTitle(warTitle);
                     player.playSound(warSound);
                 });
-                return;
-            } else if (targetPlayer == null && town != null && !canMayorJoin) {
-                throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Town is already in that war.").build());
+            }
+            case PLAYER -> {
+                Player player = Bukkit.getPlayer(targetUuid);
+
+                if (player == null)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No player of that name exists.").build());
+
+                if (war.isPlayerInWar(player))
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Player is already in that war.").build());
+
+                if (!asAdmin)
+                    throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Players cannot individually join wars.").build());
+
+                player.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
+                side.addPlayer(player);
+                NameColorHandler.getInstance().calculatePlayerColors(player);
+                final Title warTitle = Title.title(
+                    ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
+                        .build(),
+                    ColorParser.of("<gray><i>You entered the war of <war>!")
+                        .parseMinimessagePlaceholder("war", war.getLabel())
+                        .build(),
+                    Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
+                );
+                final Sound warSound = Sound.sound(Key.key("entity.wither.spawn"), Sound.Source.VOICE, 0.5f, 1.0F);
+
+                player.showTitle(warTitle);
+                player.playSound(warSound);
+            }
+            default -> {
+                throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>The target is invalid.").build());
             }
         }
-
-        // Join player into war
-        if (isArgPlayer && targetPlayer != null && !war.isPlayerInWar(targetPlayer) && asAdmin) {
-            targetPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
-            side.addPlayer(targetPlayer);
-            NameColorHandler.getInstance().calculatePlayerColors(targetPlayer);
-            final Title warTitle = Title.title(
-                ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
-                    .build(),
-                ColorParser.of("<gray><i>You entered the war of <war>!")
-                    .parseMinimessagePlaceholder("war", war.getLabel())
-                    .build(),
-                Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
-            );
-            final Sound warSound = Sound.sound(Key.key("entity.wither.spawn"), Sound.Source.VOICE, 0.5f, 1.0F);
-
-            targetPlayer.showTitle(warTitle);
-            targetPlayer.playSound(warSound);
-            return;
-        } else if (!asAdmin) {
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Players cannot individually join wars.").build());
-        } else {
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Player is already in that war.").build());
-        }
-
-        // Join player into war
-//        if (war.isPlayerInWar(player))
-//            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are already in this war.").build());
-
 
         /*for (@NotNull Siege siege : war.getSieges()) {
             if (siege.getAttackerSide().equals(side)) {
