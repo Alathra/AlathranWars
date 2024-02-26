@@ -24,8 +24,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Side {
-    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(30);
-    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(30);
+    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(15);
+    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(15);
     private final UUID warUUID;
     private final UUID uuid;
     private final BattleSide side;
