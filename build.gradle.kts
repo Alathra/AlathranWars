@@ -170,7 +170,7 @@ tasks {
         downloadPlugins {
             url("https://ci.dmulloy2.net/job/ProtocolLib/lastStableBuild/artifact/build/libs/ProtocolLib.jar")
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
-            url("https://download.luckperms.net/1521/bukkit/loader/LuckPerms-Bukkit-5.4.108.jar")
+            url("https://download.luckperms.net/1532/bukkit/loader/LuckPerms-Bukkit-5.4.119.jar")
             modrinth("tab-was-taken", "4.1.2")
             github("PlaceholderAPI", "PlaceholderAPI", "2.11.4", "PlaceholderAPI-2.11.4.jar")
 //            url("https://www.spigotmc.org/resources/skulls-the-ultimate-head-database.90098/download?version=520217/Skulls.jar")
