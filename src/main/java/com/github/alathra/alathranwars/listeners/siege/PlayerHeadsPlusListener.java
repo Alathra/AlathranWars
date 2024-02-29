@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 
 public class PlayerHeadsPlusListener implements Listener {
     @EventHandler
-    private void onHeadDrop(PlayerHeadDropEvent e) {
+    public void onHeadDrop(PlayerHeadDropEvent e) {
         Siege siege = Utils.getClosestSiege(e.getDeadPlayer(), false);
         if (siege == null) return;
 

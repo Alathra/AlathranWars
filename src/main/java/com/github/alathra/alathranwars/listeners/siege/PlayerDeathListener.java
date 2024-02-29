@@ -52,7 +52,7 @@ public class PlayerDeathListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onPlayerDeath(PlayerDeathEvent e) {
+    public void onPlayerDeath(PlayerDeathEvent e) {
         Player victim = e.getPlayer();
         Player attacker = e.getPlayer().getKiller();
         if (attacker == null) return;
@@ -70,7 +70,7 @@ public class PlayerDeathListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onPlayerSuicide(PlayerDeathEvent e) {
+    public void onPlayerSuicide(PlayerDeathEvent e) {
         Player victim = e.getPlayer();
         Player attacker = e.getPlayer().getKiller();
         if (attacker != null) return;

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerQuitListener implements Listener {
     @EventHandler
-    private void onPlayerQuit(@NotNull PlayerQuitEvent e) {
+    public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         final @NotNull Player p = e.getPlayer();
         if (WarController.getInstance().isPlayerInAnyWars(p)) {
             for (@NotNull War war : WarController.getInstance().getWars()) {

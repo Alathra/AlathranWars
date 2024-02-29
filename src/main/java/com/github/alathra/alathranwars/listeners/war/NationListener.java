@@ -14,13 +14,13 @@ import org.bukkit.event.Listener;
 
 public class NationListener implements Listener {
     /*@EventHandler
-    private void onNationKingChange(NationKingChangeEvent e) {
+    public void onNationKingChange(NationKingChangeEvent e) {
         e.setCancelMessage("");
         e.setCancelled(true);
     }*/
 
     @EventHandler
-    private void onRename(NationPreRenameEvent e) {
+    public void onRename(NationPreRenameEvent e) {
         Nation nation = e.getNation();
 
         if (WarController.getInstance().isNationInAnyWars(nation)) {
@@ -30,7 +30,7 @@ public class NationListener implements Listener {
     }
 
     @EventHandler
-    private void onTownJoin(NationAddTownEvent e) {
+    public void onTownJoin(NationAddTownEvent e) {
         Nation nation = e.getNation();
         Town town = e.getTown();
 
@@ -59,12 +59,12 @@ public class NationListener implements Listener {
     }
 
     /*@EventHandler // Do nothing, leaving a nation should not let you escape nation wars
-    private void onTownLeave(NationTownLeaveEvent e) {
+    public void onTownLeave(NationTownLeaveEvent e) {
 
     }*/
 
     @EventHandler
-    private void onMerge(NationPreMergeEvent e) {
+    public void onMerge(NationPreMergeEvent e) {
         Nation nation = e.getRemainingNation();
         Nation nation1 = e.getNation();
 

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerJoinListener implements Listener {
     @EventHandler
-    private void onPlayerJoin(@NotNull PlayerJoinEvent e) {
+    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         final @NotNull Player p = e.getPlayer();
         if (WarController.getInstance().isPlayerInAnySiege(p)) {
             for (@NotNull Siege siege : WarController.getInstance().getPlayerSieges(p)) {

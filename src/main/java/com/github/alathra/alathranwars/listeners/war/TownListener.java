@@ -23,7 +23,7 @@ import java.time.Duration;
 
 public class TownListener implements Listener {
     @EventHandler
-    private void onRename(TownPreRenameEvent e) {
+    public void onRename(TownPreRenameEvent e) {
         Town town = e.getTown();
 
         if (WarController.getInstance().isTownInAnyWars(town)) {
@@ -35,7 +35,7 @@ public class TownListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerJoin(TownAddResidentEvent e) {
+    public void onPlayerJoin(TownAddResidentEvent e) {
         Town town = e.getTown();
         Player p = e.getResident().getPlayer();
         if (p == null) return;
@@ -63,7 +63,7 @@ public class TownListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerLeave(TownLeaveEvent e) {
+    public void onPlayerLeave(TownLeaveEvent e) {
         Town town = e.getTown();
         Player p = e.getResident().getPlayer();
         if (p == null) return;
@@ -78,7 +78,7 @@ public class TownListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerKick(TownKickEvent e) {
+    public void onPlayerKick(TownKickEvent e) {
         Town town = e.getTown();
         Player p = e.getKickedResident().getPlayer();
         if (p == null) return;
@@ -93,7 +93,7 @@ public class TownListener implements Listener {
     }
 
     /*@EventHandler
-    private void onLeaderChange(TownMayorChangedEvent e) {
+    public void onLeaderChange(TownMayorChangedEvent e) {
         Town town = e.getTown();
         Resident newMayor = e.getNewMayor();
         Resident oldMayor = e.getOldMayor();
@@ -104,7 +104,7 @@ public class TownListener implements Listener {
     }
 
     @EventHandler
-    private void onLeaderChangeSuccession(TownMayorChosenBySuccessionEvent e) {
+    public void onLeaderChangeSuccession(TownMayorChosenBySuccessionEvent e) {
         Town town = e.getTown();
         Resident newMayor = e.getNewMayor();
         Resident oldMayor = e.getOldMayor();
@@ -114,7 +114,7 @@ public class TownListener implements Listener {
     }*/
 
     @EventHandler
-    private void onMerge(TownPreMergeEvent e) {
+    public void onMerge(TownPreMergeEvent e) {
         Town town = e.getRemainingTown();
         Town town2 = e.getSuccumbingTown();
 
@@ -130,7 +130,7 @@ public class TownListener implements Listener {
     // TODO On town ruin, leave or cancel sieges where the town is present
     // TODO On town ruin, leave or cancel raids where the town is present
     @EventHandler
-    private void onRuin(TownRuinedEvent e) {
+    public void onRuin(TownRuinedEvent e) {
         Town town = e.getTown();
 
         for (War war : WarController.getInstance().getTownWars(town)) {

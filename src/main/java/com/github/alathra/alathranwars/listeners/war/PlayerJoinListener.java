@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerJoinListener implements Listener {
     @EventHandler
-    private void onPlayerJoin(@NotNull PlayerJoinEvent e) {
+    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         final @NotNull Player p = e.getPlayer();
         if (WarController.getInstance().isPlayerInAnyWars(p)) {
             for (@NotNull War war : WarController.getInstance().getWars()) {

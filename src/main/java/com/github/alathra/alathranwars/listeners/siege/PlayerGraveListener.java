@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 
 public class PlayerGraveListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onGraveCreate(GraveCreateEvent e) {
+    public void onGraveCreate(GraveCreateEvent e) {
         if (!e.getEntityType().equals(EntityType.PLAYER)) return;
         if (!(e.getEntity() instanceof Player p)) return;
 

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerQuitListener implements Listener {
     @EventHandler
-    private void onPlayerQuit(@NotNull PlayerQuitEvent e) {
+    public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         final @NotNull Player p = e.getPlayer();
         if (WarController.getInstance().isPlayerInAnySiege(p)) {
             for (@NotNull Siege siege : WarController.getInstance().getPlayerSieges(p)) {
