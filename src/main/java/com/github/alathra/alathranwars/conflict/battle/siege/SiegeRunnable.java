@@ -108,8 +108,8 @@ public class SiegeRunnable implements Runnable {
         // Siege is past max time or attackers haven't touched in time, defenders won
         if (
             (!progressDirection.equals(CONTESTED) && !progressDirection.equals(UP)) &&
-                (Instant.now().isAfter(siege.getEndTime()) ||
-                    Instant.now().isAfter(siege.getLastTouched().plus(ATTACKERS_MUST_TOUCH_END)))
+                (Instant.now().isAfter(siege.getEndTime()) /*||
+                    Instant.now().isAfter(siege.getLastTouched().plus(ATTACKERS_MUST_TOUCH_END))*/)
         ) {
             cancel();
             siege.defendersWin(BattleVictoryReason.OPPONENT_LOST);
