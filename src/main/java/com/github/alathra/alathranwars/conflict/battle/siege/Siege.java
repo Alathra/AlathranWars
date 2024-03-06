@@ -7,10 +7,7 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.db.DatabaseQueries;
 import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.*;
-import com.github.alathra.alathranwars.events.battle.BattleResultEvent;
-import com.github.alathra.alathranwars.events.battle.BattleStartEvent;
-import com.github.alathra.alathranwars.events.battle.PreBattleResultEvent;
-import com.github.alathra.alathranwars.events.battle.PreBattleStartEvent;
+import com.github.alathra.alathranwars.events.battle.*;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
@@ -604,45 +601,32 @@ public class Siege implements Battle {
         defenders.clear();
         defenders.addAll(defendersOnBattlefield);
 
-        // TODO Emit events for players leaving & entering the battlefield
-
         // Leaving attackers
         previousAttackersOnBattlefield.stream()
             .filter(p -> p.isConnected() && !attackers.contains(p))
             .collect(Collectors.toSet())
-            .forEach(p -> {
-                    // TODO Player left battlefield
-
-                }
+            .forEach(p -> new PlayerLeftBattlefieldEvent(war, this, p).callEvent()
             );
 
         // Entering attackers
         attackers.stream()
             .filter(p -> p.isConnected() && !previousAttackersOnBattlefield.contains(p))
             .collect(Collectors.toSet())
-            .forEach(p -> {
-                    // TODO Player entered battlefield
-
-                }
+            .forEach(p -> new PlayerEnteredBattlefieldEvent(war, this, p).callEvent()
             );
 
         // Leaving defenders
         previousDefendersOnBattlefield.stream()
             .filter(p -> p.isConnected() && !defenders.contains(p))
             .collect(Collectors.toSet())
-            .forEach(p -> {
-                    // TODO Player left battlefield
-
-                }
+            .forEach(p -> new PlayerLeftBattlefieldEvent(war, this, p).callEvent()
             );
 
         // Entering defenders
         defenders.stream()
             .filter(p -> p.isConnected() && !previousDefendersOnBattlefield.contains(p))
             .collect(Collectors.toSet())
-            .forEach(p -> {
-                    // TODO Player entered battlefield
-                }
+            .forEach(p -> new PlayerEnteredBattlefieldEvent(war, this, p).callEvent()
             );
     }
 }

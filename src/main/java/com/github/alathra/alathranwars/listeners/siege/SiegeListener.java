@@ -7,6 +7,8 @@ import com.github.alathra.alathranwars.enums.battle.BattleType;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.events.battle.BattleResultEvent;
 import com.github.alathra.alathranwars.events.battle.BattleStartEvent;
+import com.github.alathra.alathranwars.events.battle.PlayerEnteredBattlefieldEvent;
+import com.github.alathra.alathranwars.events.battle.PlayerLeftBattlefieldEvent;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
@@ -256,5 +258,41 @@ public class SiegeListener implements Listener {
             case DRAW -> {
             }
         }
+    }
+
+    @EventHandler
+    public void onBattleEnter(PlayerEnteredBattlefieldEvent e) {
+        if (!e.getBattle().getBattleType().equals(BattleType.SIEGE)) return;
+
+        if (!(e.getBattle() instanceof Siege siege)) return;
+
+        final Title defTitle = Title.title(
+            ColorParser.of("<red><u><b>Battle")
+                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .build(),
+            ColorParser.of("<gray><i>You entered a battlefield!")
+                .build(),
+            TITLE_TIMES
+        );
+
+        e.getPlayer().showTitle(defTitle);
+    }
+
+    @EventHandler
+    public void onBattleLeave(PlayerLeftBattlefieldEvent e) {
+        if (!e.getBattle().getBattleType().equals(BattleType.SIEGE)) return;
+
+        if (!(e.getBattle() instanceof Siege siege)) return;
+
+        final Title defTitle = Title.title(
+            ColorParser.of("<red><u><b>Battle")
+                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .build(),
+            ColorParser.of("<gray><i>You left the battlefield!")
+                .build(),
+            TITLE_TIMES
+        );
+
+        e.getPlayer().showTitle(defTitle);
     }
 }
