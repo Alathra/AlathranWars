@@ -5,11 +5,10 @@ import com.github.alathra.alathranwars.utility.Utils;
 import dev.geco.gsit.api.event.PreEntitySitEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 public class PlayerSitListener implements Listener {
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler
     public void onSit(PreEntitySitEvent e) {
         if (!(e.getEntity() instanceof Player p)) return;
 
