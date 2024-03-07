@@ -450,6 +450,20 @@ public class War extends Conflict {
     }
 
     /**
+     * Gets all players in the war including surrendered.
+     *
+     * @return the surrendered players
+     */
+    @NotNull
+    public Set<OfflinePlayer> getAllPlayers() {
+        return Stream.concat(
+                getPlayersIncludingOffline().stream(),
+                getSurrenderedPlayers().stream()
+            )
+            .collect(Collectors.toSet());
+    }
+
+    /**
      * Check if player is in war.
      *
      * @param p the p
