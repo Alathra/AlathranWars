@@ -1,12 +1,11 @@
 package com.github.alathra.alathranwars.listeners.war;
 
-import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
-import com.github.alathra.alathranwars.conflict.war.side.Side;
-import com.github.alathra.alathranwars.hooks.NameColorHandler;
-import com.palmergames.bukkit.towny.event.NationAddTownEvent;
+import com.palmergames.bukkit.towny.event.NationPreAddTownEvent;
 import com.palmergames.bukkit.towny.event.NationPreRenameEvent;
+import com.palmergames.bukkit.towny.event.nation.NationPreInviteTownEvent;
 import com.palmergames.bukkit.towny.event.nation.NationPreMergeEvent;
+import com.palmergames.bukkit.towny.event.nation.NationPreTownLeaveEvent;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.event.EventHandler;
@@ -30,33 +29,93 @@ public class NationListener implements Listener {
     }
 
     @EventHandler
-    public void onTownJoin(NationAddTownEvent e) {
+    public void onTownPreInvite(NationPreInviteTownEvent e) {
+        Nation nation = e.getNation();
+        Town town = e.getInvitedTown();
+
+        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        if (isNationAtWar) {
+            e.setCancelMessage("You cannot invite that town because your nation is in a war.");
+            e.setCancelled(true);
+            return;
+        }
+
+        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        if (isTownAtWar) {
+            e.setCancelMessage("You cannot invite that town because it is in a war.");
+            e.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onTownPreAdd(NationPreAddTownEvent e) {
         Nation nation = e.getNation();
         Town town = e.getTown();
 
-        // Add town to all nation wars
-        for (War war : WarController.getInstance().getNationWars(nation)) {
-            Side side = war.getNationSide(nation);
-            if (side == null) continue;
-
-            side.addTown(town);
+        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        if (isNationAtWar) {
+            e.setCancelMessage("Your town cannot join the nation because it is in a war.");
+            e.setCancelled(true);
+            return;
         }
 
-        // TODO Add nation to towns' wars
-        for (War war : WarController.getInstance().getTownWars(town)) {
-            Side side = war.getTownSide(town);
-            if (side == null) continue;
-
-            side.addNation(nation);
-        }
-
-        for (War war : WarController.getInstance().getNationWars(nation)) {
-            Side side = war.getNationSide(nation);
-            if (side == null) continue;
-
-            side.getPlayers().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
+        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        if (isTownAtWar) {
+            e.setCancelMessage("Your town cannot join the nation because the town is in a war.");
+            e.setCancelled(true);
+            return;
         }
     }
+
+    @EventHandler
+    public void onTownPreLeave(NationPreTownLeaveEvent e) {
+        Nation nation = e.getNation();
+        Town town = e.getTown();
+
+        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        if (isNationAtWar) {
+            e.setCancelMessage("A town cannot abandon its nation while at war!");
+            e.setCancelled(true);
+            return;
+        }
+
+        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        if (isTownAtWar) {
+            e.setCancelMessage("Your nation cannot abandon a town while at war!");
+            e.setCancelled(true);
+            return;
+        }
+    }
+
+//    @EventHandler
+//    public void onTownJoin(NationAddTownEvent e) {
+//        Nation nation = e.getNation();
+//        Town town = e.getTown();
+//
+//        // Add town to all nation wars
+//        for (War war : WarController.getInstance().getNationWars(nation)) {
+//            Side side = war.getSide(nation);
+//            if (side == null) continue;
+//
+//            side.addTown(town);
+//        }
+//
+//        // TODO Add nation to towns' wars
+//        for (War war : WarController.getInstance().getTownWars(town)) {
+//            Side side = war.getSide(town);
+//            if (side == null) continue;
+//
+//            side.addNation(nation);
+//        }
+//
+//        for (War war : WarController.getInstance().getNationWars(nation)) {
+//            Side side = war.getSide(nation);
+//            if (side == null) continue;
+//
+//            side.getPlayers().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
+//        }
+//    }
 
     /*@EventHandler // Do nothing, leaving a nation should not let you escape nation wars
     public void onTownLeave(NationTownLeaveEvent e) {

@@ -6,11 +6,9 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.hooks.NameColorHandler;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownPreRenameEvent;
-import com.palmergames.bukkit.towny.event.town.TownKickEvent;
-import com.palmergames.bukkit.towny.event.town.TownLeaveEvent;
-import com.palmergames.bukkit.towny.event.town.TownPreMergeEvent;
-import com.palmergames.bukkit.towny.event.town.TownRuinedEvent;
+import com.palmergames.bukkit.towny.event.town.*;
 import com.palmergames.bukkit.towny.object.Town;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -35,7 +33,49 @@ public class TownListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(TownAddResidentEvent e) {
+    public void onPlayerPreInvite(TownPreInvitePlayerEvent e) {
+        Town town = e.getTown();
+        Player p = e.getInvitedResident().getPlayer();
+
+        if (WarController.getInstance().isTownInAnyWars(town)) {
+            e.setCancelMessage("You cannot invite this player as your town is in a war.");
+            e.setCancelled(true);
+            return;
+        }
+
+        if (p == null)
+            return;
+
+        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+            e.setCancelMessage("You cannot invite this player because they are in a war.");
+            e.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPreAdd(TownPreAddResidentEvent e) {
+        Town town = e.getTown();
+        Player p = e.getResident().getPlayer();
+
+        if (WarController.getInstance().isTownInAnyWars(town)) {
+            e.setCancelMessage("You cannot join this town because it is in a war.");
+            e.setCancelled(true);
+            return;
+        }
+
+        if (p == null)
+            return;
+
+        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+            e.setCancelMessage("You cannot join this town because you are in a war.");
+            e.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onPlayerAdd(TownAddResidentEvent e) {
         Town town = e.getTown();
         Player p = e.getResident().getPlayer();
         if (p == null) return;
