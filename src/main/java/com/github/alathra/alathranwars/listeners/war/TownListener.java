@@ -24,7 +24,7 @@ public class TownListener implements Listener {
     public void onRename(TownPreRenameEvent e) {
         Town town = e.getTown();
 
-        if (WarController.getInstance().isTownInAnyWars(town)) {
+        if (WarController.getInstance().isInAnyWars(town)) {
             e.setCancelMessage("You can't rename a town while it's in a war.");
             e.setCancelled(true);
         }
@@ -37,7 +37,7 @@ public class TownListener implements Listener {
         Town town = e.getTown();
         Player p = e.getInvitedResident().getPlayer();
 
-        if (WarController.getInstance().isTownInAnyWars(town)) {
+        if (WarController.getInstance().isInAnyWars(town)) {
             e.setCancelMessage("You cannot invite this player as your town is in a war.");
             e.setCancelled(true);
             return;
@@ -46,7 +46,7 @@ public class TownListener implements Listener {
         if (p == null)
             return;
 
-        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (WarController.getInstance().isInAnyWars(p)) {
             e.setCancelMessage("You cannot invite this player because they are in a war.");
             e.setCancelled(true);
             return;
@@ -58,7 +58,7 @@ public class TownListener implements Listener {
         Town town = e.getTown();
         Player p = e.getResident().getPlayer();
 
-        if (WarController.getInstance().isTownInAnyWars(town)) {
+        if (WarController.getInstance().isInAnyWars(town)) {
             e.setCancelMessage("You cannot join this town because it is in a war.");
             e.setCancelled(true);
             return;
@@ -67,7 +67,7 @@ public class TownListener implements Listener {
         if (p == null)
             return;
 
-        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (WarController.getInstance().isInAnyWars(p)) {
             e.setCancelMessage("You cannot join this town because you are in a war.");
             e.setCancelled(true);
             return;
@@ -80,10 +80,10 @@ public class TownListener implements Listener {
         Player p = e.getResident().getPlayer();
         if (p == null) return;
 
-        for (War war : WarController.getInstance().getTownWars(town)) {
-            Side side = war.getTownSide(town);
+        for (War war : WarController.getInstance().getWars(town)) {
+            Side side = war.getSideOf(town);
             if (side == null) continue;
-            side.addPlayer(p);
+            side.add(p);
 
             final Title warTitle = Title.title(
                 ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
@@ -108,10 +108,10 @@ public class TownListener implements Listener {
         Player p = e.getResident().getPlayer();
         if (p == null) return;
 
-        for (War war : WarController.getInstance().getTownWars(town)) {
-            Side side = war.getTownSide(town);
+        for (War war : WarController.getInstance().getWars(town)) {
+            Side side = war.getSideOf(town);
             if (side == null) continue;
-            side.removePlayer(p);
+            side.remove(p);
         }
 
         NameColorHandler.getInstance().calculatePlayerColors(p);
@@ -123,10 +123,10 @@ public class TownListener implements Listener {
         Player p = e.getKickedResident().getPlayer();
         if (p == null) return;
 
-        for (War war : WarController.getInstance().getTownWars(town)) {
-            Side side = war.getTownSide(town);
+        for (War war : WarController.getInstance().getWars(town)) {
+            Side side = war.getSideOf(town);
             if (side == null) continue;
-            side.removePlayer(p);
+            side.remove(p);
         }
 
         NameColorHandler.getInstance().calculatePlayerColors(p);
@@ -158,7 +158,7 @@ public class TownListener implements Listener {
         Town town = e.getRemainingTown();
         Town town2 = e.getSuccumbingTown();
 
-        if (WarController.getInstance().isTownInAnyWars(town) || WarController.getInstance().isTownInAnyWars(town2)) {
+        if (WarController.getInstance().isInAnyWars(town) || WarController.getInstance().isInAnyWars(town2)) {
             e.setCancelMessage("You can't merge towns while they are in a war.");
             e.setCancelled(true);
         }
@@ -173,11 +173,11 @@ public class TownListener implements Listener {
     public void onRuin(TownRuinedEvent e) {
         Town town = e.getTown();
 
-        for (War war : WarController.getInstance().getTownWars(town)) {
-            Side side = war.getTownSide(town);
+        for (War war : WarController.getInstance().getWars(town)) {
+            Side side = war.getSideOf(town);
             if (side == null) continue;
-            war.unsurrenderTown(town);
-            side.removeTown(town);
+            war.unsurrender(town);
+            side.remove(town);
             side.processSurrenders();
         }
     }

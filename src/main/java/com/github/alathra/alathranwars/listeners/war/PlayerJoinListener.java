@@ -19,10 +19,10 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         final @NotNull Player p = e.getPlayer();
-        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (WarController.getInstance().isInAnyWars(p)) {
             for (@NotNull War war : WarController.getInstance().getWars()) {
-                if (war.isPlayerInWar(p)) {
-                    @Nullable Side side = war.getPlayerSide(p);
+                if (war.isInWar(p)) {
+                    @Nullable Side side = war.getSideOf(p);
                     if (side != null) {
                         side.addOnlinePlayer(p);
                     }
@@ -31,7 +31,7 @@ public class PlayerJoinListener implements Listener {
         }
         NameColorHandler.getInstance().calculatePlayerColors(p);
 
-        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (WarController.getInstance().isInAnyWars(p)) {
             p.showTitle(
                 Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War").build(),

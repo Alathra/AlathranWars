@@ -27,35 +27,35 @@ public class NameColorHandler {
     }
 
     public void calculatePlayerColors(Player p) {
-        if (!WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (!WarController.getInstance().isInAnyWars(p)) {
             playerColor.remove(p);
             playerInitial.remove(p);
             return;
         }
 
-        Optional<War> war = WarController.getInstance().getPlayerWars(p).stream().findFirst();
+        Optional<War> war = WarController.getInstance().getWars(p).stream().findFirst();
 
         if (war.isEmpty())
             return;
 
-        final boolean isPlayerSurrendered = war.get().getSide1().isPlayerSurrendered(p) || war.get().getSide2().isPlayerSurrendered(p);
+        final boolean isPlayerSurrendered = war.get().getSide1().isSurrendered(p) || war.get().getSide2().isSurrendered(p);
 
         if (isPlayerSurrendered)
             return;
 
-        final boolean isSideOne = war.get().getSide1().isPlayerOnSide(p);
+        final boolean isSideOne = war.get().getSide1().isOnSide(p);
 
         if (isSideOne) {
             playerColor.put(p, "<red>");
         } else {
             playerColor.put(p, "<blue>");
         }
-        playerInitial.put(p, war.get().getPlayerSide(p).getName().substring(0, 1).toUpperCase());
+        playerInitial.put(p, war.get().getSideOf(p).getName().substring(0, 1).toUpperCase());
     }
 
     public boolean isPlayerUsingModifiedName(Player p) {
         calculatePlayerColors(p);
-        return WarController.getInstance().isPlayerInAnyWars(p);
+        return WarController.getInstance().isInAnyWars(p);
     }
 
     public String getPlayerTabNameColor(Player p) {

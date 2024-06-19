@@ -188,7 +188,7 @@ public class CommandUtil {
             if (nation == null)
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").parseLegacy().build());
 
-            if (!war.isNationInWar(nation))
+            if (!war.isInWar(nation))
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation is not in that war!").parseLegacy().build());
 
             return nation;
@@ -213,7 +213,7 @@ public class CommandUtil {
             if (town == null)
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
 
-            if (!war.isTownInWar(town))
+            if (!war.isInWar(town))
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").parseLegacy().build());
 
             return town;
@@ -300,7 +300,7 @@ public class CommandUtil {
             if (town == null)
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
 
-            if (!war.isTownInWar(town))
+            if (!war.isInWar(town))
                 throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").parseLegacy().build());
 
             if (checkIfSieged) {
@@ -318,14 +318,14 @@ public class CommandUtil {
             final @NotNull List<String> townNames = new ArrayList<>();
 
             if (info.sender() instanceof Player p) {
-                if (war.getSide1().isPlayerOnSide(p)) {
+                if (war.getSide1().isOnSide(p)) {
                     townNames.addAll(war.getSide2().getTowns()
                         .stream()
                         .map(TownyObject::getName)
                         .sorted()
                         .toList()
                     );
-                } else if (war.getSide2().isPlayerOnSide(p)) {
+                } else if (war.getSide2().isOnSide(p)) {
                     townNames.addAll(war.getSide1().getTowns()
                         .stream()
                         .map(TownyObject::getName)
@@ -445,13 +445,13 @@ public class CommandUtil {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").parseLegacy().build());
 
-                        if (!war.isPlayerInWar(player))
+                        if (!war.isInWar(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already in that war.").parseLegacy().build());
                     } else {
                         if (!(info.sender() instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").parseLegacy().build());
 
-                        if (!war.isPlayerInWar(player))
+                        if (!war.isInWar(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already in this war.").parseLegacy().build());
                     }
                 }
@@ -460,13 +460,13 @@ public class CommandUtil {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").parseLegacy().build());
 
-                        if (war.isPlayerInWar(player))
+                        if (war.isInWar(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is not in that war.").parseLegacy().build());
                     } else {
                         if (!(info.sender() instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").parseLegacy().build());
 
-                        if (war.isPlayerInWar(player))
+                        if (war.isInWar(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are not in that war.").parseLegacy().build());
                     }
                 }
@@ -489,11 +489,11 @@ public class CommandUtil {
 
         if (isAdmin) {
             if (info.previousArgs().get(playerNodeName) instanceof Player player) {
-                warNames = WarController.getInstance().getWars().stream().filter(war -> !war.isPlayerInWar(player)).map(War::getName).toList();
+                warNames = WarController.getInstance().getWars().stream().filter(war -> !war.isInWar(player)).map(War::getName).toList();
             }
         } else {
             if (info.sender() instanceof Player player) {
-                warNames = WarController.getInstance().getWars().stream().filter(war -> !war.isPlayerInWar(player)).map(War::getName).toList();
+                warNames = WarController.getInstance().getWars().stream().filter(war -> !war.isInWar(player)).map(War::getName).toList();
             }
         }
 
@@ -505,11 +505,11 @@ public class CommandUtil {
 
         if (isAdmin) {
             if (info.previousArgs().get(playerNodeName) instanceof Player player) {
-                warNames = WarController.getInstance().getWars().stream().filter(war -> war.isPlayerInWar(player)).map(War::getName).toList();
+                warNames = WarController.getInstance().getWars().stream().filter(war -> war.isInWar(player)).map(War::getName).toList();
             }
         } else {
             if (info.sender() instanceof Player player) {
-                warNames = WarController.getInstance().getWars().stream().filter(war -> war.isPlayerInWar(player)).map(War::getName).toList();
+                warNames = WarController.getInstance().getWars().stream().filter(war -> war.isInWar(player)).map(War::getName).toList();
             }
         }
 

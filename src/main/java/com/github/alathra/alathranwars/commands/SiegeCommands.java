@@ -115,11 +115,11 @@ public class SiegeCommands {
         final @NotNull Player siegeLeader = (Player) args.getOptional("leader").orElse(sender);
 
         // Player participance check
-        @Nullable Side side = war.getPlayerSide(siegeLeader);
+        @Nullable Side side = war.getSideOf(siegeLeader);
         if (side == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in this war.").build());
 
-        if (side.isPlayerSurrendered(siegeLeader))
+        if (side.isSurrendered(siegeLeader))
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You have surrendered and cannot participate in this war.").build());
 
         if (side.isSiegeGraceActive() && !asAdmin)
@@ -130,7 +130,7 @@ public class SiegeCommands {
             );
 
         // Attacking own side
-        if (side.isTownOnSide(town) && !side.isTownSurrendered(town)) {
+        if (side.isOnSide(town) && !side.isTownSurrendered(town)) {
             if (asAdmin)
                 throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You cannot attack your own side.").build());
             else

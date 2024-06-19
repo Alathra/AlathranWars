@@ -108,10 +108,10 @@ public class Side {
 
         if (government instanceof Nation nation) {
             this.town = nation.getCapital();
-            addNation(nation);
+            add(nation);
         } else if (government instanceof Town town2) {
             this.town = town2;
-            addTown(town2);
+            add(town2);
         } else {
             throw new SideCreationException("No town or nation specified!");
         }
@@ -163,12 +163,13 @@ public class Side {
 
     // Participant management
 
-    public boolean isTownOnSide(Town town) {
-        return towns.contains(town) || surrenderedTowns.contains(town);
-    }
-
-    public boolean isNationOnSide(Nation nation) {
-        return nations.contains(nation) || surrenderedNations.contains(nation);
+    public boolean isOnSide(Government government) {
+        if (government instanceof Nation nation) {
+            return nations.contains(nation) || surrenderedNations.contains(nation);
+        } else if (government instanceof Town town) {
+            return towns.contains(town) || surrenderedTowns.contains(town);
+        }
+        return false;
     }
 
     public boolean isTownSurrendered(Town town) {
@@ -179,119 +180,119 @@ public class Side {
         return surrenderedNations.contains(nation);
     }
 
-    public void addTown(Town town) {
-        if (isTownOnSide(town)) return;
+    public void add(Town town) {
+        if (isOnSide(town)) return;
 
         towns.add(town);
 
-        town.getResidents().forEach((Resident resident) -> addPlayer(resident.getUUID()));
+        town.getResidents().forEach((Resident resident) -> add(resident.getUUID()));
     }
 
-    public void addNation(Nation nation) {
-        if (isNationOnSide(nation)) return;
+    public void add(Nation nation) {
+        if (isOnSide(nation)) return;
 
         nations.add(nation);
 
-        nation.getTowns().forEach(this::addTown);
+        nation.getTowns().forEach(this::add);
     }
 
-    public void removeTown(Town town) {
-        if (!isTownOnSide(town)) return;
+    public void remove(Town town) {
+        if (!isOnSide(town)) return;
 
         towns.remove(town);
 
-        town.getResidents().forEach((Resident resident) -> removePlayer(resident.getUUID()));
+        town.getResidents().forEach((Resident resident) -> remove(resident.getUUID()));
     }
 
-    public void removeNation(Nation nation) {
-        if (!isNationOnSide(nation)) return;
+    public void remove(Nation nation) {
+        if (!isOnSide(nation)) return;
 
         nations.remove(nation);
 
-        nation.getTowns().forEach(this::removeTown);
+        nation.getTowns().forEach(this::remove);
     }
 
-    public void surrenderTown(Town town) {
+    public void surrender(Town town) {
         if (isTownSurrendered(town)) return;
 
-        removeTown(town);
+        remove(town);
 
         surrenderedTowns.add(town);
 
-        town.getResidents().forEach((Resident resident) -> surrenderPlayer(resident.getUUID()));
+        town.getResidents().forEach((Resident resident) -> surrender(resident.getUUID()));
     }
 
-    public void surrenderNation(Nation nation) {
+    public void surrender(Nation nation) {
         if (isNationSurrendered(nation)) return;
 
-        removeNation(nation);
+        remove(nation);
 
         surrenderedNations.add(nation);
 
-        nation.getTowns().forEach(this::surrenderTown);
+        nation.getTowns().forEach(this::surrender);
     }
 
-    public void unsurrenderTown(Town town) {
+    public void unsurrender(Town town) {
         if (!isTownSurrendered(town)) return;
 
-        addTown(town);
+        add(town);
 
         surrenderedTowns.remove(town);
 
-        town.getResidents().forEach((Resident resident) -> unsurrenderPlayer(resident.getUUID()));
+        town.getResidents().forEach((Resident resident) -> unsurrender(resident.getUUID()));
     }
 
-    public void unsurrenderNation(Nation nation) {
+    public void unsurrender(Nation nation) {
         if (!isNationSurrendered(nation)) return;
 
-        addNation(nation);
+        add(nation);
 
         surrenderedNations.remove(nation);
 
-        nation.getTowns().forEach(this::unsurrenderTown);
+        nation.getTowns().forEach(this::unsurrender);
     }
 
-    public void kickTown(Town town) {
+    public void kick(Town town) {
         towns.remove(town);
         surrenderedTowns.remove(town);
 
-        town.getResidents().forEach(resident -> kickPlayer(resident.getUUID()));
+        town.getResidents().forEach(resident -> kick(resident.getUUID()));
     }
 
-    public void kickNation(Nation nation) {
+    public void kick(Nation nation) {
         nations.remove(nation);
         surrenderedNations.remove(nation);
 
-        nation.getTowns().forEach(this::kickTown);
+        nation.getTowns().forEach(this::kick);
     }
 
-    public boolean isPlayerOnSide(Player p) {
-        return isPlayerOnSide(p.getUniqueId());
+    public boolean isOnSide(Player p) {
+        return isOnSide(p.getUniqueId());
     }
 
-    public boolean isPlayerOnSide(UUID uuid) {
+    public boolean isOnSide(UUID uuid) {
         return playersIncludingOffline.contains(uuid) || surrenderedPlayersIncludingOffline.contains(uuid);
     }
 
-    public boolean isPlayerSurrendered(Player p) {
-        return isPlayerSurrendered(p.getUniqueId());
+    public boolean isSurrendered(Player p) {
+        return isSurrendered(p.getUniqueId());
     }
 
-    public boolean isPlayerSurrendered(UUID uuid) {
+    public boolean isSurrendered(UUID uuid) {
         return surrenderedPlayersIncludingOffline.contains(uuid);
     }
 
-    public void addPlayer(Player p) {
-        addPlayer(p.getUniqueId());
+    public void add(Player p) {
+        add(p.getUniqueId());
     }
 
-    public void addPlayer(OfflinePlayer offlinePlayer) {
+    public void add(OfflinePlayer offlinePlayer) {
         if (offlinePlayer.hasPlayedBefore())
-            addPlayer(offlinePlayer.getUniqueId());
+            add(offlinePlayer.getUniqueId());
     }
 
-    public void addPlayer(UUID uuid) {
-        if (isPlayerOnSide(uuid)) return;
+    public void add(UUID uuid) {
+        if (isOnSide(uuid)) return;
 
         playersIncludingOffline.add(uuid);
         if (getWar() != null) { // We need to check this as on side creation War doesn't exist
@@ -314,17 +315,17 @@ public class Side {
         players.add(p);
     }
 
-    public void removePlayer(Player p) {
-        removePlayer(p.getUniqueId());
+    public void remove(Player p) {
+        remove(p.getUniqueId());
     }
 
-    public void removePlayer(OfflinePlayer offlinePlayer) {
+    public void remove(OfflinePlayer offlinePlayer) {
         if (offlinePlayer.hasPlayedBefore())
-            removePlayer(offlinePlayer.getUniqueId());
+            remove(offlinePlayer.getUniqueId());
     }
 
-    public void removePlayer(UUID uuid) {
-        if (!isPlayerOnSide(uuid)) return;
+    public void remove(UUID uuid) {
+        if (!isOnSide(uuid)) return;
 
         playersIncludingOffline.remove(uuid);
         if (getWar() != null) { // We need to check this as on side creation War doesn't exist
@@ -343,8 +344,8 @@ public class Side {
         }
     }
 
-    public void kickPlayer(UUID uuid) {
-        removePlayer(uuid);
+    public void kick(UUID uuid) {
+        remove(uuid);
         surrenderedPlayersIncludingOffline.remove(uuid);
     }
 
@@ -352,26 +353,26 @@ public class Side {
         players.remove(p);
     }
 
-    public void surrenderPlayer(Player p) {
-        surrenderPlayer(p.getUniqueId());
+    public void surrender(Player p) {
+        surrender(p.getUniqueId());
     }
 
-    public void surrenderPlayer(UUID uuid) {
-        if (isPlayerSurrendered(uuid)) return;
+    public void surrender(UUID uuid) {
+        if (isSurrendered(uuid)) return;
 
-        removePlayer(uuid);
+        remove(uuid);
         surrenderedPlayersIncludingOffline.add(uuid);
         applyNameTags();
     }
 
-    public void unsurrenderPlayer(Player p) {
-        unsurrenderPlayer(p.getUniqueId());
+    public void unsurrender(Player p) {
+        unsurrender(p.getUniqueId());
     }
 
-    public void unsurrenderPlayer(UUID uuid) {
-        if (!isPlayerSurrendered(uuid)) return;
+    public void unsurrender(UUID uuid) {
+        if (!isSurrendered(uuid)) return;
 
-        addPlayer(uuid);
+        add(uuid);
         surrenderedPlayersIncludingOffline.remove(uuid);
         applyNameTags();
     }

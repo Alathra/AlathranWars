@@ -6,8 +6,6 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.conflict.war.side.SideCreationException;
 import com.github.alathra.alathranwars.enums.ConflictType;
 import com.palmergames.bukkit.towny.object.Government;
-import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Town;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 
 import java.util.HashSet;
@@ -110,22 +108,6 @@ public class WarBuilder {
 
     public WarBuilder setRaids(Set<Raid> raids) {
         this.raids = raids;
-        return this;
-    }
-
-    public WarBuilder setAggressorTown(Town target) {
-        return this;
-    }
-
-    public WarBuilder setAggressorNation(Nation target) {
-        return this;
-    }
-
-    public WarBuilder setVictimTown(Town target) {
-        return this;
-    }
-
-    public WarBuilder setVictimNation(Nation target) {
         return this;
     }
 

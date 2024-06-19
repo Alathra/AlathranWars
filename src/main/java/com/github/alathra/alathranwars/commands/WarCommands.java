@@ -242,7 +242,7 @@ public class WarCommands {
                 if (nation == null)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No nation of that name exists.").build());
 
-                if (war.isNationInWar(nation))
+                if (war.isInWar(nation))
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Nation is already in that war.").build());
 
                 final boolean canKingJoin = (res.hasNation() && res.getNationOrNull().equals(nation) && res.isKing() && nation.isKing(res));
@@ -250,7 +250,7 @@ public class WarCommands {
                 if (!asAdmin && !canKingJoin)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your nation into the war.").build());
 
-                side.addNation(nation);
+                side.add(nation);
                 nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().calculatePlayerColors(player));
                 Bukkit.broadcast(
                     ColorParser.of(
@@ -283,7 +283,7 @@ public class WarCommands {
                 if (town == null)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No town of that name exists.").build());
 
-                if (war.isTownInWar(town))
+                if (war.isInWar(town))
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Town is already in that war.").build());
 
                 final boolean canMayorJoin = (res.hasTown() && res.getTownOrNull().equals(town) && res.isMayor() && town.isMayor(res));
@@ -291,7 +291,7 @@ public class WarCommands {
                 if (!asAdmin && !canMayorJoin)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your town into the war.").build());
 
-                side.addTown(town);
+                side.add(town);
                 town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().getPlayerNameColor(player));
                 Bukkit.broadcast(
                     ColorParser.of(
@@ -324,14 +324,14 @@ public class WarCommands {
                 if (player == null)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>No player of that name exists.").build());
 
-                if (war.isPlayerInWar(player))
+                if (war.isInWar(player))
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Player is already in that war.").build());
 
                 if (!asAdmin)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Players cannot individually join wars.").build());
 
                 player.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
-                side.addPlayer(player);
+                side.add(player);
                 NameColorHandler.getInstance().calculatePlayerColors(player);
                 final Title warTitle = Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
@@ -374,10 +374,10 @@ public class WarCommands {
             final Location targetLocation = targetPlayer.getLocation();
             if (!location.getWorld().equals(targetLocation.getWorld())) continue;
             if (location.distance(targetLocation) > 25D) continue;
-            if (war.isPlayerInWar(targetPlayer)) continue;
+            if (war.isInWar(targetPlayer)) continue;
 
             targetPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
-            side.addPlayer(targetPlayer);
+            side.add(targetPlayer);
             NameColorHandler.getInstance().calculatePlayerColors(targetPlayer);
             final Title warTitle = Title.title(
                 ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
@@ -411,7 +411,7 @@ public class WarCommands {
         if (town == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in a town.").build());
 
-        @Nullable Side side = war.getTownSide(town);
+        @Nullable Side side = war.getSideOf(town);
         if (side == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in that war.").build());
 
@@ -422,7 +422,7 @@ public class WarCommands {
             // Has nation surrender permission
             argPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have surrendered the war for " + resNation.getName() + ".").build());
             Bukkit.broadcast(ColorParser.of(UtilsChat.getPrefix() + "The nation of " + resNation.getName() + " has surrendered!").build());
-            war.surrenderNation(resNation);
+            war.surrender(resNation);
         } else if (resTown == null) {
             // Cannot surrender nation involvement
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You cannot surrender for your nation.").build());
@@ -433,7 +433,7 @@ public class WarCommands {
             argPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have surrendered the war for " + resTown.getName() + ".").build());
             Bukkit.broadcast(ColorParser.of(UtilsChat.getPrefix() + "The town of " + resTown.getName() + " has surrendered!").build());
             war.cancelSieges(resTown);
-            war.surrenderTown(resTown);
+            war.surrender(resTown);
         } else {
             // No perms
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You cannot surrender war for your town.").build());
@@ -453,23 +453,23 @@ public class WarCommands {
         switch (targetType) {
             case PLAYER -> {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(targetUuid);
-                Side sidePlayer = war.getPlayerSide(targetUuid);
-                sidePlayer.kickPlayer(player.getUniqueId());
+                Side sidePlayer = war.getSideOf(targetUuid);
+                sidePlayer.kick(player.getUniqueId());
                 p.sendMessage(ColorParser.of("Target yeeted.").build());
                 if (player.getPlayer() != null)
                     NameColorHandler.getInstance().calculatePlayerColors(player.getPlayer());
             }
             case TOWN -> {
                 Town town = TownyAPI.getInstance().getTown(targetUuid);
-                Side sideTown = war.getTownSide(town);
-                sideTown.kickTown(town);
+                Side sideTown = war.getSideOf(town);
+                sideTown.kick(town);
                 p.sendMessage(ColorParser.of("Target yeeted.").build());
                 town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
             }
             case NATION -> {
                 Nation nation = TownyAPI.getInstance().getNation(targetUuid);
-                Side sideNation = war.getNationSide(nation);
-                sideNation.kickNation(nation);
+                Side sideNation = war.getSideOf(nation);
+                sideNation.kick(nation);
                 p.sendMessage(ColorParser.of("Target yeeted.").build());
                 nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).forEach(player1 -> NameColorHandler.getInstance().calculatePlayerColors(player1));
             }

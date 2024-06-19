@@ -15,10 +15,10 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         final @NotNull Player p = e.getPlayer();
-        if (WarController.getInstance().isPlayerInAnyWars(p)) {
+        if (WarController.getInstance().isInAnyWars(p)) {
             for (@NotNull War war : WarController.getInstance().getWars()) {
-                if (war.isPlayerInWar(p)) {
-                    @Nullable Side side = war.getPlayerSide(p);
+                if (war.isInWar(p)) {
+                    @Nullable Side side = war.getSideOf(p);
                     if (side != null) {
                         side.removeOnlinePlayer(p);
                     }

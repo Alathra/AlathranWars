@@ -4,6 +4,7 @@ import com.github.alathra.alathranwars.conflict.battle.raid.Raid;
 import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.db.DatabaseQueries;
+import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
@@ -147,9 +148,9 @@ public class WarController {
      * @param uuid the uuid
      * @return the boolean
      */
-    public boolean isPlayerInAnyWars(UUID uuid) {
+    public boolean isInAnyWars(UUID uuid) {
         return getWars().stream()
-            .anyMatch(war -> war.isPlayerInWar(uuid));
+            .anyMatch(war -> war.isInWar(uuid));
     }
 
     /**
@@ -158,18 +159,25 @@ public class WarController {
      * @param p the p
      * @return the boolean
      */
-    public boolean isPlayerInAnyWars(Player p) {
-        return isPlayerInAnyWars(p.getUniqueId());
+    public boolean isInAnyWars(Player p) {
+        return isInAnyWars(p.getUniqueId());
     }
 
     /**
-     * Gets list of player wars. Includes if surrendered.
+     * Is nation/town in any wars. Includes surrendered nations/towns.
      *
-     * @param p the p
-     * @return the player wars
+     * @param government the nation/town
+     * @return the boolean
      */
-    public @NotNull Set<War> getPlayerWars(Player p) {
-        return getPlayerWars(p.getUniqueId());
+    public boolean isInAnyWars(Government government) {
+        if (government instanceof Nation nation) {
+            return getWars().stream()
+                .anyMatch(war -> war.isInWar(nation));
+        } else if (government instanceof Town town) {
+            return getWars().stream()
+                .anyMatch(war -> war.isInWar(town));
+        }
+        return false;
     }
 
     /**
@@ -178,124 +186,180 @@ public class WarController {
      * @param uuid the uuid
      * @return the player wars
      */
-    public @NotNull Set<War> getPlayerWars(UUID uuid) {
+    public @NotNull Set<War> getWars(UUID uuid) {
         return getWars().stream()
-            .filter(war -> war.isPlayerInWar(uuid))
+            .filter(war -> war.isInWar(uuid))
             .collect(Collectors.toSet());
     }
 
     /**
-     * Is town in any wars. Includes surrendered towns.
+     * Gets list of player wars. Includes if surrendered.
      *
-     * @param town the town
-     * @return the boolean
+     * @param p the p
+     * @return the player wars
      */
-    public boolean isTownInAnyWars(Town town) {
-        return getWars().stream()
-            .anyMatch(war -> war.isTownInWar(town));
+    public @NotNull Set<War> getWars(Player p) {
+        return getWars(p.getUniqueId());
     }
 
     /**
-     * Is town in any sieges. Includes surrendered towns.
+     * Gets nation/town wars. Includes surrendered nations/towns.
      *
-     * @param town the town
-     * @return the boolean
-     */
-    public boolean isTownInAnySieges(Town town) {
-        return getWars().stream()
-            .anyMatch(war -> war.isTownInWar(town) && war.isTownUnderSiege(town));
-    }
-
-    /**
-     * Is town in any raids. Includes surrendered towns.
-     *
-     * @param town the town
-     * @return the boolean
-     */
-    public boolean isTownInAnyRaids(Town town) {
-        return getWars().stream()
-            .anyMatch(war -> war.isTownInWar(town) && war.isTownUnderRaid(town));
-    }
-
-    /**
-     * Is nation in any sieges. Includes surrendered nations.
-     *
-     * @param nation the nation
-     * @return the boolean
-     */
-    public boolean isNationInAnySieges(Nation nation) {
-        return nation.getTowns().stream()
-            .anyMatch(this::isTownInAnySieges);
-    }
-
-    /**
-     * Is nation in any raids. Includes surrendered nations.
-     *
-     * @param nation the nation
-     * @return the boolean
-     */
-    public boolean isNationInAnyRaids(Nation nation) {
-        return nation.getTowns().stream()
-            .anyMatch(this::isTownInAnyRaids);
-    }
-
-    /**
-     * Gets town sieges. Includes surrendered towns.
-     *
-     * @param town the town
-     * @return the town sieges
-     */
-    public @NotNull Set<Siege> getTownSieges(Town town) {
-        return getSieges().stream()
-            .filter(siege -> siege.getAttackerSide().isTownOnSide(town) || siege.getDefenderSide().isTownOnSide(town))
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Gets town raids. Includes surrendered towns.
-     *
-     * @param town the town
-     * @return the town raids
-     */
-    public @NotNull Set<Raid> getTownRaids(Town town) {
-        return getRaids().stream()
-            .filter(raid -> raid.getAttackerSide().isTownOnSide(town) || raid.getDefenderSide().isTownOnSide(town))
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Gets town wars. Includes surrendered towns.
-     *
-     * @param town the town
+     * @param government the nation/town
      * @return the town wars
      */
-    public @NotNull Set<War> getTownWars(Town town) {
-        return getWars().stream()
-            .filter(war -> war.isTownInWar(town))
-            .collect(Collectors.toSet());
+    public @NotNull Set<War> getWars(Government government) {
+        if (government instanceof Nation nation) {
+            return getWars().stream()
+                .filter(war -> war.isInWar(nation))
+                .collect(Collectors.toSet());
+        } else if (government instanceof Town town) {
+            return getWars().stream()
+                .filter(war -> war.isInWar(town))
+                .collect(Collectors.toSet());
+        }
+        return Set.of();
     }
 
     /**
-     * Is nation in any wars. Includes surrendered nations.
+     * Is player in any siege. Returns true for offline players.
      *
-     * @param nation the nation
+     * @param uuid the uuid
      * @return the boolean
      */
-    public boolean isNationInAnyWars(Nation nation) {
-        return getWars().stream()
-            .anyMatch(war -> war.isNationInWar(nation));
+    public boolean isInAnySiege(UUID uuid) {
+        return getSieges().stream()
+            .anyMatch(siege -> siege.isPlayerInSiege(uuid));
     }
 
     /**
-     * Gets nation wars. Includes surrendered nations.
+     * Is player in any siege.
      *
-     * @param nation the nation
-     * @return the nation wars
+     * @param p the p
+     * @return the boolean
      */
-    public @NotNull Set<War> getNationWars(Nation nation) {
+    public boolean isInAnySiege(Player p) {
+        return isInAnySiege(p.getUniqueId());
+    }
+
+    /**
+     * Is nation/town in any sieges. Includes surrendered nations/towns.
+     *
+     * @param government the nation/town
+     * @return the boolean
+     */
+    public boolean isInAnySieges(Government government) {
+        if (government instanceof Nation nation) {
+            return nation.getTowns().stream()
+                .anyMatch(this::isInAnySieges);
+        } else if (government instanceof Town town) {
+            return getWars().stream()
+                .anyMatch(war -> war.isInWar(town) && war.isTownUnderSiege(town));
+        }
+        return false;
+    }
+
+    /**
+     * Is nation/town in any raids. Includes surrendered nations/towns.
+     *
+     * @param government the nation/town
+     * @return the boolean
+     */
+    public boolean isInAnyRaids(Government government) {
+        if (government instanceof Nation nation) {
+            return nation.getTowns().stream()
+                .anyMatch(this::isInAnyRaids);
+        } else if (government instanceof Town town) {
+            return getWars().stream()
+                .anyMatch(war -> war.isInWar(town) && war.isTownUnderRaid(town));
+        }
+        return false;
+    }
+
+    /**
+     * Gets a list of all active sieges.
+     *
+     * @return the sieges
+     */
+    @NotNull
+    public Set<Siege> getSieges() {
         return getWars().stream()
-            .filter(war -> war.isNationInWar(nation))
+            .map(War::getSieges)
+            .flatMap(Set::stream)
             .collect(Collectors.toSet());
+    }
+
+    /**
+     * Gets player sieges. Returns true for offline players.
+     *
+     * @param uuid the uuid
+     * @return the player sieges
+     */
+    public @NotNull Set<Siege> getSieges(UUID uuid) {
+        return getSieges().stream()
+            .filter(siege -> siege.isPlayerInSiege(uuid))
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Gets player sieges.
+     *
+     * @param p the p
+     * @return the player sieges
+     */
+    public @NotNull Set<Siege> getSieges(Player p) {
+        return getSieges(p.getUniqueId());
+    }
+
+    /**
+     * Gets nation/town sieges. Includes surrendered nations/towns.
+     *
+     * @param government the nation/town
+     * @return the nation/town sieges
+     */
+    public @NotNull Set<Siege> getSieges(Government government) {
+        if (government instanceof Nation nation) {
+            return getSieges().stream()
+                .filter(siege -> siege.getAttackerSide().isOnSide(nation) || siege.getDefenderSide().isOnSide(nation))
+                .collect(Collectors.toSet());
+        } else if (government instanceof Town town) {
+            return getSieges().stream()
+                .filter(siege -> siege.getAttackerSide().isOnSide(town) || siege.getDefenderSide().isOnSide(town))
+                .collect(Collectors.toSet());
+        }
+        return Set.of();
+    }
+
+    /**
+     * Gets a list of all active raids.
+     *
+     * @return the raids
+     */
+    @NotNull
+    public Set<Raid> getRaids() {
+        return getWars().stream()
+            .map(War::getRaids)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Gets nation/town raids. Includes surrendered nations/towns.
+     *
+     * @param government the nation/town
+     * @return the nation/town raids
+     */
+    public @NotNull Set<Raid> getRaids(Government government) {
+        if (government instanceof Nation nation) {
+            return getRaids().stream()
+                .filter(raid -> raid.getAttackerSide().isOnSide(nation) || raid.getDefenderSide().isOnSide(nation))
+                .collect(Collectors.toSet());
+        } else if (government instanceof Town town) {
+            return getRaids().stream()
+                .filter(raid -> raid.getAttackerSide().isOnSide(town) || raid.getDefenderSide().isOnSide(town))
+                .collect(Collectors.toSet());
+        }
+        return Set.of();
     }
 
     /**
@@ -322,75 +386,6 @@ public class WarController {
             .map(War::getLabel)
             .sorted(String::compareToIgnoreCase)
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Gets a list of all active sieges.
-     *
-     * @return the sieges
-     */
-    @NotNull
-    public Set<Siege> getSieges() {
-        return getWars().stream()
-            .map(War::getSieges)
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Gets a list of all active raids.
-     *
-     * @return the raids
-     */
-    @NotNull
-    public Set<Raid> getRaids() {
-        return getWars().stream()
-            .map(War::getRaids)
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Is player in any siege.
-     *
-     * @param p the p
-     * @return the boolean
-     */
-    public boolean isPlayerInAnySiege(Player p) {
-        return isPlayerInAnySiege(p.getUniqueId());
-    }
-
-    /**
-     * Is player in any siege. Returns true for offline players.
-     *
-     * @param uuid the uuid
-     * @return the boolean
-     */
-    public boolean isPlayerInAnySiege(UUID uuid) {
-        return getSieges().stream()
-            .anyMatch(siege -> siege.isPlayerInSiege(uuid));
-    }
-
-    /**
-     * Gets player sieges.
-     *
-     * @param p the p
-     * @return the player sieges
-     */
-    public @NotNull Set<Siege> getPlayerSieges(Player p) {
-        return getPlayerSieges(p.getUniqueId());
-    }
-
-    /**
-     * Gets player sieges. Returns true for offline players.
-     *
-     * @param uuid the uuid
-     * @return the player sieges
-     */
-    public @NotNull Set<Siege> getPlayerSieges(UUID uuid) {
-        return getSieges().stream()
-            .filter(siege -> siege.isPlayerInSiege(uuid))
-            .collect(Collectors.toSet());
     }
 
     /**

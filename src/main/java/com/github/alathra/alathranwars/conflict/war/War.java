@@ -469,8 +469,8 @@ public class War extends Conflict {
      * @param p the p
      * @return the boolean
      */
-    public boolean isPlayerInWar(Player p) {
-        return side1.isPlayerOnSide(p) || side2.isPlayerOnSide(p);
+    public boolean isInWar(Player p) {
+        return side1.isOnSide(p) || side2.isOnSide(p);
     }
 
     /**
@@ -479,8 +479,22 @@ public class War extends Conflict {
      * @param uuid the uuid
      * @return the boolean
      */
-    public boolean isPlayerInWar(UUID uuid) {
-        return side1.isPlayerOnSide(uuid) || side2.isPlayerOnSide(uuid);
+    public boolean isInWar(UUID uuid) {
+        return side1.isOnSide(uuid) || side2.isOnSide(uuid);
+    }
+
+    /**
+     * Is nation or town in this war?
+     * @param government the nation or town
+     * @return the boolean
+     */
+    public boolean isInWar(Government government) {
+        if (government instanceof Nation nation) {
+            return side1.isOnSide(nation) || side2.isOnSide(nation);
+        } else if (government instanceof Town town) {
+            return side1.isOnSide(town) || side2.isOnSide(town);
+        }
+        return false;
     }
 
     /**
@@ -490,8 +504,8 @@ public class War extends Conflict {
      * @return the player side
      */
     @Nullable
-    public Side getPlayerSide(Player p) {
-        return getPlayerSide(p.getUniqueId());
+    public Side getSideOf(Player p) {
+        return getSideOf(p.getUniqueId());
     }
 
     /**
@@ -501,66 +515,37 @@ public class War extends Conflict {
      * @return the player side
      */
     @Nullable
-    public Side getPlayerSide(UUID uuid) {
-        if (side1.isPlayerOnSide(uuid))
+    public Side getSideOf(UUID uuid) {
+        if (side1.isOnSide(uuid))
             return getSide1();
 
-        if (side2.isPlayerOnSide(uuid))
+        if (side2.isOnSide(uuid))
             return getSide2();
 
         return null;
     }
 
     /**
-     * Is town in war.
+     * Gets nation/town side or null if not in war.
      *
-     * @param town the town
-     * @return the boolean
-     */
-    public boolean isTownInWar(Town town) {
-        return side1.isTownOnSide(town) || side2.isTownOnSide(town);
-    }
-
-    /**
-     * Gets town side or null if not in war.
-     *
-     * @param town the town
+     * @param government the nation or town
      * @return the town side
      */
     @Nullable
-    public Side getTownSide(Town town) {
-        if (side1.isTownOnSide(town))
-            return getSide1();
+    public Side getSideOf(Government government) {
+        if (government instanceof Nation nation) {
+            if (side1.isOnSide(nation))
+                return getSide1();
 
-        if (side2.isTownOnSide(town))
-            return getSide2();
+            if (side2.isOnSide(nation))
+                return getSide2();
+        } else if (government instanceof Town town) {
+            if (side1.isOnSide(town))
+                return getSide1();
 
-        return null;
-    }
-
-    /**
-     * Is nation in war boolean.
-     *
-     * @param nation the nation
-     * @return the boolean
-     */
-    public boolean isNationInWar(Nation nation) {
-        return side1.isNationOnSide(nation) || side2.isNationOnSide(nation);
-    }
-
-    /**
-     * Gets nation side or null if not in war.
-     *
-     * @param nation the nation
-     * @return the nation side
-     */
-    @Nullable
-    public Side getNationSide(Nation nation) {
-        if (side1.isNationOnSide(nation))
-            return getSide1();
-
-        if (side2.isNationOnSide(nation))
-            return getSide2();
+            if (side2.isOnSide(town))
+                return getSide2();
+        }
 
         return null;
     }
@@ -591,7 +576,7 @@ public class War extends Conflict {
     @ApiStatus.Internal
     public void cancelSieges(Town town) {
         if (this != null) {
-            Side townSide = getTownSide(town);
+            Side townSide = getSideOf(town);
 
             if (townSide == null) return;
 
@@ -608,71 +593,61 @@ public class War extends Conflict {
     }
 
     /**
-     * Surrender a nation and all its towns out of the war.
+     * Surrender a nation (and all its towns)/town out of the war.
      *
-     * @param nation the nation
+     * @param government the nation or town
      */
-    public void surrenderNation(Nation nation) {
-        Side nationSide = getNationSide(nation);
-        if (nationSide == null) return;
+    public void surrender(Government government) {
+        if (government instanceof Nation nation) {
+            Side nationSide = getSideOf(nation);
+            if (nationSide == null) return;
 
-        final @Nullable Nation occupier = nationSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
-        Occupation.setOccupied(nation, occupier);
+            final @Nullable Nation occupier = nationSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
+            Occupation.setOccupied(nation, occupier);
 
-        nationSide.surrenderNation(nation);
-        // TODO Cancel in progress sieges for towns?
-        nationSide.processSurrenders();
-    }
+            nationSide.surrender(nation);
+            // TODO Cancel in progress sieges for towns?
+            nationSide.processSurrenders();
+        } else if (government instanceof Town town) {
+            Side townSide = getSideOf(town);
+            if (townSide == null) return;
 
-    /**
-     * Surrender town and all its players out of a war.
-     *
-     * @param town the town
-     */
-    public void surrenderTown(Town town) {
-        Side townSide = getTownSide(town);
-        if (townSide == null) return;
+            final @Nullable Nation townNation = town.getNationOrNull();
+            final @Nullable Nation occupier = townSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
+            Occupation.setOccupied(town, occupier);
+            townSide.surrender(town);
 
-        final @Nullable Nation townNation = town.getNationOrNull();
-        final @Nullable Nation occupier = townSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
-        Occupation.setOccupied(town, occupier);
-        townSide.surrenderTown(town);
-
-        if (townNation != null) {
-            if (townSide.shouldNationSurrender(townNation)) {
-                surrenderNation(townNation);
+            if (townNation != null) {
+                if (townSide.shouldNationSurrender(townNation)) {
+                    surrender(townNation);
+                }
             }
+
+            // TODO Cancel in progress sieges for towns?
+            townSide.processSurrenders();
         }
-
-        // TODO Cancel in progress sieges for towns?
-        townSide.processSurrenders();
     }
 
     /**
-     * Unsurrender a nation and all its towns and players.
+     * Unsurrender a nation (and all its towns)/town and players.
      *
-     * @param nation the nation
+     * @param government the nation or town
      */
-    public void unsurrenderNation(Nation nation) {
-        Side nationSide = getNationSide(nation);
-        if (nationSide == null) return;
+    public void unsurrender(Government government) {
+        if (government instanceof Nation nation) {
+            Side nationSide = getSideOf(nation);
+            if (nationSide == null) return;
 
-        nationSide.unsurrenderNation(nation);
-        nation.getTowns().forEach(this::unsurrenderTown);
-    }
+            nationSide.unsurrender(nation);
+            nation.getTowns().forEach(this::unsurrender);
+        } else if (government instanceof Town town) {
+            Side townSide = getSideOf(town);
+            if (townSide == null) return;
 
-    /**
-     * Unsurrender town and all its players.
-     *
-     * @param town the town
-     */
-    public void unsurrenderTown(Town town) {
-        Side townSide = getTownSide(town);
-        if (townSide == null) return;
+            Occupation.removeOccupied(town);
 
-        Occupation.removeOccupied(town);
-
-        townSide.unsurrenderTown(town);
+            townSide.unsurrender(town);
+        }
     }
 
     /**

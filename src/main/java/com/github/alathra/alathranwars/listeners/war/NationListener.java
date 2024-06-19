@@ -22,7 +22,7 @@ public class NationListener implements Listener {
     public void onRename(NationPreRenameEvent e) {
         Nation nation = e.getNation();
 
-        if (WarController.getInstance().isNationInAnyWars(nation)) {
+        if (WarController.getInstance().isInAnyWars(nation)) {
             e.setCancelMessage("You can't rename a nation while it's in a war.");
             e.setCancelled(true);
         }
@@ -33,14 +33,14 @@ public class NationListener implements Listener {
         Nation nation = e.getNation();
         Town town = e.getInvitedTown();
 
-        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        boolean isNationAtWar = WarController.getInstance().isInAnyWars(nation);
         if (isNationAtWar) {
             e.setCancelMessage("You cannot invite that town because your nation is in a war.");
             e.setCancelled(true);
             return;
         }
 
-        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        boolean isTownAtWar = WarController.getInstance().isInAnyWars(town);
         if (isTownAtWar) {
             e.setCancelMessage("You cannot invite that town because it is in a war.");
             e.setCancelled(true);
@@ -53,14 +53,14 @@ public class NationListener implements Listener {
         Nation nation = e.getNation();
         Town town = e.getTown();
 
-        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        boolean isNationAtWar = WarController.getInstance().isInAnyWars(nation);
         if (isNationAtWar) {
             e.setCancelMessage("Your town cannot join the nation because it is in a war.");
             e.setCancelled(true);
             return;
         }
 
-        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        boolean isTownAtWar = WarController.getInstance().isInAnyWars(town);
         if (isTownAtWar) {
             e.setCancelMessage("Your town cannot join the nation because the town is in a war.");
             e.setCancelled(true);
@@ -73,14 +73,14 @@ public class NationListener implements Listener {
         Nation nation = e.getNation();
         Town town = e.getTown();
 
-        boolean isNationAtWar = WarController.getInstance().isNationInAnyWars(nation);
+        boolean isNationAtWar = WarController.getInstance().isInAnyWars(nation);
         if (isNationAtWar) {
             e.setCancelMessage("A town cannot abandon its nation while at war!");
             e.setCancelled(true);
             return;
         }
 
-        boolean isTownAtWar = WarController.getInstance().isTownInAnyWars(town);
+        boolean isTownAtWar = WarController.getInstance().isInAnyWars(town);
         if (isTownAtWar) {
             e.setCancelMessage("Your nation cannot abandon a town while at war!");
             e.setCancelled(true);
@@ -127,7 +127,7 @@ public class NationListener implements Listener {
         Nation nation = e.getRemainingNation();
         Nation nation1 = e.getNation();
 
-        if (WarController.getInstance().isNationInAnyWars(nation) || WarController.getInstance().isNationInAnyWars(nation1)) {
+        if (WarController.getInstance().isInAnyWars(nation) || WarController.getInstance().isInAnyWars(nation1)) {
             e.setCancelMessage("You can't merge nations while they are in a war.");
             e.setCancelled(true);
         }

@@ -80,7 +80,7 @@ public class Siege implements Battle {
         this.town = town;
         this.siegeLeader = siegeLeader;
 
-        side1AreAttackers = war.getTownSide(town).getTeam().equals(BattleTeam.SIDE_2);
+        side1AreAttackers = war.getSideOf(town).getTeam().equals(BattleTeam.SIDE_2);
 
         if (getSide1AreAttackers()) {
             attackerPlayersIncludingOffline.addAll(getWar().getSide1().getPlayersIncludingOffline());
@@ -116,7 +116,7 @@ public class Siege implements Battle {
         this.attackerPlayersIncludingOffline.addAll(attackerPlayersIncludingOffline);
         this.defenderPlayersIncludingOffline.addAll(defenderPlayersIncludingOffline);
 
-        side1AreAttackers = war.getTownSide(town).getTeam().equals(BattleTeam.SIDE_2);
+        side1AreAttackers = war.getSideOf(town).getTeam().equals(BattleTeam.SIDE_2);
 
         calculateOnlinePlayers();
     }

@@ -13,8 +13,8 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         final @NotNull Player p = e.getPlayer();
-        if (WarController.getInstance().isPlayerInAnySiege(p)) {
-            for (@NotNull Siege siege : WarController.getInstance().getPlayerSieges(p)) {
+        if (WarController.getInstance().isInAnySiege(p)) {
+            for (@NotNull Siege siege : WarController.getInstance().getSieges(p)) {
                 final @NotNull BattleSide side = siege.getPlayerSideInSiege(p);
                 siege.addOnlinePlayer(p, side);
             }

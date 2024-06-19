@@ -215,7 +215,7 @@ public class SiegeListener implements Listener {
                 if (war.isEventWar()) return;
 
                 Town town = siege.getTown();
-                Side townSide = war.getTownSide(town);
+                Side townSide = war.getSideOf(town);
 
                 if (townSide == null) return;
 
@@ -223,11 +223,11 @@ public class SiegeListener implements Listener {
 
                 if (isLiberation) { // Liberation siege
                     if (townSide.isTownSurrendered(town)) {
-                        war.unsurrenderTown(town);
+                        war.unsurrender(town);
                     }
                 } else { // Occupation siege
                     if (!townSide.isTownSurrendered(town)) {
-                        war.surrenderTown(town);
+                        war.surrender(town);
                     }
                 }
             }

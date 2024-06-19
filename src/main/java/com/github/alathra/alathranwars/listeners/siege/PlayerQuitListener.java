@@ -13,8 +13,8 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         final @NotNull Player p = e.getPlayer();
-        if (WarController.getInstance().isPlayerInAnySiege(p)) {
-            for (@NotNull Siege siege : WarController.getInstance().getPlayerSieges(p)) {
+        if (WarController.getInstance().isInAnySiege(p)) {
+            for (@NotNull Siege siege : WarController.getInstance().getSieges(p)) {
                 final @NotNull BattleSide side = siege.getPlayerSideInSiege(p);
                 siege.removeOnlinePlayer(p, side);
             }

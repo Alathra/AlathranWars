@@ -70,7 +70,7 @@ public class Raid implements Battle {
         this.town = town;
         this.raidLeader = raidLeader;
 
-        side1AreAttackers = war.getTownSide(town).getTeam().equals(BattleTeam.SIDE_2);
+        side1AreAttackers = war.getSideOf(town).getTeam().equals(BattleTeam.SIDE_2);
 
         if (getSide1AreAttackers()) {
             attackerPlayersIncludingOffline.addAll(getWar().getSide1().getPlayersIncludingOffline());
@@ -94,7 +94,7 @@ public class Raid implements Battle {
         this.attackerPlayersIncludingOffline.addAll(attackerPlayersIncludingOffline);
         this.defenderPlayersIncludingOffline.addAll(defenderPlayersIncludingOffline);
 
-        side1AreAttackers = war.getTownSide(town).getTeam().equals(BattleTeam.SIDE_2);
+        side1AreAttackers = war.getSideOf(town).getTeam().equals(BattleTeam.SIDE_2);
 
         calculateOnlinePlayers();
     }
@@ -192,15 +192,15 @@ public class Raid implements Battle {
         stop();
 
         if (!war.isEventWar()) {
-            Side townSide = getWar().getTownSide(town);
+            Side townSide = getWar().getSideOf(town);
             Side attackerSide = getAttackerSide();
 
             if (attackerSide.equals(townSide)) {
                 if (townSide.isTownSurrendered(town))
-                    war.unsurrenderTown(town);
+                    war.unsurrender(town);
             } else {
                 if (!townSide.isTownSurrendered(town))
-                    war.surrenderTown(town);
+                    war.surrender(town);
             }
         }
     }
