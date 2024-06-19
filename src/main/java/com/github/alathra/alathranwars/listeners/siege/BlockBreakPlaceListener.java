@@ -77,7 +77,7 @@ public class BlockBreakPlaceListener implements Listener {
     );
 
     private final static Set<Material> PLACE_GLOBAL = Set.of(
-        Material.TNT
+//        Material.TNT
     );
 
     @EventHandler
