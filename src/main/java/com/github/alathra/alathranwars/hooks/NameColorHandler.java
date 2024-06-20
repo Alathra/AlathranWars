@@ -6,7 +6,9 @@ import com.github.alathra.alathranwars.utility.Logger;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class NameColorHandler {
     private static NameColorHandler instance;

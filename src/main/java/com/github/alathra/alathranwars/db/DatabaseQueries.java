@@ -86,13 +86,6 @@ public abstract class DatabaseQueries {
 
             for (War war : WarController.getInstance().getWars()) {
                 context
-//                    .insertInto(LIST)
-//                    .set(LIST.UUID, DatabaseQueries.convertUUIDToBytes(war.getUUID()))
-//                    .set(LIST.NAME, war.getName())
-//                    .set(LIST.LABEL, war.getLabel())
-//                    .set(LIST.SIDE1, DatabaseQueries.convertUUIDToBytes(war.getSide1().getUUID()))
-//                    .set(LIST.SIDE2, DatabaseQueries.convertUUIDToBytes(war.getSide2().getUUID()))
-//                    .set(LIST.EVENT, war.isEventWar() ? (byte) 1 : (byte) 0)
                     .insertInto(LIST, LIST.UUID, LIST.NAME, LIST.LABEL, LIST.SIDE1, LIST.SIDE2, LIST.EVENT)
                     .values(
                         DatabaseQueries.convertUUIDToBytes(war.getUUID()),

@@ -485,6 +485,7 @@ public class War extends Conflict {
 
     /**
      * Is nation or town in this war?
+     *
      * @param government the nation or town
      * @return the boolean
      */

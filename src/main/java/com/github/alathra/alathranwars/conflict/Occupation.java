@@ -1,6 +1,5 @@
 package com.github.alathra.alathranwars.conflict;
 
-import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import org.jetbrains.annotations.Nullable;
