@@ -60,7 +60,7 @@ public class NameColorHandler {
             playerColor.put(p, "<blue>");
         }
 
-        final String sideName = side.getName();
+        final String sideName = side.getName().replace("_", " ");
         playerInitial.put(p, sideName.substring(0, 1).toUpperCase());
 
         final String prefix = isSideOne ? "<red><bold>⚔ %s ⚔" : "<blue><bold>⚔ %s ⚔";
