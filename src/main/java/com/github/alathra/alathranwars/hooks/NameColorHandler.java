@@ -2,6 +2,7 @@ package com.github.alathra.alathranwars.hooks;
 
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
+import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.utility.Logger;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +13,9 @@ import java.util.Optional;
 
 public class NameColorHandler {
     private static NameColorHandler instance;
-    private Map<Player, String> playerColor = new HashMap<>();
-    private Map<Player, String> playerInitial = new HashMap<>();
+    private final Map<Player, String> playerColor = new HashMap<>();
+    private final Map<Player, String> playerInitial = new HashMap<>();
+    private final Map<Player, String> playerPrefix = new HashMap<>();
 
     private NameColorHandler() {
         if (instance != null)
@@ -32,6 +34,7 @@ public class NameColorHandler {
         if (!WarController.getInstance().isInAnyWars(p)) {
             playerColor.remove(p);
             playerInitial.remove(p);
+            playerPrefix.remove(p);
             return;
         }
 
@@ -46,13 +49,22 @@ public class NameColorHandler {
             return;
 
         final boolean isSideOne = war.get().getSide1().isOnSide(p);
+        final Side side = war.get().getSideOf(p);
+
+        if (side == null)
+            return;
 
         if (isSideOne) {
             playerColor.put(p, "<red>");
         } else {
             playerColor.put(p, "<blue>");
         }
-        playerInitial.put(p, war.get().getSideOf(p).getName().substring(0, 1).toUpperCase());
+
+        final String sideName = side.getName();
+        playerInitial.put(p, sideName.substring(0, 1).toUpperCase());
+
+        final String prefix = isSideOne ? "<red><bold>⚔ %s ⚔" : "<blue><bold>⚔ %s ⚔";
+        playerPrefix.put(p, prefix.formatted(sideName));
     }
 
     public boolean isPlayerUsingModifiedName(Player p) {
@@ -65,6 +77,10 @@ public class NameColorHandler {
     }
 
     public String getPlayerNameColor(Player p) {
-        return "%s".formatted(playerColor.get(p));
+        return playerColor.get(p);
+    }
+
+    public String getPlayerPrefix(Player p) {
+        return playerPrefix.get(p);
     }
 }

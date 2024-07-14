@@ -42,30 +42,33 @@ public class PAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onPlaceholderRequest(Player p, @NotNull String params) {
-        if (params.equals("player_tablist")) {
-            if (colorHandler.isPlayerUsingModifiedName(p))
-                return colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";
-            return "%essentials_nickname%";
-        }
-
-        if (params.equals("player_nametag")) {
-            if (colorHandler.isPlayerUsingModifiedName(p))
-                return colorHandler.getPlayerNameColor(p) + "%essentials_nickname_stripped%";
-            return "%essentials_nickname%";
-        }
-
-        if (params.equals("player_tablist_maquillage")) {
-            if (colorHandler.isPlayerUsingModifiedName(p))
-                return colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";
-            return "%maquillage_namecolor_essentialsnick%";
-        }
-
-        if (params.equals("player_nametag_maquillage")) {
-            if (colorHandler.isPlayerUsingModifiedName(p))
-                return colorHandler.getPlayerNameColor(p) + "%essentials_nickname_stripped%";
-            return "%maquillage_namecolor_essentialsnick%";
-        }
-
-        return null;
+        return switch (params) {
+            case "player_nametag_prefix" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerPrefix(p);
+                yield "";
+            }
+            case "player_tablist" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";
+                yield "%essentials_nickname%";
+            }
+            case "player_nametag" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerNameColor(p) + "%essentials_nickname_stripped%";
+                yield "%essentials_nickname%";
+            }
+            case "player_tablist_maquillage" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";
+                yield "%maquillage_namecolor_essentialsnick%";
+            }
+            case "player_nametag_maquillage" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerNameColor(p) + "%essentials_nickname_stripped%";
+                yield "%maquillage_namecolor_essentialsnick%";
+            }
+            default -> null;
+        };
     }
 }
