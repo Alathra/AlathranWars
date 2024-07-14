@@ -48,6 +48,11 @@ public class PAPIExpansion extends PlaceholderExpansion {
                     yield colorHandler.getPlayerPrefix(p);
                 yield "";
             }
+            case "player_tab" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerTabNameColor(p);
+                yield "";
+            }
             case "player_tablist" -> {
                 if (colorHandler.isPlayerUsingModifiedName(p))
                     yield colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";
