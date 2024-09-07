@@ -1,6 +1,8 @@
 package com.github.alathra.alathranwars.listeners.siege;
 
+import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
+import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.utility.Utils;
 import com.palmergames.bukkit.towny.event.deathprice.NationPaysDeathPriceEvent;
 import com.palmergames.bukkit.towny.event.deathprice.PlayerPaysDeathPriceEvent;
@@ -17,6 +19,11 @@ public class PlayerDeathListener implements Listener {
         Player p = e.getDeadResident().getPlayer();
         if (p == null) return;
 
+        if (AlathranWars.getInstance().isWarTime() && WarController.getInstance().isInAnyWars(p)) {
+            e.setCancelled(true);
+            return;
+        }
+
         Siege siege = Utils.getClosestSiege(p, true);
         if (siege == null) return;
 
@@ -29,6 +36,11 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerPaysDeathPrice(TownPaysDeathPriceEvent e) {
         Player p = e.getDeadResident().getPlayer();
         if (p == null) return;
+
+        if (AlathranWars.getInstance().isWarTime() && WarController.getInstance().isInAnyWars(p)) {
+            e.setCancelled(true);
+            return;
+        }
 
         Siege siege = Utils.getClosestSiege(p, true);
         if (siege == null) return;
@@ -43,6 +55,11 @@ public class PlayerDeathListener implements Listener {
         Player p = e.getDeadResident().getPlayer();
         if (p == null) return;
 
+        if (AlathranWars.getInstance().isWarTime() && WarController.getInstance().isInAnyWars(p)) {
+            e.setCancelled(true);
+            return;
+        }
+
         Siege siege = Utils.getClosestSiege(p, true);
         if (siege == null) return;
 
@@ -56,6 +73,11 @@ public class PlayerDeathListener implements Listener {
         Player victim = e.getPlayer();
         Player attacker = e.getPlayer().getKiller();
         if (attacker == null) return;
+
+        if (AlathranWars.getInstance().isWarTime() && WarController.getInstance().isInAnyWars(victim)) {
+            siegeKill(e);
+            return;
+        }
 
         Siege siege = Utils.getClosestSiege(victim, false);
         if (siege == null) return;
@@ -74,6 +96,11 @@ public class PlayerDeathListener implements Listener {
         Player victim = e.getPlayer();
         Player attacker = e.getPlayer().getKiller();
         if (attacker != null) return;
+
+        if (AlathranWars.getInstance().isWarTime() && WarController.getInstance().isInAnyWars(victim)) {
+            siegeKill(e);
+            return;
+        }
 
         Siege siege = Utils.getClosestSiege(victim, false);
         if (siege == null) return;
