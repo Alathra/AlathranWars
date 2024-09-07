@@ -26,6 +26,7 @@ public class AlathranWars extends JavaPlugin {
 
     private CommandManager commandManager;
     private HookManager hookManager;
+    private boolean isWarTime = false;
 
     @SuppressWarnings("rawtypes")
     private boolean setupEconomy() {
@@ -98,5 +99,13 @@ public class AlathranWars extends JavaPlugin {
     @NotNull
     public ConfigHandler getConfigHandler() {
         return configHandler;
+    }
+
+    public boolean isWarTime() {
+        return isWarTime;
+    }
+
+    public void setWarTime(boolean warTime) {
+        isWarTime = warTime;
     }
 }

@@ -27,7 +27,8 @@ public class AdminCommands {
                 commandItem(),
                 commandWar(),
                 commandSiege(),
-                commandNames()
+                commandNames(),
+                commandWartime()
             )
             .executes((sender, args) -> {
                 if (args.count() == 0)
@@ -123,6 +124,23 @@ public class AdminCommands {
         return new CommandAPICommand("updatenames")
             .executesPlayer((player, commandArguments) -> {
                 Bukkit.getOnlinePlayers().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
+            });
+    }
+
+    private CommandAPICommand commandWartime() {
+        return new CommandAPICommand("wartime")
+            .executes((sender, commandArguments) -> {
+                AlathranWars.getInstance().setWarTime(!AlathranWars.getInstance().isWarTime());
+
+                if (AlathranWars.getInstance().isWarTime()) {
+                    sender.sendMessage(
+                        ColorParser.of("<green>War time has started!").build()
+                    );
+                } else {
+                    sender.sendMessage(
+                        ColorParser.of("<red>War time has ended!").build()
+                    );
+                }
             });
     }
 }
