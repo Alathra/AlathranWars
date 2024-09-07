@@ -55,6 +55,9 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
         content { includeGroup("me.clip") }
     }
+
+    maven("https://repo.essentialsx.net/releases/")
+    maven("https://repo.essentialsx.net/snapshots/")
 }
 
 dependencies {
@@ -83,6 +86,8 @@ dependencies {
     compileOnly("com.github.Gecolay.GSit:core:1.8.0")
     compileOnly(files("lib/HeadsPlus-7.0.14.jar"))
     compileOnly(files("lib/Skulls.jar"))
+    compileOnly("net.essentialsx:EssentialsX:2.20.1")
+    compileOnly("net.essentialsx:EssentialsXSpawn:2.20.1")
 
     // Database Dependencies
     implementation("com.zaxxer:HikariCP:5.1.0")
@@ -194,7 +199,7 @@ bukkit { // Options: https://github.com/Minecrell/plugin-yml#bukkit
     // Misc properties
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD // STARTUP or POSTWORLD
     depend = listOf("Vault", "Towny")
-    softDepend = listOf("PlaceholderAPI", "TAB", "Skulls", "HeadsPlus")
+    softDepend = listOf("PlaceholderAPI", "TAB", "Skulls", "HeadsPlus", "Essentials")
 }
 
 flyway {
