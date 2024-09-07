@@ -24,8 +24,8 @@ public class CommandsListener implements Listener {
         "t set homeblock", "town set homeblock"
     };
     final static String[] BLACKLISTED_LONG = new String[]{
-        "n spawn", "nat spawn", "nation spawn",
-        "t spawn", "town spawn",
+//        "n spawn", "nat spawn", "nation spawn",
+//        "t spawn", "town spawn",
         "t outpost", "town outpost"
     };
     final static String[] PAYMENT = new String[]{
@@ -174,37 +174,6 @@ public class CommandsListener implements Listener {
                         for (String cmd : BLACKLISTED_X_LONG) {
                             if (parse.equalsIgnoreCase(prefix + (prefix.isEmpty() ? "" : ":") + cmd)) {
                                 p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot modify this property during a siege!").parseLegacy().build());
-                                event.setCancelled(true);
-                                return;
-                            }
-                        }
-                    }
-                }
-                //n spawn and t spawn
-                if (args.length >= 2) {
-                    //parse what we have, remove the starting sslash
-                    @NotNull String parse = (args[0].charAt(0) == '/' ? args[0].substring(1) : args[0]) + " " + args[1];
-                    for (@NotNull String prefix : PREFIXES_TOWNY) {
-                        for (String cmd : BLACKLISTED_LONG) {
-                            //check for each prefix
-                            if (parse.equalsIgnoreCase(prefix + (prefix.isEmpty() ? "" : ":") + cmd)) {
-                                //check if in spawn
-                                if (p.getWorld().getName().equalsIgnoreCase("world")) {
-                                    if (parse.equalsIgnoreCase("n spawn") || parse.equalsIgnoreCase("nat spawn") || parse.equalsIgnoreCase("nation spawn")
-                                        || parse.equalsIgnoreCase("t spawn") || parse.equalsIgnoreCase("town spawn")
-                                        || parse.equalsIgnoreCase("towny:n spawn") || parse.equalsIgnoreCase("towny:nat spawn") || parse.equalsIgnoreCase("towny:nation spawn")
-                                        || parse.equalsIgnoreCase("towny:t spawn") || parse.equalsIgnoreCase("towny:town spawn")) {
-                                        p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>You are stuck in spawn and are allowed to teleport to your town or nation.").parseLegacy().build());
-                                        return;
-                                    }
-                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>You are stuck in spawn and are allowed to teleport to your town or nation.").parseLegacy().build());
-                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>Use /t spawn, or /n spawn").parseLegacy().build());
-                                    event.setCancelled(true);
-                                    return;
-                                }
-
-                                //else
-                                p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot teleport whilst in a oldSiege!").parseLegacy().build());
                                 event.setCancelled(true);
                                 return;
                             }
