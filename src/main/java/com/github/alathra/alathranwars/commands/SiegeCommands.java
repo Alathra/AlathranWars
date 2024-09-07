@@ -119,6 +119,9 @@ public class SiegeCommands {
         if (side == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in this war.").build());
 
+        if (!AlathranWars.getInstance().isWarTime() && !asAdmin)
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You cannot start sieges outside of war time.").build());
+
         if (side.isSurrendered(siegeLeader))
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You have surrendered and cannot participate in this war.").build());
 
