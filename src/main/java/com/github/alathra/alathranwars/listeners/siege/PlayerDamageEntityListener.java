@@ -26,7 +26,8 @@ public class PlayerDamageEntityListener implements Listener {
         EntityType.PIG,
         EntityType.BOAT,
         EntityType.MINECART,
-        EntityType.MINECART_TNT
+        EntityType.MINECART_TNT,
+        EntityType.BEE
     );
 
     /**
