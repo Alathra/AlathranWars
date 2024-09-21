@@ -5,7 +5,7 @@ import com.github.alathra.alathranwars.conflict.war.WarBuilder;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.conflict.war.side.SideCreationException;
-import com.github.alathra.alathranwars.hooks.NameColorHandler;
+import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -250,6 +250,9 @@ public class WarCommands {
                 if (!asAdmin && !canKingJoin)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your nation into the war.").build());
 
+        // if (!war.isEventWar()) {
+            // Join nation into war
+            // if (isArgNation && nation != null && !war.isInWar(nation) && (asAdmin || canKingJoin)) {
                 side.add(nation);
                 nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().calculatePlayerColors(player));
                 Bukkit.broadcast(
@@ -291,6 +294,8 @@ public class WarCommands {
                 if (!asAdmin && !canMayorJoin)
                     throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not of sufficient rank to join your town into the war.").build());
 
+            // Join town into war
+            // if (isArgTown && town != null && !war.isInWar(town) && (asAdmin || canMayorJoin)) {
                 side.add(town);
                 town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().getPlayerNameColor(player));
                 Bukkit.broadcast(
@@ -350,6 +355,35 @@ public class WarCommands {
                 throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>The target is invalid.").build());
             }
         }
+
+        // Join player into war
+        if (isArgPlayer && targetPlayer != null && !war.isInWar(targetPlayer) && asAdmin) {
+            targetPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
+            side.add(targetPlayer);
+            NameColorHandler.getInstance().calculatePlayerColors(targetPlayer);
+            final Title warTitle = Title.title(
+                ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
+                    .build(),
+                ColorParser.of("<gray><i>You entered the war of <war>!")
+                    .parseMinimessagePlaceholder("war", war.getLabel())
+                    .build(),
+                Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
+            );
+            final Sound warSound = Sound.sound(Key.key("entity.wither.spawn"), Sound.Source.VOICE, 0.5f, 1.0F);
+
+            targetPlayer.showTitle(warTitle);
+            targetPlayer.playSound(warSound);
+            return;
+        } else if (!asAdmin) {
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Players cannot individually join wars.").build());
+        } else {
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>Player is already in that war.").build());
+        }
+
+        // Join player into war
+//        if (war.isPlayerInWar(player))
+//            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are already in this war.").build());
+
 
         /*for (@NotNull Siege siege : war.getSieges()) {
             if (siege.getAttackerSide().equals(side)) {
@@ -411,7 +445,7 @@ public class WarCommands {
         if (town == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in a town.").build());
 
-        @Nullable Side side = war.getSideOf(town);
+        @Nullable Side side = war.getSide(town);
         if (side == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in that war.").build());
 
@@ -511,9 +545,9 @@ public class WarCommands {
         for (Side side : war.getSides()) {
             msg.append("\n<white><bold>%s<reset>".formatted(side.getName()));
             msg.append("\n <grey>Score: <green>%s".formatted(side.getScore()));
-            msg.append("\n <grey>Nations: <green>%s<grey>/<red>%s".formatted(side.getNations().size(), side.getNations().size() + side.getSurrenderedNations().size()));
-            msg.append("\n <grey>Towns: <green>%s<grey>/<red>%s".formatted(side.getTowns().size(), side.getTowns().size() + side.getSurrenderedTowns().size()));
-            msg.append("\n <grey>Players: <green>%s<grey>/<red>%s".formatted(side.getPlayersIncludingOffline().size(), side.getPlayersIncludingOffline().size() + side.getSurrenderedPlayersIncludingOffline().size()));
+            msg.append("\n <grey>Nations: <green>%s<grey>/<red>%s".formatted(side.getNations().size(), side.getNations().size() + side.getNationsSurrendered().size()));
+            msg.append("\n <grey>Towns: <green>%s<grey>/<red>%s".formatted(side.getTowns().size(), side.getTowns().size() + side.getTownsSurrendered().size()));
+            msg.append("\n <grey>Players: <green>%s<grey>/<red>%s".formatted(side.getPlayersAll().size(), side.getPlayersAll().size() + side.getPlayersSurrendered().size()));
             msg.append("\n");
         }
 

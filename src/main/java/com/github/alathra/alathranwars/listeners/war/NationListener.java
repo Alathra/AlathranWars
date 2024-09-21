@@ -2,6 +2,9 @@ package com.github.alathra.alathranwars.listeners.war;
 
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.palmergames.bukkit.towny.event.NationPreAddTownEvent;
+import com.github.alathra.alathranwars.conflict.war.side.Side;
+import com.github.alathra.alathranwars.hook.NameColorHandler;
+import com.palmergames.bukkit.towny.event.NationAddTownEvent;
 import com.palmergames.bukkit.towny.event.NationPreRenameEvent;
 import com.palmergames.bukkit.towny.event.nation.NationPreInviteTownEvent;
 import com.palmergames.bukkit.towny.event.nation.NationPreMergeEvent;
@@ -45,6 +48,29 @@ public class NationListener implements Listener {
             e.setCancelMessage("You cannot invite that town because it is in a war.");
             e.setCancelled(true);
             return;
+        }
+
+        // Add town to all nation wars
+        for (War war : WarController.getInstance().getWars(nation)) {
+            Side side = war.getSide(nation);
+            if (side == null) continue;
+
+            side.add(town);
+        }
+
+        // TODO Add nation to towns' wars
+        for (War war : WarController.getInstance().getWars(town)) {
+            Side side = war.getSide(town);
+            if (side == null) continue;
+
+            side.add(nation);
+        }
+
+        for (War war : WarController.getInstance().getWars(nation)) {
+            Side side = war.getSide(nation);
+            if (side == null) continue;
+
+            side.getPlayersOnline().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
         }
     }
 

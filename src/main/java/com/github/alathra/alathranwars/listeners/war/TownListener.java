@@ -3,7 +3,7 @@ package com.github.alathra.alathranwars.listeners.war;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
-import com.github.alathra.alathranwars.hooks.NameColorHandler;
+import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
@@ -52,6 +52,15 @@ public class TownListener implements Listener {
             return;
         }
     }
+    
+    private void onSpawnMove(TownSetSpawnEvent e) {
+        Town town = e.getTown();
+
+        if (WarController.getInstance().isInAnyWars(town)) {
+            e.setCancelMessage("You can't move your town spawn while the town is in a war.");
+            e.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onPlayerPreAdd(TownPreAddResidentEvent e) {
@@ -81,7 +90,7 @@ public class TownListener implements Listener {
         if (p == null) return;
 
         for (War war : WarController.getInstance().getWars(town)) {
-            Side side = war.getSideOf(town);
+            Side side = war.getSide(town);
             if (side == null) continue;
             side.add(p);
 
@@ -109,7 +118,7 @@ public class TownListener implements Listener {
         if (p == null) return;
 
         for (War war : WarController.getInstance().getWars(town)) {
-            Side side = war.getSideOf(town);
+            Side side = war.getSide(town);
             if (side == null) continue;
             side.remove(p);
         }
@@ -124,7 +133,7 @@ public class TownListener implements Listener {
         if (p == null) return;
 
         for (War war : WarController.getInstance().getWars(town)) {
-            Side side = war.getSideOf(town);
+            Side side = war.getSide(town);
             if (side == null) continue;
             side.remove(p);
         }
@@ -174,7 +183,7 @@ public class TownListener implements Listener {
         Town town = e.getTown();
 
         for (War war : WarController.getInstance().getWars(town)) {
-            Side side = war.getSideOf(town);
+            Side side = war.getSide(town);
             if (side == null) continue;
             war.unsurrender(town);
             side.remove(town);

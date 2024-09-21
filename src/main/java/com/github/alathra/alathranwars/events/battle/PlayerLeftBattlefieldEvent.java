@@ -2,6 +2,7 @@ package com.github.alathra.alathranwars.events.battle;
 
 import com.github.alathra.alathranwars.conflict.battle.Battle;
 import com.github.alathra.alathranwars.conflict.war.War;
+import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -9,14 +10,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerLeftBattlefieldEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
+    private final Player player;
     private final War war;
     private final Battle battle;
-    private final Player player;
+    private final BattleSide battleSide;
 
-    public PlayerLeftBattlefieldEvent(War war, Battle battle, Player player) {
+    public PlayerLeftBattlefieldEvent(Player player, War war, Battle battle, BattleSide battleSide) {
+        this.player = player;
         this.war = war;
         this.battle = battle;
-        this.player = player;
+        this.battleSide = battleSide;
     }
 
     @Override
@@ -28,6 +31,10 @@ public class PlayerLeftBattlefieldEvent extends Event {
         return HANDLER_LIST;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public War getWar() {
         return war;
     }
@@ -36,7 +43,7 @@ public class PlayerLeftBattlefieldEvent extends Event {
         return battle;
     }
 
-    public Player getPlayer() {
-        return player;
+    public BattleSide getBattleSide() {
+        return battleSide;
     }
 }

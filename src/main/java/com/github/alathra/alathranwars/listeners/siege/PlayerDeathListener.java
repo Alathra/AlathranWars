@@ -84,7 +84,7 @@ public class PlayerDeathListener implements Listener {
 
         if (!Utils.isOnSiegeBattlefield(victim, siege)) return;
 
-        if (siege.isPlayerInSiege(victim) && siege.isPlayerInSiege(attacker)) {
+        if (siege.isPlayerParticipating(victim) && siege.isPlayerParticipating(attacker)) {
             siegeKill(e);
         } else {
             oocKill(e);
@@ -107,7 +107,7 @@ public class PlayerDeathListener implements Listener {
 
         if (!Utils.isOnSiegeBattlefield(victim, siege)) return;
 
-        if (siege.isPlayerInSiege(victim)) {
+        if (siege.isPlayerParticipating(victim)) {
             siegeKill(e);
         } else {
             oocKill(e);

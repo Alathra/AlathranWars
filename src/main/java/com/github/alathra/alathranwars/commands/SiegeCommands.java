@@ -133,7 +133,7 @@ public class SiegeCommands {
             );
 
         // Attacking own side
-        if (side.isOnSide(town) && !side.isTownSurrendered(town)) {
+        if (side.isOnSide(town) && !side.isSurrendered(town)) {
             if (asAdmin)
                 throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You cannot attack your own side.").build());
             else
@@ -155,7 +155,7 @@ public class SiegeCommands {
         if (location.distance(townLocation) <= Siege.BATTLEFIELD_START_MIN_RANGE && !asAdmin)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be further than <range> blocks away from the town to start a siege!").parseMinimessagePlaceholder("range", String.valueOf(Siege.BATTLEFIELD_START_MIN_RANGE)).build());
 
-        if ((AlathranWars.econ.getBalance(siegeLeader) < Siege.SIEGE_VICTORY_MONEY) && !asAdmin)
+        if ((AlathranWars.getVaultHook().isEconomyLoaded() && AlathranWars.getVaultHook().getEconomy().getBalance(siegeLeader) < Siege.SIEGE_VICTORY_MONEY) && !asAdmin)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to have $<amount> to start a siege!").parseMinimessagePlaceholder("amount", String.valueOf(Siege.SIEGE_VICTORY_MONEY)).build());
 
         side.setSiegeGrace();

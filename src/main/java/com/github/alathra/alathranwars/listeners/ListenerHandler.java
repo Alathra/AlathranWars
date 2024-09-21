@@ -2,21 +2,27 @@ package com.github.alathra.alathranwars.listeners;
 
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.Reloadable;
-import com.github.alathra.alathranwars.listeners.items.PlayerInteractListener;
 import com.github.alathra.alathranwars.listeners.siege.*;
 import com.github.alathra.alathranwars.listeners.siege.PlayerQuitListener;
 import com.github.alathra.alathranwars.listeners.war.*;
 import com.github.alathra.alathranwars.listeners.war.PlayerJoinListener;
+import com.github.alathra.alathranwars.listeners.war.PlayerQuitListener;
+import com.github.alathra.alathranwars.listeners.war.TownListener;
 import org.bukkit.Bukkit;
 
 /**
  * A class to handle registration of event listeners.
  */
 public class ListenerHandler implements Reloadable {
-    private final AlathranWars instance;
+    private final AlathranWars plugin;
 
-    public ListenerHandler(AlathranWars instance) {
-        this.instance = instance;
+    /**
+     * Instantiates a the Listener handler.
+     *
+     * @param plugin the plugin instance
+     */
+    public ListenerHandler(AlathranWars plugin) {
+        this.plugin = plugin;
     }
 
     @Override
@@ -26,33 +32,34 @@ public class ListenerHandler implements Reloadable {
     @Override
     public void onEnable() {
         // Sieges
-        instance.getServer().getPluginManager().registerEvents(new com.github.alathra.alathranwars.listeners.siege.PlayerJoinListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new BlockBreakPlaceListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerDeathListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new BlockBreakPlaceListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerDeathListener(), plugin);
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("Graves"))
-            instance.getServer().getPluginManager().registerEvents(new PlayerGraveListener(), instance);
+            plugin.getServer().getPluginManager().registerEvents(new PlayerGraveListener(), plugin);
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("HeadsPlus"))
-            instance.getServer().getPluginManager().registerEvents(new PlayerHeadsPlusListener(), instance);
+            plugin.getServer().getPluginManager().registerEvents(new PlayerHeadsPlusListener(), plugin);
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("GSit"))
-            instance.getServer().getPluginManager().registerEvents(new PlayerSitListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new ItemUseListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerDamageEntityListener(), instance);
+            plugin.getServer().getPluginManager().registerEvents(new PlayerSitListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ItemUseListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerDamageEntityListener(), plugin);
 
         // Battles
-        instance.getServer().getPluginManager().registerEvents(new SiegeListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new SiegeListener(), plugin);
 
         // Wars
-        instance.getServer().getPluginManager().registerEvents(new NationListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new TownListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new com.github.alathra.alathranwars.listeners.war.PlayerQuitListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new NationListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new TownListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), instance);
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("Essentials"))
-            instance.getServer().getPluginManager().registerEvents(new EssentialsListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new EssentialsListener(), instance);
 
-        instance.getServer().getPluginManager().registerEvents(new CommandsListener(), instance);
-        instance.getServer().getPluginManager().registerEvents(new PlayerInteractListener(), instance);
+        // Misc
+        plugin.getServer().getPluginManager().registerEvents(new UpdateCheckListener(), plugin);
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault"))
+            plugin.getServer().getPluginManager().registerEvents(new VaultListener(), plugin);
+
     }
 
     @Override

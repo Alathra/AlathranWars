@@ -6,29 +6,18 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.hooks.NameColorHandler;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import net.kyori.adventure.title.Title;
+import com.github.alathra.alathranwars.hook.NameColorHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
 public class PlayerJoinListener implements Listener {
     @EventHandler
-    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        final @NotNull Player p = e.getPlayer();
-        if (WarController.getInstance().isInAnyWars(p)) {
-            for (@NotNull War war : WarController.getInstance().getWars()) {
-                if (war.isInWar(p)) {
-                    @Nullable Side side = war.getSideOf(p);
-                    if (side != null) {
-                        side.addOnlinePlayer(p);
-                    }
-                }
-            }
-        }
+    private void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
         NameColorHandler.getInstance().calculatePlayerColors(p);
 
         if (WarController.getInstance().isInAnyWars(p)) {
