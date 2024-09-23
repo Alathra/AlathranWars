@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WarCreateEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    private War war;
+    private final War war;
 
     public WarCreateEvent(War war) {
         this.war = war;

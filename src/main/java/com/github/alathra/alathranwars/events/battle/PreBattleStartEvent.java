@@ -4,21 +4,15 @@ import com.github.alathra.alathranwars.conflict.battle.Battle;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.enums.battle.BattleType;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PreBattleStartEvent extends Event implements Cancellable {
+public class PreBattleStartEvent extends BattleStartEvent implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean cancelled;
-    private War war;
-    private final Battle battle;
-    private final BattleType battleType;
 
     public PreBattleStartEvent(War war, Battle battle, BattleType battleType) {
-        this.war = war;
-        this.battle = battle;
-        this.battleType = battleType;
+        super(war, battle, battleType);
     }
 
     /**
@@ -53,14 +47,14 @@ public class PreBattleStartEvent extends Event implements Cancellable {
     }
 
     public War getWar() {
-        return war;
+        return super.getWar();
     }
 
     public Battle getBattle() {
-        return battle;
+        return super.getBattle();
     }
 
     public BattleType getBattleType() {
-        return battleType;
+        return super.getBattleType();
     }
 }

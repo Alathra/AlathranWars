@@ -3,19 +3,15 @@ package com.github.alathra.alathranwars.events;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.enums.WarDeleteReason;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PreWarDeleteEvent extends Event implements Cancellable {
+public class PreWarDeleteEvent extends WarDeleteEvent implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean cancelled;
-    private War war;
-    private WarDeleteReason reason;
 
     public PreWarDeleteEvent(War war, WarDeleteReason reason) {
-        this.war = war;
-        this.reason = reason;
+        super(war, reason);
     }
 
     /**
@@ -50,10 +46,10 @@ public class PreWarDeleteEvent extends Event implements Cancellable {
     }
 
     public War getWar() {
-        return war;
+        return super.getWar();
     }
 
     public WarDeleteReason getReason() {
-        return reason;
+        return super.getReason();
     }
 }

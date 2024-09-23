@@ -2,17 +2,15 @@ package com.github.alathra.alathranwars.events;
 
 import com.github.alathra.alathranwars.conflict.war.War;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PreWarCreateEvent extends Event implements Cancellable {
+public class PreWarCreateEvent extends WarCreateEvent implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean cancelled;
-    private War war;
 
     public PreWarCreateEvent(War war) {
-        this.war = war;
+        super(war);
     }
 
     /**
@@ -47,6 +45,6 @@ public class PreWarCreateEvent extends Event implements Cancellable {
     }
 
     public War getWar() {
-        return war;
+        return super.getWar();
     }
 }

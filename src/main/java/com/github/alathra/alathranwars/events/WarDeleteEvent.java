@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class WarDeleteEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    private War war;
-    private WarDeleteReason reason;
+    private final War war;
+    private final WarDeleteReason reason;
 
     public WarDeleteEvent(War war, WarDeleteReason reason) {
         this.war = war;

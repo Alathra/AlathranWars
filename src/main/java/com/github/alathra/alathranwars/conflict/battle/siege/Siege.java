@@ -161,7 +161,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
             if (AlathranWars.getVaultHook().isEconomyLoaded())
                 AlathranWars.getVaultHook().getEconomy().withdrawPlayer(siegeLeader, SIEGE_VICTORY_MONEY);
 
-        new BattleStartEvent(war, this).callEvent();
+        new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
 
     /**
@@ -174,7 +174,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         battleRunnable = new SiegeRunnable(this, getProgressManager().get());
         stopped = false;
 
-        new BattleStartEvent(war, this).callEvent();
+        new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
 
     /**
@@ -216,7 +216,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
                 AlathranWars.getVaultHook().getEconomy().depositPlayer(siegeLeader, amt);
         }
 
-        new BattleResultEvent(war, this, BattleVictor.ATTACKER, reason).callEvent();
+        new BattleResultEvent(war, this, BattleType.SIEGE, BattleVictor.ATTACKER, reason).callEvent();
 
         stop();
     }
@@ -232,7 +232,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         if (!war.isEventWar())
             town.getAccount().deposit(SIEGE_VICTORY_MONEY, "Siege Victory");
 
-        new BattleResultEvent(war, this, BattleVictor.DEFENDER, reason).callEvent();
+        new BattleResultEvent(war, this, BattleType.SIEGE, BattleVictor.DEFENDER, reason).callEvent();
 
         stop();
     }
@@ -245,7 +245,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void equalWin(BattleVictoryReason reason) {
         if (!new PreBattleResultEvent(war, this, BattleType.SIEGE, BattleVictor.DRAW, reason).callEvent()) return;
 
-        new BattleResultEvent(war, this, BattleVictor.DRAW, reason).callEvent();
+        new BattleResultEvent(war, this, BattleType.SIEGE, BattleVictor.DRAW, reason).callEvent();
 
         stop();
     }

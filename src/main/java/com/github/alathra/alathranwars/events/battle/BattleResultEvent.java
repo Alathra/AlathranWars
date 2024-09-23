@@ -2,6 +2,7 @@ package com.github.alathra.alathranwars.events.battle;
 
 import com.github.alathra.alathranwars.conflict.battle.Battle;
 import com.github.alathra.alathranwars.conflict.war.War;
+import com.github.alathra.alathranwars.enums.battle.BattleType;
 import com.github.alathra.alathranwars.enums.battle.BattleVictor;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import org.bukkit.event.Event;
@@ -12,12 +13,14 @@ public class BattleResultEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private final War war;
     private final Battle battle;
+    private final BattleType battleType;
     private final BattleVictor battleVictor;
     private final BattleVictoryReason battleVictoryReason;
 
-    public BattleResultEvent(War war, Battle battle, BattleVictor battleVictor, BattleVictoryReason battleVictoryReason) {
+    public BattleResultEvent(War war, Battle battle, BattleType battleType, BattleVictor battleVictor, BattleVictoryReason battleVictoryReason) {
         this.war = war;
         this.battle = battle;
+        this.battleType = battleType;
         this.battleVictor = battleVictor;
         this.battleVictoryReason = battleVictoryReason;
     }
@@ -37,6 +40,10 @@ public class BattleResultEvent extends Event {
 
     public Battle getBattle() {
         return battle;
+    }
+
+    public BattleType getBattleType() {
+        return battleType;
     }
 
     public BattleVictor getBattleVictor() {

@@ -6,25 +6,15 @@ import com.github.alathra.alathranwars.enums.battle.BattleType;
 import com.github.alathra.alathranwars.enums.battle.BattleVictor;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PreBattleResultEvent extends Event implements Cancellable {
+public class PreBattleResultEvent extends BattleResultEvent implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean cancelled;
-    private War war;
-    private final Battle battle;
-    private final BattleType battleType;
-    private final BattleVictor battleVictor;
-    private final BattleVictoryReason battleVictoryReason;
 
     public PreBattleResultEvent(War war, Battle battle, BattleType battleType, BattleVictor battleVictor, BattleVictoryReason battleVictoryReason) {
-        this.war = war;
-        this.battle = battle;
-        this.battleType = battleType;
-        this.battleVictor = battleVictor;
-        this.battleVictoryReason = battleVictoryReason;
+        super(war, battle, battleType, battleVictor, battleVictoryReason);
     }
 
     /**
@@ -59,22 +49,22 @@ public class PreBattleResultEvent extends Event implements Cancellable {
     }
 
     public War getWar() {
-        return war;
+        return super.getWar();
     }
 
     public Battle getBattle() {
-        return battle;
+        return super.getBattle();
     }
 
     public BattleType getBattleType() {
-        return battleType;
+        return super.getBattleType();
     }
 
     public BattleVictor getBattleVictor() {
-        return battleVictor;
+        return super.getBattleVictor();
     }
 
     public BattleVictoryReason getBattleVictoryReason() {
-        return battleVictoryReason;
+        return super.getBattleVictoryReason();
     }
 }
