@@ -588,8 +588,8 @@ public class War extends Conflict {
      * @return the player side
      */
     @Nullable
-    public Side getSideOf(Player p) {
-        return getSideOf(p.getUniqueId());
+    public Side getPlayerSide(Player p) {
+        return getPlayerSide(p.getUniqueId());
     }
 
     /**

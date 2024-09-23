@@ -1,5 +1,6 @@
 package com.github.alathra.alathranwars.listeners.war;
 
+import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.palmergames.bukkit.towny.event.NationPreAddTownEvent;
 import com.github.alathra.alathranwars.conflict.war.side.Side;

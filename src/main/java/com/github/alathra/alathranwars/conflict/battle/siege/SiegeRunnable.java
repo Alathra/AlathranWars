@@ -19,8 +19,7 @@ import space.arim.morepaperlib.scheduling.ScheduledTask;
 import java.time.Duration;
 import java.time.Instant;
 
-import static com.github.alathra.alathranwars.conflict.battle.siege.Siege.ATTACKERS_MUST_TOUCH_REVERT;
-import static com.github.alathra.alathranwars.conflict.battle.siege.Siege.MAX_SIEGE_PROGRESS;
+import static com.github.alathra.alathranwars.conflict.battle.siege.Siege.*;
 import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
 
 public class SiegeRunnable implements Runnable {

@@ -52,7 +52,8 @@ public class TownListener implements Listener {
             return;
         }
     }
-    
+
+    @EventHandler
     private void onSpawnMove(TownSetSpawnEvent e) {
         Town town = e.getTown();
 

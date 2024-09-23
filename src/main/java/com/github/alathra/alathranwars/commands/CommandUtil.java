@@ -737,15 +737,15 @@ public class CommandUtil {
                 );
             }
 
-            final List<String> townNames = war.getAllTowns().stream()
+            final List<String> townNames = war.getTownsAll().stream()
                 .map(Town::getName)
                 .sorted()
                 .toList();
-            final List<String> nationNames = war.getAllNations().stream()
+            final List<String> nationNames = war.getNationsAll().stream()
                 .map(Nation::getName)
                 .sorted()
                 .toList();
-            final List<String> playerNames = war.getAllPlayers().stream()
+            final List<String> playerNames = war.getPlayersAll().stream()
                 .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
                 .filter(p -> p.getName() != null)
                 .map(OfflinePlayer::getName)
@@ -779,7 +779,7 @@ public class CommandUtil {
                 .map(Town::getName)
                 .sorted()
                 .toList();
-            final List<String> playerNames = war.getPlayersIncludingOffline().stream()
+            final List<String> playerNames = war.getPlayersAll().stream()
                 .filter(offlinePlayer -> Instant.ofEpochMilli(offlinePlayer.getLastSeen()).isAfter(Instant.now().minus(Duration.ofDays(60)))) // Remove players that haven't been on in 60 days
                 .filter(p -> p.getName() != null)
                 .map(OfflinePlayer::getName)

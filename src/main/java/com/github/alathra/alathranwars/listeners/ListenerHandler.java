@@ -3,7 +3,6 @@ package com.github.alathra.alathranwars.listeners;
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.Reloadable;
 import com.github.alathra.alathranwars.listeners.siege.*;
-import com.github.alathra.alathranwars.listeners.siege.PlayerQuitListener;
 import com.github.alathra.alathranwars.listeners.war.*;
 import com.github.alathra.alathranwars.listeners.war.PlayerJoinListener;
 import com.github.alathra.alathranwars.listeners.war.PlayerQuitListener;
@@ -51,9 +50,9 @@ public class ListenerHandler implements Reloadable {
         plugin.getServer().getPluginManager().registerEvents(new TownListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), plugin);
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("Essentials"))
-        plugin.getServer().getPluginManager().registerEvents(new EssentialsListener(), instance);
+        plugin.getServer().getPluginManager().registerEvents(new EssentialsListener(), plugin);
 
         // Misc
         plugin.getServer().getPluginManager().registerEvents(new UpdateCheckListener(), plugin);

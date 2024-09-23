@@ -115,7 +115,7 @@ public class SiegeCommands {
         final @NotNull Player siegeLeader = (Player) args.getOptional("leader").orElse(sender);
 
         // Player participance check
-        @Nullable Side side = war.getSideOf(siegeLeader);
+        @Nullable Side side = war.getPlayerSide(siegeLeader);
         if (side == null)
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You are not in this war.").build());
 

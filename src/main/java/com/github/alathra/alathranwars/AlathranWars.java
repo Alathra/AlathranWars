@@ -124,6 +124,7 @@ public class AlathranWars extends JavaPlugin {
      *
      * @return the more paper lib instance
      */
+    @NotNull
     public static MorePaperLib getPaperLib() {
         return paperLib;
     }
@@ -146,14 +147,6 @@ public class AlathranWars extends JavaPlugin {
     @NotNull
     public ConfigHandler getConfigHandler() {
         return configHandler;
-    }
-
-    public boolean isWarTime() {
-        return isWarTime;
-    }
-
-    public void setWarTime(boolean warTime) {
-        isWarTime = warTime;
     }
 
     /**
@@ -204,5 +197,13 @@ public class AlathranWars extends JavaPlugin {
     @NotNull
     public static ProtocolLibHook getProtocolLibHook() {
         return protocolLibHook;
+    }
+
+    public boolean isWarTime() {
+        return isWarTime;
+    }
+
+    public void setWarTime(boolean warTime) {
+        isWarTime = warTime;
     }
 }

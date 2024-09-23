@@ -49,7 +49,7 @@ public class NameColorHandler {
             return;
 
         final boolean isSideOne = war.get().getSide1().isOnSide(p);
-        final Side side = war.get().getSideOf(p);
+        final Side side = war.get().getPlayerSide(p);
 
         if (side == null)
             return;
