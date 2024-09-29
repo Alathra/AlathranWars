@@ -224,8 +224,13 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void add(OfflinePlayer p) {
         super.add(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Add player to battles
-        getWar().getSieges().forEach(siege -> {
+        war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
@@ -233,7 +238,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
             }
         });
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.addPlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {
@@ -246,8 +251,13 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void remove(OfflinePlayer p) {
         super.remove(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Remove player from battles
-        getWar().getSieges().forEach(siege -> {
+        war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
@@ -255,7 +265,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
             }
         });
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.removePlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {

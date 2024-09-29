@@ -2,9 +2,11 @@ package com.github.alathra.alathranwars.utility;
 
 import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import com.github.alathra.alathranwars.conflict.war.WarController;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -207,7 +209,7 @@ public abstract class Utils {
         double closestSiege = 100000000D;
 
         for (Siege siege : sieges) {
-            final @Nullable Location location = siege.getTown().getSpawnOrNull();
+            final @Nullable Location location = siege.getControlPoint();
 
             if (location == null) continue;
             if (!location.getWorld().equals(playerLoc.getWorld())) continue;
@@ -226,7 +228,7 @@ public abstract class Utils {
         if (siege == null) return false;
 
         final Location pLocation = p.getLocation();
-        final Location siegeLocation = siege.getTownSpawn();
+        final Location siegeLocation = siege.getControlPoint();
 
         if (siegeLocation == null) return false;
         if (!pLocation.getWorld().equals(siegeLocation.getWorld())) return false;
@@ -291,5 +293,15 @@ public abstract class Utils {
         }
 
         return worldCoords; // Returns list
+    }
+
+    public static Location getTownBlockCenter(TownBlock townBlock) {
+        final World townWorld = townBlock.getWorld().getBukkitWorld();
+        final Location locUpper = townBlock.getWorldCoord().getUpperMostCornerLocation();
+        final Location locLower = townBlock.getWorldCoord().getLowerMostCornerLocation();
+
+        final Location townCenter = locLower.toVector().getMidpoint(locUpper.toVector()).toLocation(townWorld);
+
+        return townCenter;
     }
 }

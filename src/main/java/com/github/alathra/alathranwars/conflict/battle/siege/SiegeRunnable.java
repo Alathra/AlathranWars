@@ -6,6 +6,7 @@ import com.github.alathra.alathranwars.conflict.battle.beam.Laser;
 import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
+import com.github.alathra.alathranwars.meta.ControlPoint;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
@@ -44,8 +45,8 @@ public class SiegeRunnable implements Runnable {
 
         siege.getProgressManager().set(0);
 
-        siege.setHomeBlock(siege.getTown().getHomeBlockOrNull());
         siege.setTownSpawn(siege.getTown().getSpawnOrNull());
+        siege.setControlPoint(ControlPoint.getSafe(siege.getTown()));
 
         nextAnnouncement = Instant.now().plus(ANNOUNCEMENT_COOLDOWN);
 
@@ -65,8 +66,8 @@ public class SiegeRunnable implements Runnable {
 
         siege.getProgressManager().set(siegeProgress);
 
-        siege.setHomeBlock(siege.getTown().getHomeBlockOrNull());
         siege.setTownSpawn(siege.getTown().getSpawnOrNull());
+        siege.setControlPoint(ControlPoint.getSafe(siege.getTown()));
 
         nextAnnouncement = Instant.now().plus(ANNOUNCEMENT_COOLDOWN);
 
@@ -86,13 +87,11 @@ public class SiegeRunnable implements Runnable {
     @Override
     public void run() {
         final @NotNull Town town = siege.getTown();
-        final @Nullable TownBlock homeBlock = siege.getHomeBlock();
+        final @Nullable Location controlPoint = siege.getControlPoint();
         final @Nullable Location townSpawn = siege.getTownSpawn();
 
-        if (homeBlock != null && townSpawn != null) {
-            town.setHomeBlock(homeBlock);
-            town.setSpawn(townSpawn);
-        }
+        if (controlPoint == null)
+            return;
 
         if (townSpawn == null)
             return;
@@ -101,11 +100,11 @@ public class SiegeRunnable implements Runnable {
         startBeam();
 
         // Calculate battlefield players
-        siege.calculateBattlefieldPlayers(townSpawn.toCenterLocation(), BATTLEFIELD_RANGE, this.siege.getWar(), siege);
+        siege.calculateBattlefieldPlayers(controlPoint, BATTLEFIELD_RANGE, siege.getWar(), siege);
 
         // Progress the siege
-        final int attackersOnPoint = getPeopleOnPoint(townSpawn, BattleSide.ATTACKER);
-        final int defendersOnPoint = getPeopleOnPoint(townSpawn, BattleSide.DEFENDER);
+        final int attackersOnPoint = getPeopleOnPoint(controlPoint, BattleSide.ATTACKER);
+        final int defendersOnPoint = getPeopleOnPoint(controlPoint, BattleSide.DEFENDER);
         final @NotNull CaptureProgressDirection progressDirection = getSiegeProgressDirection(attackersOnPoint, defendersOnPoint);
 
         // Siege is past max time or attackers haven't touched in time, defenders won
@@ -191,17 +190,17 @@ public class SiegeRunnable implements Runnable {
         oldProgressDirection = progressDirection;
     }
 
-    private int getPeopleOnPoint(Location townSpawn, BattleSide battleSide) {
+    private int getPeopleOnPoint(Location controlPoint, BattleSide battleSide) {
         int onPoint = 0;
 
         for (final Player p : (battleSide.equals(BattleSide.ATTACKER) ? siege.getActivePlayers(BattleSide.ATTACKER) : siege.getActivePlayers(BattleSide.DEFENDER))) {
             if (p.isDead())
                 continue;
 
-            if (!townSpawn.getWorld().equals(p.getLocation().getWorld()))
+            if (!controlPoint.getWorld().equals(p.getLocation().getWorld()))
                 continue;
 
-            if (townSpawn.distance(p.getLocation()) <= CAPTURE_RANGE) {
+            if (controlPoint.distance(p.getLocation()) <= CAPTURE_RANGE) {
                 onPoint += 1;
             }
         }
@@ -209,6 +208,7 @@ public class SiegeRunnable implements Runnable {
         return onPoint;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private CaptureProgressDirection getSiegeProgressDirection(int attackersOnPoint, int defendersOnPoint) {
         final boolean attackersAreOnPoint = attackersOnPoint > 0;
         final boolean defendersAreOnPoint = defendersOnPoint > 0;
@@ -246,7 +246,7 @@ public class SiegeRunnable implements Runnable {
 
         try {
             try {
-                @Nullable Location loc1 = siege.getTownSpawn();
+                @Nullable Location loc1 = siege.getControlPoint();
                 @NotNull Location loc2 = new Location(loc1.getWorld(), loc1.getX(), loc1.getY() + 350D, loc1.getZ());
 
                 beam = new CrystalLaser(loc1, loc2, -1, 300);

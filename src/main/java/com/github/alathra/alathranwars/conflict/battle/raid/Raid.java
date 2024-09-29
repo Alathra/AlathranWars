@@ -1,34 +1,5 @@
 package com.github.alathra.alathranwars.conflict.battle.raid;
 
-import com.github.alathra.alathranwars.AlathranWars;
-import com.github.alathra.alathranwars.conflict.battle.Battle;
-import com.github.alathra.alathranwars.conflict.war.War;
-import com.github.alathra.alathranwars.conflict.war.side.Side;
-import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
-import com.github.alathra.alathranwars.enums.battle.*;
-import com.github.alathra.alathranwars.events.battle.BattleResultEvent;
-import com.github.alathra.alathranwars.events.battle.PreBattleResultEvent;
-import com.github.milkdrinkers.colorparser.ColorParser;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Credits to the original authors for their implementation which greatly inspired the new one.
  *

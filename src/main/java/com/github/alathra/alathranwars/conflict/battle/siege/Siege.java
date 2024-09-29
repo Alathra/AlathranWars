@@ -10,10 +10,9 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.*;
-import com.github.alathra.alathranwars.events.battle.*;
+import com.github.alathra.alathranwars.event.battle.*;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -57,8 +56,8 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     private Town town; // Town of the siege
     private boolean side1AreAttackers; // bool of if side1 being attacker
     private OfflinePlayer siegeLeader;
-    private @Nullable TownBlock homeBlock = null;
     private @Nullable Location townSpawn = null;
+    private @Nullable Location controlPoint = null;
     private @Nullable BossBar activeBossBar = null;
     private boolean stopped = false; // Used to track if the siege has been already deleted
 
@@ -145,6 +144,11 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
             .forEach(p -> addPlayer(p, BattleSide.DEFENDER));
 
         side1AreAttackers = war.getSide(town).getTeam().equals(BattleTeam.SIDE_2);
+    }
+
+    @Override
+    public War getWar() {
+        return war;
     }
 
     /**
@@ -406,21 +410,20 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     // SECTION Accessors & Getters
 
     @Nullable
-    public TownBlock getHomeBlock() {
-        return homeBlock;
-    }
-
-    public void setHomeBlock(@Nullable TownBlock homeBlock) {
-        this.homeBlock = homeBlock;
-    }
-
-    @Nullable
     public Location getTownSpawn() {
         return townSpawn;
     }
 
     public void setTownSpawn(@Nullable Location townSpawn) {
         this.townSpawn = townSpawn;
+    }
+
+    public @Nullable Location getControlPoint() {
+        return controlPoint;
+    }
+
+    public void setControlPoint(@Nullable Location controlPoint) {
+        this.controlPoint = controlPoint;
     }
 
     public boolean getSide1AreAttackers() {
@@ -431,8 +434,14 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         this.side1AreAttackers = side1AreAttackers;
     }
 
-    public List<Player> getPlayersOnBattlefield() {
-        return Stream.concat(getActivePlayers(BattleSide.ATTACKER).stream(), getActivePlayers(BattleSide.DEFENDER).stream()).toList();
+    public List<Player> getPlayersOnBattlefield() { // TODO Test
+        return Stream.concat(
+            getActivePlayers(BattleSide.SPECTATOR).stream(),
+            Stream.concat(
+                getActivePlayers(BattleSide.DEFENDER).stream(),
+                getActivePlayers(BattleSide.ATTACKER).stream()
+            )
+        ).toList();
     }
 
     @NotNull

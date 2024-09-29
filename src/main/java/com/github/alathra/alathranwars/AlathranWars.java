@@ -1,12 +1,12 @@
 package com.github.alathra.alathranwars;
 
-import com.github.alathra.alathranwars.commands.CommandHandler;
+import com.github.alathra.alathranwars.command.CommandHandler;
 import com.github.alathra.alathranwars.config.ConfigHandler;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.database.handler.DatabaseHandler;
 import com.github.alathra.alathranwars.hook.*;
-import com.github.alathra.alathranwars.listeners.ListenerHandler;
+import com.github.alathra.alathranwars.listener.ListenerHandler;
 import com.github.alathra.alathranwars.translation.TranslationManager;
 import com.github.alathra.alathranwars.updatechecker.UpdateChecker;
 import com.github.alathra.alathranwars.utility.Logger;

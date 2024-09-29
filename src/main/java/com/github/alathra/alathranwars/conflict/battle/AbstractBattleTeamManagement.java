@@ -2,8 +2,8 @@ package com.github.alathra.alathranwars.conflict.battle;
 
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
-import com.github.alathra.alathranwars.events.battle.PlayerEnteredBattlefieldEvent;
-import com.github.alathra.alathranwars.events.battle.PlayerLeftBattlefieldEvent;
+import com.github.alathra.alathranwars.event.battle.PlayerEnteredBattlefieldEvent;
+import com.github.alathra.alathranwars.event.battle.PlayerLeftBattlefieldEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -38,7 +38,8 @@ public abstract class AbstractBattleTeamManagement {
                 .toList();
             case SPECTATOR -> Bukkit.getOnlinePlayers().stream()
                 .map(OfflinePlayer::getPlayer)
-                .filter(p -> !attackers.contains(p) && !defenders.contains(p))
+                .filter(Objects::nonNull)
+                .filter(this::isPlayerParticipating)
                 .toList();
         };
     }
@@ -129,16 +130,16 @@ public abstract class AbstractBattleTeamManagement {
 
     // SECTION Active player management
 
-    private final List<Player> activeAttackers = new ArrayList<>(); // Players in the battle zone
-    private final List<Player> activeDefenders = new ArrayList<>(); // Players in the battle zone
-    private final List<Player> activeSpectators = new ArrayList<>(); // Players in the battle zone
+    private final ArrayList<Player> activeAttackers = new ArrayList<>(); // Players in the battle zone
+    private final ArrayList<Player> activeDefenders = new ArrayList<>(); // Players in the battle zone
+    private final ArrayList<Player> activeSpectators = new ArrayList<>(); // Players in the battle zone
 
     /**
      * Get all online players within the battlefield.
      * @param side battle side
      * @return list of players
      */
-    public List<Player> getActivePlayers(BattleSide side) {
+    public ArrayList<Player> getActivePlayers(BattleSide side) {
         return switch (side) {
             case ATTACKER -> activeAttackers;
             case DEFENDER -> activeDefenders;
@@ -162,16 +163,17 @@ public abstract class AbstractBattleTeamManagement {
         };
     }
 
+    @SuppressWarnings("unchecked")
     public void calculateBattlefieldPlayers(Location location, int range, War war, Battle battle) {
-        final List<Player> previousAttackersOnBattlefield = new ArrayList<>(getActivePlayers(BattleSide.ATTACKER));
-        final List<Player> previousDefendersOnBattlefield = new ArrayList<>(getActivePlayers(BattleSide.DEFENDER));
-        final List<Player> previousSpectatorsOnBattlefield = new ArrayList<>(getActivePlayers(BattleSide.SPECTATOR));
+        final ArrayList<Player> previousAttackersOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.ATTACKER).clone();
+        final ArrayList<Player> previousDefendersOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.DEFENDER).clone();
+        final ArrayList<Player> previousSpectatorsOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.SPECTATOR).clone();
 
         activeAttackers.clear();
-        activeSpectators.addAll(getPlayersWithinRange(BattleSide.ATTACKER, location, range));
+        activeAttackers.addAll(getPlayersWithinRange(BattleSide.ATTACKER, location, range));
 
         activeDefenders.clear();
-        activeSpectators.addAll(getPlayersWithinRange(BattleSide.DEFENDER, location, range));
+        activeDefenders.addAll(getPlayersWithinRange(BattleSide.DEFENDER, location, range));
 
         activeSpectators.clear();
         activeSpectators.addAll(getPlayersWithinRange(BattleSide.SPECTATOR, location, range));
