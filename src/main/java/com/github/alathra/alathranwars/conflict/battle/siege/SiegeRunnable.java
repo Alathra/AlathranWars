@@ -48,7 +48,7 @@ public class SiegeRunnable extends BattleRunnable {
         siege.getProgressManager().set(0);
 
         siege.setTownSpawn(siege.getTown().getSpawnOrNull());
-        siege.setControlPoint(ControlPoint.getSafe(siege.getTown()));
+        siege.setControlPoint(ControlPoint.get(siege.getTown()));
 
         nextAnnouncement = Instant.now().plus(ANNOUNCEMENT_COOLDOWN);
 
@@ -68,7 +68,7 @@ public class SiegeRunnable extends BattleRunnable {
         siege.getProgressManager().set(siegeProgress);
 
         siege.setTownSpawn(siege.getTown().getSpawnOrNull());
-        siege.setControlPoint(ControlPoint.getSafe(siege.getTown()));
+        siege.setControlPoint(ControlPoint.get(siege.getTown()));
 
         nextAnnouncement = Instant.now().plus(ANNOUNCEMENT_COOLDOWN);
 

@@ -6,40 +6,51 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.metadata.LocationDataField;
 import com.palmergames.bukkit.towny.utils.MetaDataUtil;
 import org.bukkit.Location;
-import org.jetbrains.annotations.Nullable;
 
 public class ControlPoint {
-    @SuppressWarnings("unused")
-    private final static LocationDataField controlPoint = new LocationDataField(TownyMetaHandler.META_NAMESPACE + "capturepoint", null, "Capture Point");
+    private final static LocationDataField controlPoint = new LocationDataField(TownyMetaHandler.META_NAMESPACE + "capturepoint");
 
-    @Nullable
+    public static boolean exists(Town town) {
+        return town.hasMeta(controlPoint.getKey());
+    }
+
     public static Location get(Town town) {
-        LocationDataField ldf = (LocationDataField) controlPoint.clone();
+        if (exists(town)) {
+            return MetaDataUtil.getLocation(town, controlPoint);
+        }  else {
+            final Location location = findFallbackLocation(town);
 
-        if (town.hasMeta() && MetaDataUtil.hasMeta(town, ldf))
-            return MetaDataUtil.getLocation(town, ldf);
+            set(town, location);
 
-        return null;
+            return location;
+        }
     }
 
     public static void set(Town town, Location location) {
-        MetaDataUtil.setLocation(town, controlPoint, location, false);
-    }
-
-    public static Location getSafe(Town town) {
-        Location loc = get(town);
-
-        if (loc == null) {
-            TownBlock townBlock = town.getHomeBlockOrNull();
-            if (townBlock == null) {
-                loc = town.getSpawnOrNull();
-                set(town, loc);
-            } else {
-                loc = Utils.getTownBlockCenter(townBlock).toHighestLocation().toCenterLocation();
-                set(town, loc);
-            }
+        if (exists(town)) {
+            MetaDataUtil.setLocation(town, controlPoint, location, true);
+        } else {
+            town.addMetaData(new LocationDataField(controlPoint.getKey(), location));
         }
-
-        return loc;
     }
+
+    /**
+     * Get a fallback location for this town. Primarily returns the center of the town block exposed to air, or the town spawn, or the world spawn.
+     * @param town town
+     * @return a guaranteed location
+     */
+    private static Location findFallbackLocation(Town town) {
+        TownBlock townBlock = town.getHomeBlockOrNull();
+        Location townSpawnLoc = town.getSpawnOrNull();
+
+        if (townBlock == null) {
+            if (townSpawnLoc != null)
+                return townSpawnLoc;
+            return town.getWorld().getSpawnLocation();
+        } else {
+            return Utils.getTownBlockCenter(townBlock).toHighestLocation().toCenterLocation();
+        }
+    }
+
+
 }
