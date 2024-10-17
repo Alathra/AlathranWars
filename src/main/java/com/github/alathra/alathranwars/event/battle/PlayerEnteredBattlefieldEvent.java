@@ -8,6 +8,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Emitted when a player enters a battlefield
+ */
 public class PlayerEnteredBattlefieldEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private final Player player;

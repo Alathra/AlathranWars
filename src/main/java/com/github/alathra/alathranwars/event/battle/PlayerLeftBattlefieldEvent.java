@@ -8,6 +8,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Emitted when a player leaves a battlefield, not emitted for disconnecting players
+ */
 public class PlayerLeftBattlefieldEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private final Player player;
