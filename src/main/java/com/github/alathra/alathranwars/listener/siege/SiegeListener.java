@@ -8,6 +8,7 @@ import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleType;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.event.battle.*;
+import com.github.alathra.alathranwars.utility.Utils;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
@@ -15,9 +16,11 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.time.Duration;
 import java.util.List;
@@ -64,12 +67,12 @@ public class SiegeListener implements Listener {
         );
 
         
-        siege.getActivePlayers(BattleSide.DEFENDER).forEach(player -> {
+        siege.getPlayersInZone(BattleSide.DEFENDER).forEach(player -> {
             player.showTitle(defTitle);
             player.playSound(SOUND_GOATHORNS.get(new Random().nextInt(1, SOUND_GOATHORNS.size())));
         });
 
-        siege.getActivePlayers(BattleSide.ATTACKER).forEach(player -> {
+        siege.getPlayersInZone(BattleSide.ATTACKER).forEach(player -> {
             player.showTitle(attTitle);
             player.playSound(SOUND_GOATHORNS.get(new Random().nextInt(1, SOUND_GOATHORNS.size())));
         });
@@ -119,11 +122,11 @@ public class SiegeListener implements Listener {
                         .build(),
                     TITLE_TIMES
                 );
-                siege.getActivePlayers(BattleSide.ATTACKER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.ATTACKER).forEach(player -> {
                     player.showTitle(vicAttackTitle);
                     player.playSound(SOUND_VICTORY);
                 });
-                siege.getActivePlayers(BattleSide.DEFENDER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.DEFENDER).forEach(player -> {
                     player.showTitle(losAttackTitle);
                     player.playSound(SOUND_DEFEAT);
                 });
@@ -161,11 +164,11 @@ public class SiegeListener implements Listener {
                         .build(),
                     TITLE_TIMES
                 );
-                siege.getActivePlayers(BattleSide.ATTACKER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.ATTACKER).forEach(player -> {
                     player.showTitle(vicDefendTitle);
                     player.playSound(SOUND_DEFEAT);
                 });
-                siege.getActivePlayers(BattleSide.DEFENDER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.DEFENDER).forEach(player -> {
                     player.showTitle(losDefendTitle);
                     player.playSound(SOUND_VICTORY);
                 });
@@ -186,11 +189,11 @@ public class SiegeListener implements Listener {
                         .build(),
                     TITLE_TIMES
                 );
-                siege.getActivePlayers(BattleSide.ATTACKER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.ATTACKER).forEach(player -> {
                     player.showTitle(drawTitle);
                     player.playSound(SOUND_DEFEAT);
                 });
-                siege.getActivePlayers(BattleSide.DEFENDER).forEach(player -> {
+                siege.getPlayersInZone(BattleSide.DEFENDER).forEach(player -> {
                     player.showTitle(drawTitle);
                     player.playSound(SOUND_DEFEAT);
                 });
@@ -267,6 +270,8 @@ public class SiegeListener implements Listener {
 
         if (!(e.getBattle() instanceof Siege siege)) return;
 
+        final Player p = e.getPlayer();
+
         final Title defTitle = Title.title(
             ColorParser.of("<red><u><b>Battle")
                 .parseMinimessagePlaceholder("town", siege.getTown().getName())
@@ -276,7 +281,15 @@ public class SiegeListener implements Listener {
             TITLE_TIMES
         );
 
-        e.getPlayer().showTitle(defTitle);
+        p.showTitle(defTitle);
+
+        // Boss bar
+        final BattleSide battleSide = siege.getPlayerBattleSide(p);
+        switch (battleSide) {
+            case ATTACKER -> siege.getBossBarManager().addAttackerBar(p);
+            case DEFENDER -> siege.getBossBarManager().addDefenderBar(p);
+            case SPECTATOR -> siege.getBossBarManager().addSpectatorBar(p);
+        }
     }
 
     @EventHandler
@@ -284,6 +297,8 @@ public class SiegeListener implements Listener {
         if (!e.getBattle().getBattleType().equals(BattleType.SIEGE)) return;
 
         if (!(e.getBattle() instanceof Siege siege)) return;
+
+        final Player p = e.getPlayer();
 
         final Title defTitle = Title.title(
             ColorParser.of("<red><u><b>Battle")
@@ -294,11 +309,34 @@ public class SiegeListener implements Listener {
             TITLE_TIMES
         );
 
-        e.getPlayer().showTitle(defTitle);
+        p.showTitle(defTitle);
+
+        // Boss bar remove player from audience
+        final BattleSide battleSide = siege.getPlayerBattleSide(p);
+        switch (battleSide) {
+            case ATTACKER -> siege.getBossBarManager().removeAttackerBar(p);
+            case DEFENDER -> siege.getBossBarManager().removeDefenderBar(p);
+            case SPECTATOR -> siege.getBossBarManager().removeSpectatorBar(p);
+        }
     }
 
     @EventHandler
-    public void onMoveControlPoint(SetControlPointEvent e) { // TODO test
+    public void onPlayerServerLeave(PlayerQuitEvent e) {
+        final Player p = e.getPlayer();
+
+        // Boss bar remove player from audience
+        for (Siege siege : WarController.getInstance().getSieges()) {
+            final BattleSide battleSide = siege.getPlayerBattleSide(p);
+            switch (battleSide) {
+                case ATTACKER -> siege.getBossBarManager().removeAttackerBar(p);
+                case DEFENDER -> siege.getBossBarManager().removeDefenderBar(p);
+                case SPECTATOR -> siege.getBossBarManager().removeSpectatorBar(p);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMoveControlPoint(SetControlPointEvent e) {
         if (!WarController.getInstance().isInAnySieges(e.getTown()))
             return;
 

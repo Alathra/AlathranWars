@@ -139,7 +139,7 @@ public class NationListener implements Listener {
 //            Side side = war.getSide(nation);
 //            if (side == null) continue;
 //
-//            side.getPlayers().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
+//            side.getPlayersInBattle().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
 //        }
 //    }
 

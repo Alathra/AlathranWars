@@ -52,7 +52,7 @@ public class Raid {
 //
 //        side1AreAttackers = war.getSide(town).getTeam().equals(BattleTeam.SIDE_2);
 //
-//        if (getSide1AreAttackers()) {
+//        if (isSide1Attackers()) {
 //            attackerPlayersIncludingOffline.addAll(getWar().getSide1().getPlayersAll());
 //            defenderPlayersIncludingOffline.addAll(getWar().getSide2().getPlayersAll());
 //        } else {
@@ -277,7 +277,7 @@ public class Raid {
 //
 //    public void updateDisplayBar(@NotNull CaptureProgressDirection progressDirection) {
 //        if (activeBossBar == null)
-//            createNewDisplayBar();
+//            initBossBar();
 //
 //        for (@NotNull Player p : Bukkit.getOnlinePlayers()) {
 //            p.hideBossBar(activeBossBar);
@@ -332,7 +332,7 @@ public class Raid {
 //        activeBossBar.progress(getRaidProgressPercentage());
 //    }
 //
-//    public void createNewDisplayBar() {
+//    public void initBossBar() {
 //        final @NotNull Component text = ColorParser.of("<gray>Capture Progress: <yellow><progress> <gray>Time: <yellow><time>min")
 //            .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
 //            .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
@@ -341,7 +341,7 @@ public class Raid {
 //        this.activeBossBar = BossBar.bossBar(text, 0, BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_10);
 //    }
 //
-//    public void deleteDisplayBar() {
+//    public void deleteBossBar() {
 //        if (activeBossBar != null) {
 //            for (@NotNull Player p : Bukkit.getOnlinePlayers()) {
 //                p.hideBossBar(activeBossBar);
@@ -397,7 +397,7 @@ public class Raid {
 //        this.townSpawn = townSpawn;
 //    }
 //
-//    public boolean getSide1AreAttackers() {
+//    public boolean isSide1Attackers() {
 //        return side1AreAttackers;
 //    }
 //

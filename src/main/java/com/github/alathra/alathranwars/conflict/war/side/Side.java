@@ -230,13 +230,13 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
             return;
 
         // Add player to battles
-        war.getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
         /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
@@ -257,13 +257,13 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
             return;
 
         // Remove player from battles
-        war.getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
         /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {

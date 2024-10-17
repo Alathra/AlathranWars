@@ -355,13 +355,13 @@ public class CommandUtil {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").build());
 
-                        if (!siege.isPlayerParticipating(player))
+                        if (!siege.isInBattle(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already in that war.").build());
                     } else {
                         if (!(info.sender() instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").build());
 
-                        if (!siege.isPlayerParticipating(player))
+                        if (!siege.isInBattle(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already in this war.").build());
                     }
                 }
@@ -370,13 +370,13 @@ public class CommandUtil {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").build());
 
-                        if (siege.isPlayerParticipating(player))
+                        if (siege.isInBattle(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is not in that war.").build());
                     } else {
                         if (!(info.sender() instanceof Player player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").build());
 
-                        if (siege.isPlayerParticipating(player))
+                        if (siege.isInBattle(player))
                             throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are not in that war.").build());
                     }
                 }
@@ -399,11 +399,11 @@ public class CommandUtil {
 
         if (isAdmin) {
             if (info.previousArgs().get(playerNodeName) instanceof Player player) {
-                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> !siege.isPlayerParticipating(player)).map(Siege::getName).toList();
+                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> !siege.isInBattle(player)).map(Siege::getName).toList();
             }
         } else {
             if (info.sender() instanceof Player player) {
-                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> !siege.isPlayerParticipating(player)).map(Siege::getName).toList();
+                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> !siege.isInBattle(player)).map(Siege::getName).toList();
             }
         }
 
@@ -415,11 +415,11 @@ public class CommandUtil {
 
         if (isAdmin) {
             if (info.previousArgs().get(playerNodeName) instanceof Player player) {
-                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> siege.isPlayerParticipating(player)).map(Siege::getName).toList();
+                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> siege.isInBattle(player)).map(Siege::getName).toList();
             }
         } else {
             if (info.sender() instanceof Player player) {
-                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> siege.isPlayerParticipating(player)).map(Siege::getName).toList();
+                siegeNames = WarController.getInstance().getSieges().stream().filter(siege -> siege.isInBattle(player)).map(Siege::getName).toList();
             }
         }
 

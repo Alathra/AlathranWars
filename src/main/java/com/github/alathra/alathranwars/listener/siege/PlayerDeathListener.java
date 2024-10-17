@@ -1,5 +1,6 @@
 package com.github.alathra.alathranwars.listener.siege;
 
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import com.github.alathra.alathranwars.conflict.war.WarController;
@@ -7,12 +8,13 @@ import com.github.alathra.alathranwars.utility.Utils;
 import com.palmergames.bukkit.towny.event.deathprice.NationPaysDeathPriceEvent;
 import com.palmergames.bukkit.towny.event.deathprice.PlayerPaysDeathPriceEvent;
 import com.palmergames.bukkit.towny.event.deathprice.TownPaysDeathPriceEvent;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class PlayerDeathListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -85,7 +87,7 @@ public class PlayerDeathListener implements Listener {
 
         if (!Utils.isOnSiegeBattlefield(victim, siege)) return;
 
-        if (siege.isPlayerParticipating(victim) && siege.isPlayerParticipating(attacker)) {
+        if (siege.isInBattle(victim) && siege.isInBattle(attacker)) {
             siegeKill(e);
         } else {
             oocKill(e);
@@ -108,7 +110,7 @@ public class PlayerDeathListener implements Listener {
 
         if (!Utils.isOnSiegeBattlefield(victim, siege)) return;
 
-        if (siege.isPlayerParticipating(victim)) {
+        if (siege.isInBattle(victim)) {
             siegeKill(e);
         } else {
             oocKill(e);
@@ -133,8 +135,8 @@ public class PlayerDeathListener implements Listener {
 
     }
 
-    @EventHandler
-    private void respawnEvent(PlayerRespawnEvent e) { // TODO test
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void respawnEvent(PlayerPostRespawnEvent e) { // TODO test
         Player p = e.getPlayer();
 
         Siege siege = Utils.getClosestSiege(p, false);
@@ -143,7 +145,14 @@ public class PlayerDeathListener implements Listener {
         if (!Utils.isOnSiegeBattlefield(p, siege)) return;
 
         if (siege.getDefenderSide().isOnSide(p) && siege.getTownSpawn() != null) {
-            e.setRespawnLocation(siege.getTownSpawn());
+            Location wrongLoc = e.getRespawnedLocation();
+
+            // Is the new spawn location close enough to not use custom spawn
+            if (wrongLoc.getWorld().equals(siege.getTownSpawn().getWorld()) && wrongLoc.distance(siege.getTownSpawn()) < 5)
+                return;
+
+            p.teleportAsync(siege.getTownSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+//            e.setRespawnLocation(siege.getTownSpawn());
         }
     }
 

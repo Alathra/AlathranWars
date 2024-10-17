@@ -287,7 +287,7 @@ public class WarController {
      */
     public Set<Siege> getSieges(UUID uuid) {
         return getSieges().stream()
-            .filter(siege -> siege.isPlayerParticipating(uuid))
+            .filter(siege -> siege.isInBattle(uuid))
             .collect(Collectors.toSet());
     }
 
@@ -420,9 +420,15 @@ public class WarController {
      * @param side2 a side
      * @return true if opposing each-other in a war
      */
-    public boolean isAtWar(Side side1, Side side2) {
+    public static boolean isAtWar(Side side1, Side side2) {
         // Return early if comparing same side to prevent false positive
         if (side1.equals(side2))
+            return false;
+
+        if (side1.getWar() == null)
+            return false;
+
+        if (side2.getWar() == null)
             return false;
 
         return side1.getWar().equals(side2.getWar());
@@ -434,9 +440,9 @@ public class WarController {
      * @param government2 nation or town
      * @return true if governments are on opposing sides in any war
      */
-    public boolean isAtWar(Government government1, Government government2) {
-        Set<War> wars1 = getWars(government1);
-        Set<War> wars2 = getWars(government2);
+    public static boolean isAtWar(Government government1, Government government2) {
+        Set<War> wars1 = WarController.getInstance().getWars(government1);
+        Set<War> wars2 = WarController.getInstance().getWars(government2);
 
         /*final boolean isInSameWar = wars1.stream().anyMatch(wars2::contains);
         if (!isInSameWar)

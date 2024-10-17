@@ -3,12 +3,13 @@ package com.github.alathra.alathranwars.conflict.battle.siege;
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.conflict.battle.AbstractBattleTeamManagement;
 import com.github.alathra.alathranwars.conflict.battle.Battle;
+import com.github.alathra.alathranwars.conflict.battle.BattleRunnableManager;
+import com.github.alathra.alathranwars.conflict.battle.bossbar.BossBarManager;
 import com.github.alathra.alathranwars.conflict.battle.phase.BattlePhaseManager;
 import com.github.alathra.alathranwars.conflict.battle.progress.BattleProgressManager;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
-import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.*;
 import com.github.alathra.alathranwars.event.battle.*;
 import com.github.milkdrinkers.colorparser.ColorParser;
@@ -25,9 +26,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -52,14 +53,16 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     // Misc fields
     private Instant endTime;
     private Instant lastTouched;
-    private SiegeRunnable battleRunnable;
     private Town town; // Town of the siege
-    private boolean side1AreAttackers; // bool of if side1 being attacker
+    private final boolean isSide1Attackers; // bool of if side1 ia attacker side in this battle (This is cached in its getter)
     private OfflinePlayer siegeLeader;
     private @Nullable Location townSpawn = null;
     private @Nullable Location controlPoint = null;
-    private @Nullable BossBar activeBossBar = null;
     private boolean stopped = false; // Used to track if the siege has been already deleted
+
+    // Runnable manager
+    private final BattleRunnableManager runnableController = new BattleRunnableManager();
+    private final BossBarManager bossBarManager = new BossBarManager();
 
     // Progress / Phases
     private final BattleProgressManager progressManager; // Represents the capture progress of the capture point in this case
@@ -77,11 +80,18 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         Town town,
         Player siegeLeader
     ) {
-        super();
-        uuid = UUID.randomUUID();
+        super(
+            isSide1Attackers(war, town) ? // Pass attackers side
+            war.getSide1() :
+            war.getSide2(),
+            isSide1Attackers(war, town) ? // Pass defenders side
+            war.getSide2() :
+            war.getSide1()
+        );
+        this.uuid = UUID.randomUUID();
 
-        endTime = Instant.now().plus(SIEGE_DURATION);
-        lastTouched = Instant.now();
+        this.endTime = Instant.now().plus(SIEGE_DURATION);
+        this.lastTouched = Instant.now();
 
         this.war = war;
         this.town = town;
@@ -89,15 +99,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         this.progressManager = new BattleProgressManager(0, MAX_SIEGE_PROGRESS);
         this.phaseManager = new BattlePhaseManager<>(SiegePhase.SIEGE, 0, Instant.now());
 
-        side1AreAttackers = war.getSide(town).getTeam().equals(BattleTeam.SIDE_2);
-
-        if (getSide1AreAttackers()) {
-            getWar().getSide1().getPlayers().forEach(p -> addPlayer(p, BattleSide.ATTACKER));
-            getWar().getSide2().getPlayers().forEach(p -> addPlayer(p, BattleSide.DEFENDER));
-        } else {
-            getWar().getSide2().getPlayers().forEach(p -> addPlayer(p, BattleSide.ATTACKER));
-            getWar().getSide1().getPlayers().forEach(p -> addPlayer(p, BattleSide.DEFENDER));
-        }
+        this.isSide1Attackers = isSide1Attackers(getWar(), getTown());
     }
 
     /**
@@ -127,7 +129,14 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         int phaseProgress,
         Instant phaseStartTime
     ) {
-        super();
+        super(
+            isSide1Attackers(war, town) ? // Pass attackers side
+                war.getSide1() :
+                war.getSide2(),
+            isSide1Attackers(war, town) ? // Pass defenders side
+                war.getSide2() :
+                war.getSide1()
+        );
         this.war = war;
         this.uuid = uuid;
         this.town = town;
@@ -136,14 +145,8 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         this.lastTouched = lastTouched;
         this.progressManager = new BattleProgressManager(siegeProgress, MAX_SIEGE_PROGRESS);
         this.phaseManager = new BattlePhaseManager<>(phase, phaseProgress, phaseStartTime);
-        attackers.stream()
-            .map(Bukkit::getOfflinePlayer)
-            .forEach(p -> addPlayer(p, BattleSide.ATTACKER));
-        defenders.stream()
-            .map(Bukkit::getOfflinePlayer)
-            .forEach(p -> addPlayer(p, BattleSide.DEFENDER));
 
-        side1AreAttackers = war.getSide(town).getTeam().equals(BattleTeam.SIDE_2);
+        this.isSide1Attackers = isSide1Attackers(getWar(), getTown());
     }
 
     @Override
@@ -158,8 +161,10 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void start() {
         if (!new PreBattleStartEvent(war, this, BattleType.SIEGE).callEvent()) return;
 
-        battleRunnable = new SiegeRunnable(this);
+        runnableController.add(new SiegeRunnable(this), new SiegeTeamRunnable(this));
+        runnableController.start();
         stopped = false;
+        initBossBar();
 
         if (!war.isEventWar())
             if (AlathranWars.getVaultHook().isEconomyLoaded())
@@ -175,8 +180,10 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void resume() {
         if (!new PreBattleStartEvent(war, this, BattleType.SIEGE).callEvent()) return;
 
-        battleRunnable = new SiegeRunnable(this, getProgressManager().get());
+        runnableController.add(new SiegeRunnable(this, getProgressManager().get()), new SiegeTeamRunnable(this));
+        runnableController.start();
         stopped = false;
+        initBossBar();
 
         new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
@@ -190,7 +197,8 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void stop() {
         if (stopped) return;
         stopped = true;
-        battleRunnable.cancel();
+        runnableController.stop();
+        deleteBossBar();
         DatabaseQueries.deleteSiege(this); // TODO Run as latent event?
         war.removeSiege(this); // TODO Run as latent event?
     }
@@ -284,91 +292,53 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
      * Gets attacker name string
      */
     public Side getAttackerSide() {
-        return getSide1AreAttackers() ? war.getSide1() : war.getSide2();
+        return isSide1Attackers() ? war.getSide1() : war.getSide2();
     }
 
     /**
      * Gets defender name string
      */
     public Side getDefenderSide() {
-        return getSide1AreAttackers() ? war.getSide2() : war.getSide1();
+        return isSide1Attackers() ? war.getSide2() : war.getSide1();
     }
 
     // SECTION Display Bar
 
-    public void updateDisplayBar(@NotNull CaptureProgressDirection progressDirection) {
-        if (activeBossBar == null)
-            createNewDisplayBar();
-
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.hideBossBar(activeBossBar);
-        }
-
-        for (Player p : this.getPlayersOnBattlefield()) {
-            if (p != null)
-                p.showBossBar(activeBossBar);
-        }
-
-        final String color = switch (progressDirection) {
-            case UP -> {
-                if (getAttackerSide().getSide().equals(BattleSide.ATTACKER)) {
-                    activeBossBar.color(BossBar.Color.RED);
-                    yield "<red>";
-                } else {
-                    activeBossBar.color(BossBar.Color.BLUE);
-                    yield "<blue>";
-                }
-            }
-            case CONTESTED -> {
-                activeBossBar.color(BossBar.Color.YELLOW);
-                yield "<yellow>";
-            }
-            case UNCONTESTED -> {
-                activeBossBar.color(BossBar.Color.WHITE);
-                yield "<white>";
-            }
-            case DOWN -> {
-                if (getAttackerSide().getSide().equals(BattleSide.ATTACKER)) {
-                    activeBossBar.color(BossBar.Color.BLUE);
-                    yield "<blue>";
-                } else {
-                    activeBossBar.color(BossBar.Color.RED);
-                    yield "<red>";
-                }
-            }
-        };
-
-        if (Instant.now().isBefore(getEndTime())) {
-            activeBossBar.name(
-                ColorParser.of("<gray>Capture Progress: %s<progress> <gray>Time: %s<time>min".formatted(color, color))
-                    .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getSiegeProgressPercentage() * 100))
-                    .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutes()))
-                    .build()
-            );
-        } else {
-            activeBossBar.name(
-                ColorParser.of("%sOVERTIME".formatted(color)).build()
-            );
-        }
-        activeBossBar.progress(getSiegeProgressPercentage());
+    public BossBarManager getBossBarManager() {
+        return bossBarManager;
     }
 
-    public void createNewDisplayBar() {
+    private void initBossBar() {
         final Component text = ColorParser.of("<gray>Capture Progress: <yellow><progress> <gray>Time: <yellow><time>min")
             .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getSiegeProgressPercentage() * 100))
             .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
             .build();
 
-        this.activeBossBar = BossBar.bossBar(text, 0, BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_10);
+        final BossBarManager manager = getBossBarManager();
+
+        manager.getAttackerBar().name(text);
+        manager.getAttackerBar().progress(0);
+        manager.getAttackerBar().color(BossBar.Color.YELLOW);
+        manager.getAttackerBar().overlay(BossBar.Overlay.NOTCHED_10);
+
+        manager.getDefenderBar().name(text);
+        manager.getDefenderBar().progress(0);
+        manager.getDefenderBar().color(BossBar.Color.YELLOW);
+        manager.getDefenderBar().overlay(BossBar.Overlay.NOTCHED_10);
+
+        manager.getSpectatorBar().name(text);
+        manager.getSpectatorBar().progress(0);
+        manager.getSpectatorBar().color(BossBar.Color.YELLOW);
+        manager.getSpectatorBar().overlay(BossBar.Overlay.NOTCHED_10);
     }
 
-    public void deleteDisplayBar() {
-        if (activeBossBar != null) {
-            for (@NotNull Player p : Bukkit.getOnlinePlayers()) {
-                p.hideBossBar(activeBossBar);
-            }
+    private void deleteBossBar() {
+        final BossBarManager manager = getBossBarManager();
 
-            activeBossBar = null;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            manager.removeAttackerBar(p);
+            manager.removeDefenderBar(p);
+            manager.removeSpectatorBar(p);
         }
     }
 
@@ -426,22 +396,29 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         this.controlPoint = controlPoint;
     }
 
-    public boolean getSide1AreAttackers() {
-        return side1AreAttackers;
+    public static boolean isSide1Attackers(War war, Town town) {
+        if (war == null)
+            return false;
+
+        final Side side = war.getSide(town);
+        if (side == null)
+            return false;
+
+        return side.getTeam().equals(BattleTeam.SIDE_2);
     }
 
-    public void setSide1AreAttackers(final boolean side1AreAttackers) {
-        this.side1AreAttackers = side1AreAttackers;
+    public boolean isSide1Attackers() {
+        return isSide1Attackers;
     }
 
-    public List<Player> getPlayersOnBattlefield() { // TODO Test
+    public Set<Player> getPlayersOnBattlefield() {
         return Stream.concat(
-            getActivePlayers(BattleSide.SPECTATOR).stream(),
+            getPlayersInZone(BattleSide.SPECTATOR).stream(),
             Stream.concat(
-                getActivePlayers(BattleSide.DEFENDER).stream(),
-                getActivePlayers(BattleSide.ATTACKER).stream()
+                getPlayersInZone(BattleSide.DEFENDER).stream(),
+                getPlayersInZone(BattleSide.ATTACKER).stream()
             )
-        ).toList();
+        ).collect(Collectors.toUnmodifiableSet());
     }
 
     @NotNull

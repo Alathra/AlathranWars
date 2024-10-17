@@ -1,5 +1,8 @@
 package com.github.alathra.alathranwars.listener.war;
 
+import com.github.alathra.alathranwars.conflict.war.War;
+import com.github.alathra.alathranwars.conflict.war.WarController;
+import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +13,16 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     private void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        NameColorHandler.getInstance().calculatePlayerColors(p);
+
+        // Handle player logout
+        for (War war : WarController.getInstance().getWars(p)) {
+            Side side = war.getPlayerSide(p);
+            if (side == null)
+                continue;
+
+            side.logout(p);
+        }
+
+        NameColorHandler.getInstance().removePlayer(p);
     }
 }

@@ -79,7 +79,7 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
         if (task.isCancelled()) return;
 
         task.cancel();
-        raid.deleteDisplayBar();
+        raid.deleteBossBar();
     }
 
     @Override

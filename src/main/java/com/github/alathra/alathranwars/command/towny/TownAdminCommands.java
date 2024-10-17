@@ -1,6 +1,5 @@
 package com.github.alathra.alathranwars.command.towny;
 
-import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.event.battle.PreSetControlPointEvent;
 import com.github.alathra.alathranwars.event.battle.SetControlPointEvent;
 import com.github.alathra.alathranwars.meta.ControlPoint;
@@ -66,9 +65,6 @@ class TownAdminCommands extends BaseCommand implements TabExecutor {
 
         Town town = getTownOrThrow(args[0]);
 
-        if (WarController.getInstance().isInAnySieges(town)) // TODO Check for raids
-            throw new TownyException("The specified town is currently in battle.");
-
         final @Nullable Location oldLoc = ControlPoint.get(town);
 
         PreSetControlPointEvent preEvent = new PreSetControlPointEvent(town, oldLoc, p.getLocation(), p);
@@ -79,9 +75,6 @@ class TownAdminCommands extends BaseCommand implements TabExecutor {
 
         if (!town.getWorld().equals(loc.getWorld()))
             throw new TownyException("The capture point is not in the same world as the town.");
-
-        if (!town.isInsideTown(loc))
-            throw new TownyException("The capture point is not within the town.");
 
         ControlPoint.set(town, loc);
 

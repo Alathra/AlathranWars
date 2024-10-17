@@ -30,11 +30,15 @@ public class NameColorHandler {
         return instance;
     }
 
+    public void removePlayer(Player p) {
+        playerColor.remove(p);
+        playerInitial.remove(p);
+        playerPrefix.remove(p);
+    }
+
     public void calculatePlayerColors(Player p) {
         if (!WarController.getInstance().isInAnyWars(p)) {
-            playerColor.remove(p);
-            playerInitial.remove(p);
-            playerPrefix.remove(p);
+            removePlayer(p);
             return;
         }
 

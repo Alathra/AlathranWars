@@ -52,8 +52,8 @@ public class War extends Conflict {
     private final ConflictType conflictType = ConflictType.WAR;
     private boolean event;
 
-    private Side side1;
-    private Side side2;
+    private final Side side1;
+    private final Side side2;
     private final Side attacker; // Reference variable to side1 or side2
     private final Side defender; // Reference variable to side1 or side2
 
@@ -293,7 +293,6 @@ public class War extends Conflict {
     @ApiStatus.Internal
     public void setSieges(Set<Siege> sieges) {
         this.sieges = sieges;
-        this.sieges.forEach(Siege::resume);
     }
 
     /**

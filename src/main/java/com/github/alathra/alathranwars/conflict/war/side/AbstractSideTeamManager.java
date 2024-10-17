@@ -7,11 +7,10 @@ import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -25,6 +24,10 @@ public abstract class AbstractSideTeamManager {
     private final Set<Nation> nationsSurrendered = new HashSet<>(); // Collection surrendered of nations in the war (excludes non-surrendered)
     private final Set<Town> townsSurrendered = new HashSet<>(); // Collection of surrendered towns in the war (excludes non-surrendered)
     private final Set<OfflinePlayer> playersSurrendered = new HashSet<>(); // Collection of surrendered players in the war (excludes non-surrendered)
+
+    // These fields only exist during runtime
+    private final Set<Player> playersOnline = new HashSet<>(); // Collection of online players in the war (excludes surrendered)
+    private final Set<Player> playersSurrenderedOnline = new HashSet<>(); // Collection of online surrendered players in the war (excludes non-surrendered)
 
     public AbstractSideTeamManager() {}
 
@@ -42,6 +45,17 @@ public abstract class AbstractSideTeamManager {
         this.nationsSurrendered.addAll(nationsSurrendered);
         this.townsSurrendered.addAll(townsSurrendered);
         this.playersSurrendered.addAll(playersSurrendered);
+
+        this.playersOnline.addAll(getPlayers().stream()
+            .filter(OfflinePlayer::isConnected)
+            .map(OfflinePlayer::getPlayer)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet()));
+        this.playersSurrenderedOnline.addAll(getPlayersSurrendered().stream()
+            .filter(OfflinePlayer::isConnected)
+            .map(OfflinePlayer::getPlayer)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet()));
     }
 
     // SECTION Governments management
@@ -147,6 +161,8 @@ public abstract class AbstractSideTeamManager {
      */
     public void add(OfflinePlayer p) {
         players.add(p);
+        if (p.isConnected() && p.getPlayer() != null) // Handle online player
+            login(p.getPlayer());
     }
 
     /**
@@ -171,6 +187,8 @@ public abstract class AbstractSideTeamManager {
      */
     public void remove(OfflinePlayer p) {
         players.remove(p);
+        if (p.isConnected() && p.getPlayer() != null) // Handle online player
+            logout(p.getPlayer());
     }
 
     /**
@@ -195,6 +213,8 @@ public abstract class AbstractSideTeamManager {
      */
     public void addSurrendered(OfflinePlayer p) {
         playersSurrendered.add(p);
+        if (p.isConnected() && p.getPlayer() != null) // Handle online player
+            login(p.getPlayer());
     }
 
     /**
@@ -219,7 +239,61 @@ public abstract class AbstractSideTeamManager {
      */
     public void removeSurrendered(OfflinePlayer p) {
         playersSurrendered.remove(p);
+        if (p.isConnected() && p.getPlayer() != null) // Handle online player
+            logout(p.getPlayer());
     }
+
+    /**
+     * Add a player to the online set
+     * @param p a player
+     * @apiNote this is only used internally to manage which players are online or not
+     * @hidden
+     */
+    @ApiStatus.Internal
+    public void login(Player p) {
+        if (isSurrendered(p)) {
+            playersSurrenderedOnline.add(p);
+        } else {
+            playersOnline.add(p);
+        }
+    }
+
+    /**
+     * Remove a player from the online set
+     * @param p a player
+     * @apiNote this is only used internally to manage which players are online or not
+     * @hidden
+     */
+    @ApiStatus.Internal
+    public void logout(Player p) {
+        if (isSurrendered(p)) {
+            playersSurrenderedOnline.remove(p);
+        } else {
+            playersOnline.remove(p);
+        }
+    }
+
+//    /**
+//     * Add a player to the online set
+//     * @param p a player
+//     * @apiNote this is only used internally to manage which players are online or not
+//     * @hidden
+//     */
+//    @ApiStatus.Internal
+//    public void addSurrenderedOnline(Player p) {
+//        playersSurrenderedOnline.add(p);
+//    }
+//
+//    /**
+//     * Remove a player from the online set
+//     * @param p a player
+//     * @apiNote this is only used internally to manage which players are online or not
+//     * @hidden
+//     */
+//    @ApiStatus.Internal
+//    public void removeSurrenderedOnline(Player p) {
+//        playersSurrenderedOnline.remove(p);
+//    }
 
     /**
      * Kick a player from the side
@@ -294,8 +368,8 @@ public abstract class AbstractSideTeamManager {
      * Get all towns on this side (includes surrendered towns)
      * @return the towns
      */
-    public List<Town> getTownsAll() {
-        return Stream.concat(getTowns().stream(), getTownsSurrendered().stream()).toList();
+    public Set<Town> getTownsAll() {
+        return Stream.concat(getTowns().stream(), getTownsSurrendered().stream()).collect(Collectors.toUnmodifiableSet());
     }
 
     // SECTION Players Getters
@@ -304,54 +378,48 @@ public abstract class AbstractSideTeamManager {
      * Get all players on this side (excluding surrendered)
      * @return player list
      */
-    public List<OfflinePlayer> getPlayers() {
-        return players.stream().toList();
+    public Set<OfflinePlayer> getPlayers() {
+        return players.stream().collect(Collectors.toUnmodifiableSet());
     }
 
     /**
      * Get all players on this side (excludes non-surrendered players)
      * @return player list
      */
-    public List<OfflinePlayer> getPlayersSurrendered() {
-        return playersSurrendered.stream().toList();
+    public Set<OfflinePlayer> getPlayersSurrendered() {
+        return playersSurrendered.stream().collect(Collectors.toUnmodifiableSet());
     }
 
     /**
      * Get all players on this side (includes surrendered players)
      * @return player list
      */
-    public List<OfflinePlayer> getPlayersAll() {
-        return Stream.concat(getPlayers().stream(), getPlayersSurrendered().stream()).toList();
+    public Set<OfflinePlayer> getPlayersAll() {
+        return Stream.concat(getPlayers().stream(), getPlayersSurrendered().stream()).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
      * Get all online players on this side (excluding surrendered)
      * @return player list
      */
-    public List<Player> getPlayersOnline() {
-        return players.stream()
-            .filter(OfflinePlayer::isOnline)
-            .map(OfflinePlayer::getPlayer)
-            .toList();
+    public Set<Player> getPlayersOnline() {
+        return playersOnline;
     }
 
     /**
      * Get all online players on this side (excludes non-surrendered players)
      * @return player list
      */
-    public List<Player> getPlayersSurrenderedOnline() {
-        return playersSurrendered.stream()
-            .filter(OfflinePlayer::isOnline)
-            .map(OfflinePlayer::getPlayer)
-            .toList();
+    public Set<Player> getPlayersSurrenderedOnline() {
+        return playersSurrenderedOnline;
     }
 
     /**
      * Get all online players on this side (includes surrendered players)
      * @return player list
      */
-    public List<Player> getPlayersOnlineAll() {
-        return Stream.concat(getPlayersOnline().stream(), getPlayersSurrenderedOnline().stream()).toList();
+    public Set<Player> getPlayersOnlineAll() {
+        return Stream.concat(getPlayersOnline().stream(), getPlayersSurrenderedOnline().stream()).collect(Collectors.toUnmodifiableSet());
     }
 
     // Checks
@@ -541,6 +609,5 @@ public abstract class AbstractSideTeamManager {
         final int townsQty = nation.getNumTowns();
         final int surrenderedTownsQty = nation.getTowns().stream().filter(this::isSurrendered).mapToInt(value -> 1).sum();
         return surrenderedTownsQty == townsQty;
-
     }
 }

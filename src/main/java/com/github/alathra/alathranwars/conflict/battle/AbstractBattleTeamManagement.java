@@ -1,6 +1,7 @@
 package com.github.alathra.alathranwars.conflict.battle;
 
 import com.github.alathra.alathranwars.conflict.war.War;
+import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.event.battle.PlayerEnteredBattlefieldEvent;
 import com.github.alathra.alathranwars.event.battle.PlayerLeftBattlefieldEvent;
@@ -8,9 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides methods for handling all members of a Battle
@@ -18,197 +21,271 @@ import java.util.stream.Collectors;
 public abstract class AbstractBattleTeamManagement {
     // SECTION Player management
 
-    private final List<OfflinePlayer> attackers = new ArrayList<>(); // A list of all players who are in the attackers team
-    private final List<OfflinePlayer> defenders = new ArrayList<>(); // A list of all players who are in the attackers team
+    private final Side attackerSide;
+    private final Side defenderSide;
+
+    protected AbstractBattleTeamManagement(Side attackerSide, Side defenderSide) {
+        this.attackerSide = attackerSide;
+        this.defenderSide = defenderSide;
+    }
 
     /**
      * Get all online players eligible to fight in the battle
      * @param side battle side
-     * @return list of players
+     * @return set of players
+     * @apiNote This does not mean the players are inside the battle zone, only that they are in the related war
      */
-    public List<Player> getPlayersOnline(BattleSide side) {
+    public Set<Player> getPlayersInBattle(BattleSide side) {
         return switch (side) {
-            case ATTACKER -> attackers.stream()
-                .filter(OfflinePlayer::isOnline)
-                .map(OfflinePlayer::getPlayer)
-                .toList();
-            case DEFENDER -> defenders.stream()
-                .filter(OfflinePlayer::isOnline)
-                .map(OfflinePlayer::getPlayer)
-                .toList();
-            case SPECTATOR -> Bukkit.getOnlinePlayers().stream()
+            case ATTACKER -> attackerSide.getPlayersOnline(); // Get online players from side as they are tracked there
+            case DEFENDER -> defenderSide.getPlayersOnline(); // Get online players from side as they are tracked there
+            case SPECTATOR -> Bukkit.getOnlinePlayers().stream() // Get all online players minus attackers & defenders
                 .map(OfflinePlayer::getPlayer)
                 .filter(Objects::nonNull)
-                .filter(this::isPlayerParticipating)
-                .toList();
+                .filter(p -> !this.isInBattle(p))
+                .collect(Collectors.toSet());
         };
     }
-
-    /**
-     * Get all players eligible to fight in the battle
-     * @param side battle side
-     * @return list of players
-     */
-    public List<OfflinePlayer> getPlayers(BattleSide side) {
-        return switch (side) {
-            case ATTACKER -> attackers;
-            case DEFENDER -> defenders;
-            default -> List.of();
-        };
-    }
-
-    public void addPlayer(OfflinePlayer p, BattleSide side) {
-        switch (side) {
-            case ATTACKER -> attackers.add(p);
-            case DEFENDER -> defenders.add(p);
-        }
-    }
-
-    public void addPlayer(Player p, BattleSide side) { addPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()), side); }
-
-    public void addPlayer(UUID uuid, BattleSide side) { addPlayer(Bukkit.getOfflinePlayer(uuid), side); }
-
-    public void removePlayer(OfflinePlayer p, BattleSide side) {
-        switch (side) {
-            case ATTACKER -> attackers.remove(p);
-            case DEFENDER -> defenders.remove(p);
-        }
-    }
-
-    public void removePlayer(Player p, BattleSide side) { removePlayer(p.getUniqueId(), side); }
-
-    public void removePlayer(UUID uuid, BattleSide side) { removePlayer(Bukkit.getOfflinePlayer(uuid), side); }
 
     // Player info methods
 
-    public BattleSide getPlayerBattleSide(OfflinePlayer p) {
-        if (getPlayers(BattleSide.ATTACKER).contains(p))
+    /**
+     * Get which team the player belongs to in the battle
+     * @param p player
+     * @return the team, or spectator
+     */
+    public BattleSide getPlayerBattleSide(@Nullable Player p) {
+        if (p == null)
+            return BattleSide.SPECTATOR;
+
+        if (isAttacker(p))
             return BattleSide.ATTACKER;
 
-        if (getPlayers(BattleSide.DEFENDER).contains(p))
+        if (isDefender(p))
             return BattleSide.DEFENDER;
 
         return BattleSide.SPECTATOR;
     }
 
-    public BattleSide getPlayerBattleSide(Player p) {
-        return getPlayerBattleSide(p.getUniqueId());
+    /**
+     * Check if a player is on the attacking side
+     * @param p player
+     * @return boolean
+     */
+    public boolean isAttacker(Player p) {
+        return attackerSide.isOnSide(p);
     }
 
-    public BattleSide getPlayerBattleSide(UUID uuid) {
-        return getPlayerBattleSide(Bukkit.getOfflinePlayer(uuid));
+    /**
+     * Check if a player is on the defending side
+     * @param p player
+     * @return boolean
+     */
+    public boolean isDefender(Player p) {
+        return defenderSide.isOnSide(p);
     }
 
-    // Misc
+    /**
+     * Check if a player is on the spectator side
+     * @param p player
+     * @return boolean
+     */
+    public boolean isSpectator(Player p) {
+        return !isInBattle(p);
+    }
 
     /**
      * Checks if the player is considered part of this battle
      * @param p the player
-     * @return yes if they have joined the battle
+     * @return yes if they are in the associated war
+     * @apiNote This does not mean the player is inside the battle zone, only that they are in the associated war
      */
-    public boolean isPlayerParticipating(OfflinePlayer p) {
-        return getPlayers(BattleSide.ATTACKER).contains(p) || getPlayers(BattleSide.DEFENDER).contains(p);
-    }
+    public boolean isInBattle(@Nullable Player p) {
+        if (p == null)
+            return false;
 
-    /**
-     * Checks if the player is considered part of this battle
-     * @param p the player
-     * @return yes if they have joined the battle
-     */
-    public boolean isPlayerParticipating(Player p) {
-        return isPlayerParticipating(p.getUniqueId());
+        return isAttacker(p) || isDefender(p);
     }
 
     /**
      * Checks if the player is considered part of this battle
      * @param uuid the player uuid
      * @return yes if they have joined the battle
+     * @apiNote This does not mean the player is inside the battle zone, only that they are in the associated war
      */
-    public boolean isPlayerParticipating(UUID uuid) {
-        return isPlayerParticipating(Bukkit.getOfflinePlayer(uuid));
+    public boolean isInBattle(UUID uuid) {
+        return isInBattle(Bukkit.getOfflinePlayer(uuid).getPlayer());
     }
 
-    // SECTION Active player management
+    // SECTION Players in battle zone management
 
-    private final ArrayList<Player> activeAttackers = new ArrayList<>(); // Players in the battle zone
-    private final ArrayList<Player> activeDefenders = new ArrayList<>(); // Players in the battle zone
-    private final ArrayList<Player> activeSpectators = new ArrayList<>(); // Players in the battle zone
+    private final Set<Player> attackers = new HashSet<>(); // Players inside the battle zone
+    private final Set<Player> defenders = new HashSet<>(); // Players inside the battle zone
+    private final Set<Player> spectators = new HashSet<>(); // Players inside the battle zone
 
     /**
-     * Get all online players within the battlefield.
-     * @param side battle side
-     * @return list of players
+     * Get all online players inside the battle zone.
+     * @return set of players
      */
-    public ArrayList<Player> getActivePlayers(BattleSide side) {
+    public Set<Player> getPlayersInZone() {
+        return Stream.concat(
+            attackers.stream(),
+            Stream.concat(
+                defenders.stream(),
+                spectators.stream()
+            )
+        ).collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * Get all online players inside the battle zone.
+     * @param side battle side
+     * @return set of players
+     */
+    public Set<Player> getPlayersInZone(BattleSide side) {
         return switch (side) {
-            case ATTACKER -> activeAttackers;
-            case DEFENDER -> activeDefenders;
-            case SPECTATOR -> activeSpectators;
+            case ATTACKER -> attackers;
+            case DEFENDER -> defenders;
+            case SPECTATOR -> spectators;
         };
     }
 
-    private void addActivePlayer(Player p, BattleSide side) {
-        switch (side) {
-            case ATTACKER -> activeAttackers.add(p);
-            case DEFENDER -> activeDefenders.add(p);
-            case SPECTATOR -> activeSpectators.add(p);
-        };
+    /**
+     * Checks if the player is inside the battle zone
+     * @param p the player
+     * @return yes if they are inside the battle zone
+     */
+    public boolean isPlayerInZone(@Nullable Player p) {
+        if (p == null)
+            return false;
+
+        return attackers.contains(p) || defenders.contains(p) || spectators.contains(p);
     }
 
-    private void removeActivePlayer(Player p, BattleSide side) {
-        switch (side) {
-            case ATTACKER -> activeAttackers.remove(p);
-            case DEFENDER -> activeDefenders.remove(p);
-            case SPECTATOR -> activeSpectators.remove(p);
-        };
+    /**
+     * Checks if the player is inside the battle zone
+     * @param uuid the player uuid
+     * @return yes if they are inside the battle zone
+     */
+    public boolean isPlayerInZone(UUID uuid) {
+        return isPlayerInZone(Bukkit.getOfflinePlayer(uuid).getPlayer());
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Check if a player on the attacking side is inside the battle zone
+     * @param p player
+     * @return boolean
+     */
+    public boolean isAttackerInZone(Player p) {
+        return attackers.contains(p);
+    }
+
+    /**
+     * Check if a player on the defending side is inside the battle zone
+     * @param p player
+     * @return boolean
+     */
+    public boolean isDefenderInZone(Player p) {
+        return defenders.contains(p);
+    }
+
+    /**
+     * Check if a player on the spectator side is inside the battle zone
+     * @param p player
+     * @return boolean
+     */
+    public boolean isSpectatorInZone(Player p) {
+        return spectators.contains(p);
+    }
+
+    /**
+     * Recalculate which players are within the zone and send events for leaving/entering players
+     * @apiNote Leaving/entering events are only emitted for connected players
+     * @param location location
+     * @param range range
+     * @param war war
+     * @param battle battle
+     */
     public void calculateBattlefieldPlayers(Location location, int range, War war, Battle battle) {
-        final ArrayList<Player> previousAttackersOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.ATTACKER).clone();
-        final ArrayList<Player> previousDefendersOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.DEFENDER).clone();
-        final ArrayList<Player> previousSpectatorsOnBattlefield = (ArrayList<Player>) getActivePlayers(BattleSide.SPECTATOR).clone();
+        // Make copied sets of players who were previously inside the zone
+        final Set<Player> previousAttackers = Set.copyOf(getPlayersInZone(BattleSide.ATTACKER));
+        final Set<Player> previousDefenders = Set.copyOf(getPlayersInZone(BattleSide.DEFENDER));
+        final Set<Player> previousSpectators = Set.copyOf(getPlayersInZone(BattleSide.SPECTATOR));
 
-        activeAttackers.clear();
-        activeAttackers.addAll(getPlayersWithinRange(BattleSide.ATTACKER, location, range));
+        emitLeaving(attackers, previousAttackers, BattleSide.ATTACKER, war, battle); // Emit Leaving attackers events
+        emitLeaving(defenders, previousDefenders, BattleSide.DEFENDER, war, battle); // Emit Leaving defenders events
+        emitLeaving(spectators, previousSpectators, BattleSide.SPECTATOR, war, battle); // Emit Leaving spectators events
 
-        activeDefenders.clear();
-        activeDefenders.addAll(getPlayersWithinRange(BattleSide.DEFENDER, location, range));
+        // Clear sets and repopulate with people who are now in the zones
+        attackers.clear();
+        attackers.addAll(getPlayersInZone(BattleSide.ATTACKER, location, range));
 
-        activeSpectators.clear();
-        activeSpectators.addAll(getPlayersWithinRange(BattleSide.SPECTATOR, location, range));
+        defenders.clear();
+        defenders.addAll(getPlayersInZone(BattleSide.DEFENDER, location, range));
+
+        spectators.clear();
+        spectators.addAll(getPlayersInZone(BattleSide.SPECTATOR, location, range));
 
         // Attackers
-        emitLeaving(BattleSide.ATTACKER, previousAttackersOnBattlefield, war, battle); // Emit Leaving attackers events
-        emitEntering(BattleSide.ATTACKER, previousAttackersOnBattlefield, war, battle); // Emit Entering attackers events
+        emitEntering(attackers, previousAttackers, BattleSide.ATTACKER, war, battle); // Emit Entering attackers events
 
         // Defenders
-        emitLeaving(BattleSide.DEFENDER, previousDefendersOnBattlefield, war, battle); // Emit Leaving defenders events
-        emitEntering(BattleSide.DEFENDER, previousDefendersOnBattlefield, war, battle); // Emit Entering defenders events
+        emitEntering(defenders, previousDefenders, BattleSide.DEFENDER, war, battle); // Emit Entering defenders events
 
         // Spectators
-        emitLeaving(BattleSide.SPECTATOR, previousSpectatorsOnBattlefield, war, battle); // Emit Leaving spectators events
-        emitEntering(BattleSide.SPECTATOR, previousSpectatorsOnBattlefield, war, battle); // Emit Entering spectators events
+        emitEntering(spectators, previousSpectators, BattleSide.SPECTATOR, war, battle); // Emit Entering spectators events
     }
 
-    private List<Player> getPlayersWithinRange(BattleSide battleSide, Location location, int range) {
-        return getPlayersOnline(battleSide).stream()
-            .filter(OfflinePlayer::isOnline)
-            .filter(p -> location.getWorld().equals(p.getLocation().getWorld()))
-            .filter(p -> location.distance(p.getLocation()) < range)
-            .toList();
+    /**
+     * Get a set of all players on a battle side who are inside the battle zone
+     * @param battleSide battle side
+     * @param location location
+     * @param range range
+     * @return set of players in range of zone
+     */
+    private Set<Player> getPlayersInZone(BattleSide battleSide, Location location, int range) {
+        return getPlayersInBattle(battleSide).stream()
+            .filter(p -> AbstractBattleTeamManagement.isInRange(p, location, range))
+            .collect(Collectors.toUnmodifiableSet());
     }
 
-    private void emitEntering(BattleSide battleSide, List<Player> previousPlayers, War war, Battle battle) {
-        getActivePlayers(battleSide).stream()
-            .filter(p -> p.isConnected() && !previousPlayers.contains(p))
+    /**
+     * Used to check if a player is within range of a location
+     * @param p player
+     * @param location location
+     * @param range range
+     * @return boolean
+     */
+    private static boolean isInRange(final Player p, final Location location, final int range) {
+        return p.getWorld().equals(location.getWorld()) && p.getLocation().distance(location) < range;
+    }
+
+    /**
+     * Emit battle zone entering events for all current players
+     * @param currentPlayers set of players currently in the zone
+     * @param battleSide battle side
+     * @param previousPlayers set of players previously in the zone
+     * @param war war
+     * @param battle battle
+     */
+    private static void emitEntering(Set<Player> currentPlayers, Set<Player> previousPlayers, BattleSide battleSide, War war, Battle battle) {
+        currentPlayers.stream()
+            .filter(p -> !previousPlayers.contains(p)) // Do not emit for players still inside the zone
             .collect(Collectors.toSet())
             .forEach(p -> new PlayerEnteredBattlefieldEvent(p, war, battle, battleSide).callEvent());
     }
 
-    private void emitLeaving(BattleSide battleSide, List<Player> previousPlayers, War war, Battle battle) {
+    /**
+     * Emit battle zone leaving events for all previous players
+     * @param currentPlayers set of players currently in the zone
+     * @param battleSide battle side
+     * @param previousPlayers set of players previously in the zone
+     * @param war war
+     * @param battle battle
+     */
+    private static void emitLeaving(Set<Player> currentPlayers, Set<Player> previousPlayers, BattleSide battleSide, War war, Battle battle) {
         previousPlayers.stream()
-            .filter(p -> p.isConnected() && !getActivePlayers(battleSide).contains(p))
+            .filter(p -> p.isConnected() && !currentPlayers.contains(p)) // Do not emit for players still inside the zone
             .collect(Collectors.toSet())
             .forEach(p -> new PlayerLeftBattlefieldEvent(p, war, battle, battleSide).callEvent());
     }
