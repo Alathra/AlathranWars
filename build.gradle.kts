@@ -56,6 +56,8 @@ repositories {
         content { includeGroup("me.clip") }
     }
 
+    maven("https://repo.essentialsx.net/releases/")
+    maven("https://repo.essentialsx.net/snapshots/")
     maven("https://repo.dmulloy2.net/repository/public/") // ProtocolLib
 }
 
@@ -81,7 +83,8 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6") {
         exclude("me.clip.placeholderapi.libs", "kyori")
     }
-    compileOnly("com.palmergames.bukkit.towny:towny:0.100.2.6") {
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("com.palmergames.bukkit.towny:towny:0.100.3.0") {
         exclude("com.palmergames.adventure")
     }
     compileOnly("me.neznamy:tab-api:4.0.2")
@@ -89,6 +92,8 @@ dependencies {
     compileOnly("com.github.Gecolay.GSit:core:1.9.0")
     compileOnly(files("lib/HeadsPlus-7.0.14.jar"))
     compileOnly(files("lib/Skulls.jar"))
+    compileOnly("net.essentialsx:EssentialsX:2.20.1")
+    compileOnly("net.essentialsx:EssentialsXSpawn:2.20.1")
 
     // Database Dependencies (Core)
     implementation("com.zaxxer:HikariCP:5.1.0")
@@ -195,7 +200,7 @@ tasks {
 
     runServer {
         // Configure the Minecraft version for our task.
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.4")
 
         // IntelliJ IDEA debugger setup: https://docs.papermc.io/paper/dev/debugging#using-a-remote-debugger
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true", "-DIReallyKnowWhatIAmDoingISwear", "-Dpaper.playerconnection.keepalive=6000")
@@ -205,8 +210,7 @@ tasks {
         // Automatically install dependencies
         downloadPlugins {
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
-            url("https://download.luckperms.net/1521/bukkit/loader/LuckPerms-Bukkit-5.4.108.jar")
-            modrinth("tab-was-taken", "4.1.2")
+            modrinth("tab-was-taken", "4.1.8")
             github("PlaceholderAPI", "PlaceholderAPI", "2.11.4", "PlaceholderAPI-2.11.4.jar")
             url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
 //            url("https://www.spigotmc.org/resources/skulls-the-ultimate-head-database.90098/download?version=520217/Skulls.jar")
@@ -235,7 +239,7 @@ bukkit { // Options: https://github.com/Minecrell/plugin-yml#bukkit
     // Misc properties
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD // STARTUP or POSTWORLD
     depend = listOf("Vault", "ProtocolLib", "Towny")
-    softDepend = listOf("PlaceholderAPI", "TAB", "Skulls", "HeadsPlus")
+    softDepend = listOf("PlaceholderAPI", "TAB", "Skulls", "HeadsPlus", "Essentials")
 }
 
 flyway {

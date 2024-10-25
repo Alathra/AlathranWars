@@ -1,34 +1,5 @@
 package com.github.alathra.alathranwars.conflict.battle.raid;
 
-import com.github.alathra.alathranwars.AlathranWars;
-import com.github.alathra.alathranwars.conflict.battle.Battle;
-import com.github.alathra.alathranwars.conflict.war.War;
-import com.github.alathra.alathranwars.conflict.war.side.Side;
-import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
-import com.github.alathra.alathranwars.enums.battle.*;
-import com.github.alathra.alathranwars.events.battle.BattleResultEvent;
-import com.github.alathra.alathranwars.events.battle.PreBattleResultEvent;
-import com.github.milkdrinkers.colorparser.ColorParser;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Credits to the original authors for their implementation which greatly inspired the new one.
  *
@@ -81,7 +52,7 @@ public class Raid {
 //
 //        side1AreAttackers = war.getSide(town).getTeam().equals(BattleTeam.SIDE_2);
 //
-//        if (getSide1AreAttackers()) {
+//        if (isSide1Attackers()) {
 //            attackerPlayersIncludingOffline.addAll(getWar().getSide1().getPlayersAll());
 //            defenderPlayersIncludingOffline.addAll(getWar().getSide2().getPlayersAll());
 //        } else {
@@ -306,7 +277,7 @@ public class Raid {
 //
 //    public void updateDisplayBar(@NotNull CaptureProgressDirection progressDirection) {
 //        if (activeBossBar == null)
-//            createNewDisplayBar();
+//            initBossBar();
 //
 //        for (@NotNull Player p : Bukkit.getOnlinePlayers()) {
 //            p.hideBossBar(activeBossBar);
@@ -361,7 +332,7 @@ public class Raid {
 //        activeBossBar.progress(getRaidProgressPercentage());
 //    }
 //
-//    public void createNewDisplayBar() {
+//    public void initBossBar() {
 //        final @NotNull Component text = ColorParser.of("<gray>Capture Progress: <yellow><progress> <gray>Time: <yellow><time>min")
 //            .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
 //            .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
@@ -370,7 +341,7 @@ public class Raid {
 //        this.activeBossBar = BossBar.bossBar(text, 0, BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_10);
 //    }
 //
-//    public void deleteDisplayBar() {
+//    public void deleteBossBar() {
 //        if (activeBossBar != null) {
 //            for (@NotNull Player p : Bukkit.getOnlinePlayers()) {
 //                p.hideBossBar(activeBossBar);
@@ -426,7 +397,7 @@ public class Raid {
 //        this.townSpawn = townSpawn;
 //    }
 //
-//    public boolean getSide1AreAttackers() {
+//    public boolean isSide1Attackers() {
 //        return side1AreAttackers;
 //    }
 //

@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAssociatedWar {
-    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(30);
-    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(30);
+    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(15);
+    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(15);
     private final UUID warUUID;
     private final UUID uuid;
     private final BattleSide side;
@@ -224,16 +224,21 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void add(OfflinePlayer p) {
         super.add(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Add player to battles
-        getWar().getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.addPlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {
@@ -246,16 +251,21 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void remove(OfflinePlayer p) {
         super.remove(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Remove player from battles
-        getWar().getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.removePlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {

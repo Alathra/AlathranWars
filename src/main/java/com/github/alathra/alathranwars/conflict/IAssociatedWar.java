@@ -1,12 +1,14 @@
 package com.github.alathra.alathranwars.conflict;
 
 import com.github.alathra.alathranwars.conflict.war.War;
+import org.jetbrains.annotations.Nullable;
 
 public interface IAssociatedWar {
     /**
      * Gets the associated war with this object from the war uuid
-     * @return the associated war
+     * @return the associated war or null if it doesn't exist yet (Like during war creation)
      */
+    @Nullable
     War getWar();
 
     /**

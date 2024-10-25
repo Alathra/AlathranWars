@@ -1,12 +1,12 @@
 package com.github.alathra.alathranwars;
 
-import com.github.alathra.alathranwars.commands.CommandHandler;
+import com.github.alathra.alathranwars.command.CommandHandler;
 import com.github.alathra.alathranwars.config.ConfigHandler;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.database.handler.DatabaseHandler;
 import com.github.alathra.alathranwars.hook.*;
-import com.github.alathra.alathranwars.listeners.ListenerHandler;
+import com.github.alathra.alathranwars.listener.ListenerHandler;
 import com.github.alathra.alathranwars.translation.TranslationManager;
 import com.github.alathra.alathranwars.updatechecker.UpdateChecker;
 import com.github.alathra.alathranwars.utility.Logger;
@@ -31,6 +31,9 @@ public class AlathranWars extends JavaPlugin {
     private static VaultHook vaultHook;
     private static ProtocolLibHook protocolLibHook;
     private static PAPIHook papiHook;
+
+    // Data
+    private boolean isWarTime = false;
 
     public void onLoad() {
         instance = this;
@@ -121,6 +124,7 @@ public class AlathranWars extends JavaPlugin {
      *
      * @return the more paper lib instance
      */
+    @NotNull
     public static MorePaperLib getPaperLib() {
         return paperLib;
     }
@@ -193,5 +197,13 @@ public class AlathranWars extends JavaPlugin {
     @NotNull
     public static ProtocolLibHook getProtocolLibHook() {
         return protocolLibHook;
+    }
+
+    public boolean isWarTime() {
+        return isWarTime;
+    }
+
+    public void setWarTime(boolean warTime) {
+        isWarTime = warTime;
     }
 }

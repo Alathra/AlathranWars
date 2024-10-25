@@ -46,6 +46,16 @@ public class PAPIExpansion extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player p, @NotNull String params) {
         return switch (params) {
+            case "player_nametag_prefix" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerPrefix(p);
+                yield "";
+            }
+            case "player_tab" -> {
+                if (colorHandler.isPlayerUsingModifiedName(p))
+                    yield colorHandler.getPlayerTabNameColor(p);
+                yield "";
+            }
             case "player_tablist" -> {
                 if (colorHandler.isPlayerUsingModifiedName(p))
                     yield colorHandler.getPlayerTabNameColor(p) + "%essentials_nickname_stripped%";

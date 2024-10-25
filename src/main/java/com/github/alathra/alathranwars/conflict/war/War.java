@@ -13,10 +13,10 @@ import com.github.alathra.alathranwars.enums.WarDeleteReason;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleTeam;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
-import com.github.alathra.alathranwars.events.PreWarCreateEvent;
-import com.github.alathra.alathranwars.events.PreWarDeleteEvent;
-import com.github.alathra.alathranwars.events.WarCreateEvent;
-import com.github.alathra.alathranwars.events.WarDeleteEvent;
+import com.github.alathra.alathranwars.event.PreWarCreateEvent;
+import com.github.alathra.alathranwars.event.PreWarDeleteEvent;
+import com.github.alathra.alathranwars.event.WarCreateEvent;
+import com.github.alathra.alathranwars.event.WarDeleteEvent;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
@@ -52,8 +52,8 @@ public class War extends Conflict {
     private final ConflictType conflictType = ConflictType.WAR;
     private boolean event;
 
-    private Side side1;
-    private Side side2;
+    private final Side side1;
+    private final Side side2;
     private final Side attacker; // Reference variable to side1 or side2
     private final Side defender; // Reference variable to side1 or side2
 
@@ -293,7 +293,6 @@ public class War extends Conflict {
     @ApiStatus.Internal
     public void setSieges(Set<Siege> sieges) {
         this.sieges = sieges;
-        this.sieges.forEach(Siege::resume);
     }
 
     /**
