@@ -7,11 +7,7 @@ import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import org.jetbrains.annotations.ApiStatus;
 
 public interface Battle extends IUnique<Battle> {
-    War war = null;
-
-    default War getWar() {
-        return war;
-    }
+    War getWar();
 
     /**
      * Starts the battle

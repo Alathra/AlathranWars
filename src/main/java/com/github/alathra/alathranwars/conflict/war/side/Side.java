@@ -2,8 +2,10 @@ package com.github.alathra.alathranwars.conflict.war.side;
 
 import com.github.alathra.alathranwars.conflict.IAssociatedWar;
 import com.github.alathra.alathranwars.conflict.IUnique;
+import com.github.alathra.alathranwars.conflict.IUpdateable;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
+import com.github.alathra.alathranwars.conflict.war.side.spawn.SpawnCache;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleTeam;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
@@ -18,9 +20,9 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
-public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAssociatedWar {
-    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(30);
-    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(30);
+public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAssociatedWar, IUpdateable {
+    private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(15);
+    private static final Duration RAID_COOLDOWN = Duration.ofMinutes(15);
     private final UUID warUUID;
     private final UUID uuid;
     private final BattleSide side;
@@ -32,6 +34,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     private Instant raidGrace = Instant.now().minus(RAID_COOLDOWN); // The time after which this side can be raided
 
     private int score = 0;
+    private final SpawnCache spawnCache;
 
     /**
      * Instantiates a existing Side.
@@ -70,6 +73,8 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         } else {
             throw new SideCreationException("No town or nation specified!");
         }
+
+        this.spawnCache = new SpawnCache(this);
     }
 
     /**
@@ -101,6 +106,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         }
 
         this.name = this.town.getName();
+        this.spawnCache = new SpawnCache(this);
     }
 
     public BattleSide getSide() {
@@ -224,16 +230,21 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void add(OfflinePlayer p) {
         super.add(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Add player to battles
-        getWar().getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.addPlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.addPlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {
@@ -246,21 +257,39 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     public void remove(OfflinePlayer p) {
         super.remove(p);
 
+        // Check if war exists yet, (it does not during war creation)
+        War war = getWar();
+        if (war == null)
+            return;
+
         // Remove player from battles
-        getWar().getSieges().forEach(siege -> {
+        /*war.getSieges().forEach(siege -> {
             if (siege.getAttackerSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.ATTACKER);
             } else if (siege.getDefenderSide().equals(this)) {
                 siege.removePlayer(p, BattleSide.DEFENDER);
             }
-        });
+        });*/
         // TODO Raids
-        /*getWar().getRaids().forEach(raid -> {
+        /*war.getRaids().forEach(raid -> {
             if (raid.getAttackerSide().equals(this)) {
                 raid.removePlayer(p, BattleSide.ATTACKER);
             } else if (raid.getDefenderSide().equals(this)) {
                 raid.removePlayer(p, BattleSide.DEFENDER);
             }
         });*/
+    }
+
+    // Spawning
+
+    public SpawnCache getSpawnManager() {
+        return spawnCache;
+    }
+
+    // Misc
+
+    @Override
+    public void update() {
+        getSpawnManager().update();
     }
 }

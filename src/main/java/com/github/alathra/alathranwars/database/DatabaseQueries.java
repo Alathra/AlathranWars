@@ -250,7 +250,7 @@ public abstract class DatabaseQueries {
         }
     }
 
-    public static void saveSiegePlayers(Connection con, Siege siege) {
+    public static void saveSiegePlayers(Connection con, Siege siege) { // TODO We no longer save players in battles
         try {
             transaction(con, (connection, context) -> {
                 context
@@ -258,7 +258,7 @@ public abstract class DatabaseQueries {
                     .where(SIEGE_PLAYERS.SIEGE.equal(fromUUIDToBytes(siege.getUUID())))
                     .execute();
 
-                for (UUID uuid : siege.getPlayers(BattleSide.ATTACKER).stream().map(OfflinePlayer::getUniqueId).toList()) {
+                for (UUID uuid : siege.getPlayersInBattle(BattleSide.ATTACKER).stream().map(OfflinePlayer::getUniqueId).toList()) {
                     context.insertInto(SIEGE_PLAYERS, SIEGE_PLAYERS.SIEGE, SIEGE_PLAYERS.PLAYER, SIEGE_PLAYERS.TEAM)
                         .values(
                             fromUUIDToBytes(siege.getUUID()),
@@ -268,7 +268,7 @@ public abstract class DatabaseQueries {
                         .execute();
                 }
 
-                for (UUID uuid : siege.getPlayers(BattleSide.DEFENDER).stream().map(OfflinePlayer::getUniqueId).toList()) {
+                for (UUID uuid : siege.getPlayersInBattle(BattleSide.DEFENDER).stream().map(OfflinePlayer::getUniqueId).toList()) {
                     context.insertInto(SIEGE_PLAYERS, SIEGE_PLAYERS.SIEGE, SIEGE_PLAYERS.PLAYER, SIEGE_PLAYERS.TEAM)
                         .values(
                             fromUUIDToBytes(siege.getUUID()),
@@ -321,6 +321,7 @@ public abstract class DatabaseQueries {
             for (War war : wars) {
                 @NotNull Set<Siege> sieges = loadSieges(con, war);
                 war.setSieges(sieges);
+                sieges.forEach(Siege::resume);
             }
         } catch (SQLException | DataAccessException e) {
             Logger.get().error("SQL Query threw an error!", e);

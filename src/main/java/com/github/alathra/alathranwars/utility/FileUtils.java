@@ -134,7 +134,7 @@ public abstract class FileUtils {
     public static void extractResource(
         @NotNull final Path resourcePath,
         @NotNull final Path targetPath,
-        @NotNull final boolean overwrite
+        final boolean overwrite
     ) throws IOException {
         // Check if path is absolute which breaks our relative path navigation below
         if (resourcePath.isAbsolute())
