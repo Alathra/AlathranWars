@@ -24,6 +24,6 @@ public class SiegeParticleRunnable extends BattleRunnable {
             return;
 
         // TODO Fade between side colors depending on who has more people on point
-        ParticleCircle.sendCircle(siege.getPlayersOnBattlefield(), controlPoint, SiegeRunnable.CAPTURE_RANGE, 90, new Color(255, 255, 255));
+        ParticleCircle.sendCircle(siege.getPlayersOnBattlefield(), controlPoint.clone().add(0, 0.4, 0), SiegeRunnable.CAPTURE_RANGE, 90, new Color(255, 255, 255));
     }
 }
