@@ -8,6 +8,7 @@ import me.tofaa.entitylib.wrapper.WrapperEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -95,13 +96,10 @@ public class CustomLaser {
         if (entity == null)
             return;
 
-        entity.setLocation(SpigotConversionUtil.fromBukkitLocation(from));
-        entity.consumeEntityMeta(EndCrystalMeta.class, meta -> {
-            meta.setHasNoGravity(true);
-            meta.setInvisible(true);
-            meta.setShowingBottom(false);
-            meta.setBeamTarget(SpigotConversionUtil.fromBukkitLocation(to).getPosition().toVector3i());
-        });
+        Set<UUID> previousViewers = entity.getViewers();
+        despawn();
+        spawn();
+        previousViewers.forEach(viewer -> entity.addViewer(viewer));
     }
 
     /**
