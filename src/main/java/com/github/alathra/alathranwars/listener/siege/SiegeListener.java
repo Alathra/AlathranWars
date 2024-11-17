@@ -1,6 +1,7 @@
 package com.github.alathra.alathranwars.listener.siege;
 
 import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
+import com.github.alathra.alathranwars.conflict.battle.siege.SiegeUtils;
 import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
@@ -8,7 +9,7 @@ import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleType;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.event.battle.*;
-import com.github.alathra.alathranwars.utility.Utils;
+import com.github.alathra.alathranwars.packet.CustomLaser;
 import com.github.alathra.alathranwars.utility.UtilsChat;
 import com.github.milkdrinkers.colorparser.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
@@ -264,6 +265,10 @@ public class SiegeListener implements Listener {
         }
     }
 
+    /**
+     * On player entering a battlefield.
+     * @param e event
+     */
     @EventHandler
     public void onBattleEnter(PlayerEnteredBattlefieldEvent e) {
         if (!e.getBattle().getBattleType().equals(BattleType.SIEGE)) return;
@@ -290,8 +295,17 @@ public class SiegeListener implements Listener {
             case DEFENDER -> siege.getBossBarManager().addDefenderBar(p);
             case SPECTATOR -> siege.getBossBarManager().addSpectatorBar(p);
         }
+
+        // End Crystal laser
+        CustomLaser laser = siege.getLaserManager().getLaser();
+        if (laser != null)
+            laser.addViewer(p);
     }
 
+    /**
+     * On player leaving a battlefield.
+     * @param e event
+     */
     @EventHandler
     public void onBattleLeave(PlayerLeftBattlefieldEvent e) {
         if (!e.getBattle().getBattleType().equals(BattleType.SIEGE)) return;
@@ -318,20 +332,30 @@ public class SiegeListener implements Listener {
             case DEFENDER -> siege.getBossBarManager().removeDefenderBar(p);
             case SPECTATOR -> siege.getBossBarManager().removeSpectatorBar(p);
         }
+
+        // End Crystal laser
+        CustomLaser laser = siege.getLaserManager().getLaser();
+        if (laser != null)
+            laser.removeViewer(p);
     }
 
     @EventHandler
     public void onPlayerServerLeave(PlayerQuitEvent e) {
         final Player p = e.getPlayer();
 
-        // Boss bar remove player from audience
         for (Siege siege : WarController.getInstance().getSieges()) {
+            // Boss bar remove player from audience
             final BattleSide battleSide = siege.getPlayerBattleSide(p);
             switch (battleSide) {
                 case ATTACKER -> siege.getBossBarManager().removeAttackerBar(p);
                 case DEFENDER -> siege.getBossBarManager().removeDefenderBar(p);
                 case SPECTATOR -> siege.getBossBarManager().removeSpectatorBar(p);
             }
+
+            // End Crystal laser
+            CustomLaser laser = siege.getLaserManager().getLaser();
+            if (laser != null)
+                laser.removeViewer(p);
         }
     }
 
@@ -347,6 +371,11 @@ public class SiegeListener implements Listener {
                 continue;
 
             siege.setControlPoint(e.getNewLocation());
+
+            // End Crystal laser position update
+            CustomLaser laser = siege.getLaserManager().getLaser();
+            if (laser != null && siege.getControlPoint() != null)
+                laser.move(siege.getControlPoint(), SiegeUtils.getLaserToLocation(siege.getControlPoint()));
         }
     }
 }

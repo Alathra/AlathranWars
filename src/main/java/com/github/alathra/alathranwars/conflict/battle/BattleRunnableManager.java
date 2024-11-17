@@ -1,12 +1,13 @@
 package com.github.alathra.alathranwars.conflict.battle;
 
 import com.github.alathra.alathranwars.AlathranWars;
+import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BattleRunnableManager {
+public class BattleRunnableManager implements BattleManager {
     private final List<BattleRunnable> battleRunnables = new ArrayList<>();
     private final List<ScheduledTask> scheduledTasks = new ArrayList<>();
     private boolean isRunning = false;
@@ -22,8 +23,9 @@ public class BattleRunnableManager {
      * @param runnable a battle runnable
      * @implNote Adding runnables after a {@link BattleRunnableManager} has already executed the {@link #start()} method will have no effect, as the new runnables are never scheduled to run.
      */
-    public void add(BattleRunnable runnable) {
-        battleRunnables.add(runnable);
+    public void add(@Nullable BattleRunnable runnable) {
+        if (runnable != null)
+            battleRunnables.add(runnable);
     }
 
     /**
@@ -31,8 +33,8 @@ public class BattleRunnableManager {
      * @param runnables a battle runnable
      * @implNote Adding runnables after a {@link BattleRunnableManager} has already executed the {@link #start()} method will have no effect, as the new runnables are never scheduled to run.
      */
-    public void add(BattleRunnable... runnables) {
-        for (BattleRunnable runnable : runnables) {
+    public void add(@Nullable BattleRunnable... runnables) {
+        for (@Nullable BattleRunnable runnable : runnables) {
             add(runnable);
         }
     }
@@ -40,6 +42,7 @@ public class BattleRunnableManager {
     /**
      * Start the runnables for this battle.
      */
+    @Override
     public void start() {
         if (isRunning)
             return;
@@ -54,6 +57,7 @@ public class BattleRunnableManager {
     /**
      * Stop the runnables for this battle.
      */
+    @Override
     public void stop() {
         if (!isRunning)
             return;

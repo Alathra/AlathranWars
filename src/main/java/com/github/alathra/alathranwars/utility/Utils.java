@@ -4,6 +4,7 @@ import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.WorldCoord;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -14,10 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class Utils {
@@ -199,6 +197,13 @@ public abstract class Utils {
     }
 
     // TODO Implement usage in siege commands to make siege optional argument
+
+    /**
+     * Get the closest siege to the player
+     * @param p player
+     * @param checkIfInSiege check whether the players is a participant in the battle
+     * @return siege or null
+     */
     public static @Nullable Siege getClosestSiege(Player p, boolean checkIfInSiege) {
         Set<Siege> sieges = checkIfInSiege
             ? WarController.getInstance().getSieges().stream().filter(siege -> siege.isInBattle(p)).collect(Collectors.toSet())
@@ -224,6 +229,12 @@ public abstract class Utils {
         return siegeResult;
     }
 
+    /**
+     * Check if the player is currently within the battle zone
+     * @param p player
+     * @param siege battle
+     * @return true if within range
+     */
     public static boolean isOnSiegeBattlefield(Player p, Siege siege) {
         if (siege == null) return false;
 
@@ -295,13 +306,35 @@ public abstract class Utils {
         return worldCoords; // Returns list
     }
 
+    /**
+     * Get the approximate center of the town block
+     * @param townBlock town block
+     * @return location
+     */
     public static Location getTownBlockCenter(TownBlock townBlock) {
         final World townWorld = townBlock.getWorld().getBukkitWorld();
         final Location locUpper = townBlock.getWorldCoord().getUpperMostCornerLocation();
         final Location locLower = townBlock.getWorldCoord().getLowerMostCornerLocation();
 
-        final Location townCenter = locLower.toVector().getMidpoint(locUpper.toVector()).toLocation(townWorld);
+        if (townWorld == null)
+            throw new IllegalStateException("townWorld is somehow null!");
 
-        return townCenter;
+        return locLower.toVector().getMidpoint(locUpper.toVector()).toLocation(townWorld);
+    }
+
+    /**
+     * Just use the methods that exist on {@link Location} object
+     * @param location location
+     * @param dist dist
+     * @return list
+     */
+    @Deprecated
+    public static List<Player> getPlayersAtCoord(Location location, int dist) {
+        return Bukkit.getOnlinePlayers().stream()
+            .map(Player::getPlayer)
+            .filter(Objects::nonNull)
+            .filter(p -> location.getWorld().equals(p.getWorld()))
+            .filter(p -> location.distance(p.getLocation()) < dist)
+            .toList();
     }
 }

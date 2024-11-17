@@ -1,9 +1,6 @@
 package com.github.alathra.alathranwars.conflict.battle.siege;
 
-import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.conflict.battle.BattleRunnable;
-import com.github.alathra.alathranwars.conflict.battle.beam.CrystalLaser;
-import com.github.alathra.alathranwars.conflict.battle.beam.Laser;
 import com.github.alathra.alathranwars.conflict.battle.bossbar.BossBarManager;
 import com.github.alathra.alathranwars.conflict.battle.bossbar.WrappedBossBar;
 import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
@@ -28,13 +25,12 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
 public class SiegeRunnable extends BattleRunnable {
     // Settings
     private static final Duration ANNOUNCEMENT_COOLDOWN = Duration.ofMinutes(5);
-    private final static int CAPTURE_RANGE = 10;
+    public final static int CAPTURE_RANGE = 10;
     private final @NotNull Siege siege;
 
     // Variables
     private @NotNull CaptureProgressDirection oldProgressDirection = UNCONTESTED;
     private Instant nextAnnouncement;
-    private @Nullable Laser beam;
 
     /**
      * Start a siege
@@ -76,11 +72,6 @@ public class SiegeRunnable extends BattleRunnable {
     }
 
     @Override
-    public void stop() {
-        stopBeam();
-    }
-
-    @Override
     public void run() {
         final @Nullable Location controlPoint = siege.getControlPoint();
         final @Nullable Location townSpawn = siege.getTownSpawn();
@@ -90,9 +81,6 @@ public class SiegeRunnable extends BattleRunnable {
 
         if (townSpawn == null)
             return;
-
-        // Render beam
-        startBeam();
 
         // Progress the siege
         final int attackersOnPoint = getPeopleOnPoint(controlPoint, BattleSide.ATTACKER);
@@ -115,6 +103,7 @@ public class SiegeRunnable extends BattleRunnable {
             return;
         }
 
+        // Update progress on siege
         switch (progressDirection) {
             case UP -> {
                 final int playerOnPointDiff = attackersOnPoint - defendersOnPoint;
@@ -301,48 +290,6 @@ public class SiegeRunnable extends BattleRunnable {
             } else {
                 return UNCONTESTED;
             }
-        }
-    }
-
-    private void startBeam() {
-        // Don't start if already started, also re-create beam if beam location moved
-        if (beam != null) {
-            @Nullable Location controlPointLoc = siege.getControlPoint();
-            Location beamLoc = beam.getStart();
-
-            if (controlPointLoc == null)
-                return;
-
-            final boolean isSameWorld = controlPointLoc.getWorld().equals(beamLoc.getWorld());
-            final boolean isSameLocation = controlPointLoc.equals(beamLoc);
-
-            if (isSameWorld && !isSameLocation) {
-                stopBeam();
-            } else {
-                return;
-            }
-        }
-
-        try {
-            try {
-                @Nullable Location loc1 = siege.getControlPoint();
-                if (loc1 == null)
-                    return;
-
-                @NotNull Location loc2 = new Location(loc1.getWorld(), loc1.getX(), loc1.getY() + 350D, loc1.getZ());
-
-                beam = new CrystalLaser(loc1, loc2, -1, 300);
-                beam.start(AlathranWars.getInstance());
-            } catch (ReflectiveOperationException ignored) {
-            }
-        } catch (NoClassDefFoundError ignored1) {
-        }
-    }
-
-    private void stopBeam() {
-        if (beam != null) {
-            beam.stop();
-            beam = null;
         }
     }
 }

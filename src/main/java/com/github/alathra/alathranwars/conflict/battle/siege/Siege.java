@@ -12,11 +12,9 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.enums.battle.*;
 import com.github.alathra.alathranwars.event.battle.*;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import com.github.alathra.alathranwars.packet.CustomLaser;
+import com.github.alathra.alathranwars.conflict.battle.LaserManager;
 import com.palmergames.bukkit.towny.object.Town;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -63,6 +61,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     // Runnable manager
     private final BattleRunnableManager runnableController = new BattleRunnableManager();
     private final BossBarManager bossBarManager = new BossBarManager();
+    private final LaserManager laserManager = new LaserManager();
 
     // Progress / Phases
     private final BattleProgressManager progressManager; // Represents the capture progress of the capture point in this case
@@ -161,10 +160,17 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void start() {
         if (!new PreBattleStartEvent(war, this, BattleType.SIEGE).callEvent()) return;
 
-        runnableController.add(new SiegeRunnable(this), new SiegeTeamRunnable(this));
+        runnableController.add(
+            new SiegeRunnable(this),
+            new SiegeTeamRunnable(this),
+            AlathranWars.getPacketEventsHook().isHookLoaded() ? new SiegeParticleRunnable(this) : null
+        );
         runnableController.start();
         stopped = false;
-        initBossBar();
+        if (getControlPoint() != null && AlathranWars.getPacketEventsHook().isHookLoaded()) // Add laser if dependencies are loaded
+            laserManager.setLaser(CustomLaser.of(getControlPoint(), SiegeUtils.getLaserToLocation(getControlPoint())));
+        laserManager.start();
+        bossBarManager.start();
 
         if (!war.isEventWar())
             if (AlathranWars.getVaultHook().isEconomyLoaded())
@@ -180,10 +186,17 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public void resume() {
         if (!new PreBattleStartEvent(war, this, BattleType.SIEGE).callEvent()) return;
 
-        runnableController.add(new SiegeRunnable(this, getProgressManager().get()), new SiegeTeamRunnable(this));
+        runnableController.add(
+            new SiegeRunnable(this, getProgressManager().get()),
+            new SiegeTeamRunnable(this),
+            AlathranWars.getPacketEventsHook().isHookLoaded() ? new SiegeParticleRunnable(this) : null
+        );
         runnableController.start();
         stopped = false;
-        initBossBar();
+        if (getControlPoint() != null && AlathranWars.getPacketEventsHook().isHookLoaded()) // Add laser if dependencies are loaded
+            laserManager.setLaser(CustomLaser.of(getControlPoint(), SiegeUtils.getLaserToLocation(getControlPoint())));
+        laserManager.start();
+        bossBarManager.start();
 
         new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
@@ -198,7 +211,8 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         if (stopped) return;
         stopped = true;
         runnableController.stop();
-        deleteBossBar();
+        laserManager.stop();
+        bossBarManager.stop();
         DatabaseQueries.deleteSiege(this); // TODO Run as latent event?
         war.removeSiege(this); // TODO Run as latent event?
     }
@@ -306,40 +320,6 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
 
     public BossBarManager getBossBarManager() {
         return bossBarManager;
-    }
-
-    private void initBossBar() {
-        final Component text = ColorParser.of("<gray>Capture Progress: <yellow><progress> <gray>Time: <yellow><time>min")
-            .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getSiegeProgressPercentage() * 100))
-            .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
-            .build();
-
-        final BossBarManager manager = getBossBarManager();
-
-        manager.getAttackerBar().name(text);
-        manager.getAttackerBar().progress(0);
-        manager.getAttackerBar().color(BossBar.Color.YELLOW);
-        manager.getAttackerBar().overlay(BossBar.Overlay.NOTCHED_10);
-
-        manager.getDefenderBar().name(text);
-        manager.getDefenderBar().progress(0);
-        manager.getDefenderBar().color(BossBar.Color.YELLOW);
-        manager.getDefenderBar().overlay(BossBar.Overlay.NOTCHED_10);
-
-        manager.getSpectatorBar().name(text);
-        manager.getSpectatorBar().progress(0);
-        manager.getSpectatorBar().color(BossBar.Color.YELLOW);
-        manager.getSpectatorBar().overlay(BossBar.Overlay.NOTCHED_10);
-    }
-
-    private void deleteBossBar() {
-        final BossBarManager manager = getBossBarManager();
-
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            manager.removeAttackerBar(p);
-            manager.removeDefenderBar(p);
-            manager.removeSpectatorBar(p);
-        }
     }
 
     // SECTION UUID
@@ -450,5 +430,11 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
 
     public BattlePhaseManager<SiegePhase> getPhaseManager() {
         return phaseManager;
+    }
+
+    // Misc
+
+    public LaserManager getLaserManager() {
+        return laserManager;
     }
 }

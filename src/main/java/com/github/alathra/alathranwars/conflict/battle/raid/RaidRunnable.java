@@ -1,8 +1,6 @@
 package com.github.alathra.alathranwars.conflict.battle.raid;
 
 import com.github.alathra.alathranwars.AlathranWars;
-import com.github.alathra.alathranwars.conflict.battle.beam.CrystalLaser;
-import com.github.alathra.alathranwars.conflict.battle.beam.Laser;
 import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;

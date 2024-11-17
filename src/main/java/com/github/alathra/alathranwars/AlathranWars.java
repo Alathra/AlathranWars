@@ -29,7 +29,7 @@ public class AlathranWars extends JavaPlugin {
     // Hooks
     private static BStatsHook bStatsHook;
     private static VaultHook vaultHook;
-    private static ProtocolLibHook protocolLibHook;
+    private static PacketEventsHook packetEventsHook;
     private static PAPIHook papiHook;
 
     // Data
@@ -47,7 +47,7 @@ public class AlathranWars extends JavaPlugin {
         updateChecker = new UpdateChecker();
         bStatsHook = new BStatsHook(instance);
         vaultHook = new VaultHook(instance);
-        protocolLibHook = new ProtocolLibHook(instance);
+        packetEventsHook = new PacketEventsHook(instance);
         papiHook = new PAPIHook(instance);
 
         configHandler.onLoad();
@@ -58,7 +58,7 @@ public class AlathranWars extends JavaPlugin {
         updateChecker.onLoad();
         bStatsHook.onLoad();
         vaultHook.onLoad();
-        protocolLibHook.onLoad();
+        packetEventsHook.onLoad();
         papiHook.onLoad();
     }
 
@@ -71,7 +71,7 @@ public class AlathranWars extends JavaPlugin {
         updateChecker.onEnable();
         bStatsHook.onEnable();
         vaultHook.onEnable();
-        protocolLibHook.onEnable();
+        packetEventsHook.onEnable();
         papiHook.onEnable();
 
         if (!databaseHandler.isRunning()) {
@@ -84,10 +84,10 @@ public class AlathranWars extends JavaPlugin {
             Logger.get().warn(ColorParser.of("<yellow>Vault is not installed on this server. Vault support has been disabled.").build());
         }
 
-        if (protocolLibHook.isHookLoaded()) {
-            Logger.get().info(ColorParser.of("<green>ProtocolLib has been found on this server. ProtocolLib support enabled.").build());
+        if (packetEventsHook.isHookLoaded()) {
+            Logger.get().info(ColorParser.of("<green>PacketEvents has been found on this server. PacketEvents support enabled.").build());
         } else {
-            Logger.get().warn(ColorParser.of("<yellow>ProtocolLib is not installed on this server. ProtocolLib support has been disabled.").build());
+            Logger.get().warn(ColorParser.of("<yellow>PacketEvents is not installed on this server. PacketEvents support has been disabled.").build());
         }
 
         WarController.getInstance().loadAll();
@@ -105,7 +105,7 @@ public class AlathranWars extends JavaPlugin {
         updateChecker.onDisable();
         bStatsHook.onDisable();
         vaultHook.onDisable();
-        protocolLibHook.onDisable();
+        packetEventsHook.onDisable();
         papiHook.onDisable();
     }
 
@@ -190,13 +190,13 @@ public class AlathranWars extends JavaPlugin {
     }
 
     /**
-     * Gets ProtocolLib hook.
+     * Gets PacketEvents hook.
      *
-     * @return the ProtocolLib hook
+     * @return the PacketEvents hook
      */
     @NotNull
-    public static ProtocolLibHook getProtocolLibHook() {
-        return protocolLibHook;
+    public static PacketEventsHook getPacketEventsHook() {
+        return packetEventsHook;
     }
 
     public boolean isWarTime() {

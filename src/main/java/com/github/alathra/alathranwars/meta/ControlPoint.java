@@ -51,6 +51,4 @@ public class ControlPoint {
             return Utils.getTownBlockCenter(townBlock).toHighestLocation().toCenterLocation();
         }
     }
-
-
 }
