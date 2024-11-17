@@ -168,7 +168,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         runnableController.start();
         stopped = false;
         if (getControlPoint() != null && AlathranWars.getPacketEventsHook().isHookLoaded()) // Add laser if dependencies are loaded
-            laserManager.setLaser(CustomLaser.of(getControlPoint(), SiegeUtils.getLaserToLocation(getControlPoint())));
+            laserManager.setLaser(CustomLaser.of(SiegeUtils.getLaserFromLocation(getControlPoint()), SiegeUtils.getLaserToLocation(getControlPoint())));
         laserManager.start();
         bossBarManager.start();
 
@@ -194,7 +194,7 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         runnableController.start();
         stopped = false;
         if (getControlPoint() != null && AlathranWars.getPacketEventsHook().isHookLoaded()) // Add laser if dependencies are loaded
-            laserManager.setLaser(CustomLaser.of(getControlPoint(), SiegeUtils.getLaserToLocation(getControlPoint())));
+            laserManager.setLaser(CustomLaser.of(SiegeUtils.getLaserFromLocation(getControlPoint()), SiegeUtils.getLaserToLocation(getControlPoint())));
         laserManager.start();
         bossBarManager.start();
 

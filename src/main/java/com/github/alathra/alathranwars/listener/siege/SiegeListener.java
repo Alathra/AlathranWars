@@ -375,7 +375,7 @@ public class SiegeListener implements Listener {
             // End Crystal laser position update
             CustomLaser laser = siege.getLaserManager().getLaser();
             if (laser != null && siege.getControlPoint() != null)
-                laser.move(siege.getControlPoint(), SiegeUtils.getLaserToLocation(siege.getControlPoint()));
+                laser.move(SiegeUtils.getLaserFromLocation(siege.getControlPoint()), SiegeUtils.getLaserToLocation(siege.getControlPoint()));
         }
     }
 }
