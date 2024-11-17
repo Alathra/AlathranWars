@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.protocol.particle.Particle;
 import com.github.retrooper.packetevents.protocol.particle.data.ParticleDustData;
 import com.github.retrooper.packetevents.protocol.particle.type.ParticleTypes;
 import com.github.retrooper.packetevents.protocol.world.Location;
+import com.github.retrooper.packetevents.util.Vector3f;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerParticle;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import org.bukkit.entity.Player;
@@ -64,15 +65,15 @@ public abstract class ParticleCircle {
         for (int particleCount = 0; particleCount < particlesCount; particleCount++) {
             final org.bukkit.Location loc = center.clone();
             loc.setX(center.getX() + Math.cos(particleCount) * radius);
-            loc.setY(center.getY() + Math.sin(particleCount) * radius);
+            loc.setZ(center.getZ() + Math.sin(particleCount) * radius);
 
             final Location location = SpigotConversionUtil.fromBukkitLocation(loc);
             final WrapperPlayServerParticle packet = new WrapperPlayServerParticle(
                 particleObject,
                 false,
                 location.getPosition(),
-                location.getDirection(),
-                1.0F,
+                new Vector3f(0, 0, 0),
+                0.25F,
                 1
             );
 
