@@ -359,7 +359,7 @@ public class SiegeListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onMoveControlPoint(SetControlPointEvent e) {
         if (!WarController.getInstance().isInAnySieges(e.getTown()))
             return;
