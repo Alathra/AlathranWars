@@ -2,6 +2,7 @@ package com.github.alathra.alathranwars;
 
 import com.github.alathra.alathranwars.command.CommandHandler;
 import com.github.alathra.alathranwars.config.ConfigHandler;
+import com.github.alathra.alathranwars.conflict.war.SpawnController;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.database.handler.DatabaseHandler;
@@ -11,6 +12,7 @@ import com.github.alathra.alathranwars.translation.TranslationManager;
 import com.github.alathra.alathranwars.updatechecker.UpdateChecker;
 import com.github.alathra.alathranwars.utility.Logger;
 import com.github.milkdrinkers.colorparser.ColorParser;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
@@ -25,6 +27,7 @@ public class AlathranWars extends JavaPlugin {
     private CommandHandler commandHandler;
     private ListenerHandler listenerHandler;
     private UpdateChecker updateChecker;
+    public static PlainTextComponentSerializer plainTextComponentSerializer = PlainTextComponentSerializer.plainText();
 
     // Hooks
     private static BStatsHook bStatsHook;
@@ -60,6 +63,7 @@ public class AlathranWars extends JavaPlugin {
         vaultHook.onLoad();
         packetEventsHook.onLoad();
         papiHook.onLoad();
+        SpawnController.getInstance().onLoad();
     }
 
     public void onEnable() {
@@ -91,12 +95,14 @@ public class AlathranWars extends JavaPlugin {
         }
 
         WarController.getInstance().loadAll();
+        SpawnController.getInstance().onEnable();
     }
 
     public void onDisable() {
         getPaperLib().scheduling().cancelGlobalTasks();
         DatabaseQueries.saveAll();
 
+        SpawnController.getInstance().onDisable();
         configHandler.onDisable();
         translationManager.onDisable();
         databaseHandler.onDisable();

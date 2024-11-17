@@ -147,6 +147,7 @@ public class PlayerDeathListener implements Listener {
         if (siege.getDefenderSide().isOnSide(p) && siege.getTownSpawn() != null) {
             Location wrongLoc = e.getRespawnedLocation();
 
+            // TODO Use spawn system
             // Is the new spawn location close enough to not use custom spawn
             if (wrongLoc.getWorld().equals(siege.getTownSpawn().getWorld()) && wrongLoc.distance(siege.getTownSpawn()) < 5)
                 return;
