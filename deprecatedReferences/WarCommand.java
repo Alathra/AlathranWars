@@ -7,7 +7,7 @@ import com.github.alathra.AlathranWars.enums.BattleSide;
 import com.github.alathra.AlathranWars.holder.WarManager;
 import com.github.alathra.AlathranWars.listeners.war.PlayerJoinListener;
 import com.github.alathra.AlathranWars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;

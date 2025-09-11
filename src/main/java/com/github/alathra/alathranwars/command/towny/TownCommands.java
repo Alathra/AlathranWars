@@ -4,7 +4,7 @@ import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.event.battle.PreSetControlPointEvent;
 import com.github.alathra.alathranwars.event.battle.SetControlPointEvent;
 import com.github.alathra.alathranwars.meta.ControlPoint;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyCommandAddonAPI;
 import com.palmergames.bukkit.towny.command.BaseCommand;

@@ -45,17 +45,17 @@ public class SpawnController implements Reloadable {
     private ScheduledTask task;
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
 
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         task = AlathranWars.getPaperLib().scheduling().globalRegionalScheduler().runAtFixedRate(() -> SpawnUtils.getSpawns().forEach(Spawn::update), 0L, 1);
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         task.cancel();
     }
 }

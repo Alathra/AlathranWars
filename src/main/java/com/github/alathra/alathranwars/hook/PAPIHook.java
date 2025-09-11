@@ -22,11 +22,11 @@ public class PAPIHook implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 
@@ -35,7 +35,7 @@ public class PAPIHook implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 

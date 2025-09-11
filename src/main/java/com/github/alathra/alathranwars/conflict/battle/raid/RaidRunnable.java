@@ -5,7 +5,7 @@ import com.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import org.bukkit.Location;
@@ -139,7 +139,7 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
                 case UP -> {
                     raid.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                         ColorParser.of("<prefix>The Attackers are capturing the home block.")
-                            .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                            .with("prefix", UtilsChat.getPrefix())
                             .build()
                     ));
                 }
@@ -147,7 +147,7 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
                     if (oldProgressDirection.equals(UNCONTESTED))
                         raid.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The home block is being contested.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -155,7 +155,7 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED) || oldProgressDirection.equals(DOWN))
                         raid.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The home block is no longer being contested.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -163,7 +163,7 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED))
                         raid.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The Defenders re-secured the home block.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -175,8 +175,8 @@ import static com.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
 
             raid.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                 ColorParser.of("<prefix>Raid time remaining: <time> minutes.")
-                    .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                    .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), raid.getEndTime()).toMinutesPart()))
+                    .with("prefix", UtilsChat.getPrefix())
+                    .with("time", String.valueOf(Duration.between(Instant.now(), raid.getEndTime()).toMinutesPart()))
                     .build()
             ));
         }

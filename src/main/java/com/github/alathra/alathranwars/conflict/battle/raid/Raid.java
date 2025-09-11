@@ -90,7 +90,7 @@ public class Raid {
 //        final Title.Times times = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500));
 //        final Title defTitle = Title.title(
 //            ColorParser.of("<red><u><b><town>")
-//                .parseMinimessagePlaceholder("town", town.getName())
+//                .with("town", town.getName())
 //                .build(),
 //            ColorParser.of("<gray><i>Is under raid, defend!")
 //                .build(),
@@ -98,7 +98,7 @@ public class Raid {
 //        );
 //        final Title attTitle = Title.title(
 //            ColorParser.of("<red><u><b><town>")
-//                .parseMinimessagePlaceholder("town", town.getName())
+//                .with("town", town.getName())
 //                .build(),
 //            ColorParser.of("<gray><i>Has been put to raid, attack!")
 //                .build(),
@@ -320,8 +320,8 @@ public class Raid {
 //        if (Instant.now().isBefore(getEndTime())) {
 //            activeBossBar.name(
 //                ColorParser.of("<gray>Capture Progress: %s<progress> <gray>Time: %s<time>min".formatted(color, color))
-//                    .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
-//                    .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutes()))
+//                    .with("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
+//                    .with("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutes()))
 //                    .build()
 //            );
 //        } else {
@@ -334,8 +334,8 @@ public class Raid {
 //
 //    public void initBossBar() {
 //        final @NotNull Component text = ColorParser.of("<gray>Capture Progress: <yellow><progress> <gray>Time: <yellow><time>min")
-//            .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
-//            .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
+//            .with("progress", "%.0f%%".formatted(getRaidProgressPercentage() * 100))
+//            .with("time", String.valueOf(Duration.between(Instant.now(), getEndTime()).toMinutesPart()))
 //            .build();
 //
 //        this.activeBossBar = BossBar.bossBar(text, 0, BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_10);

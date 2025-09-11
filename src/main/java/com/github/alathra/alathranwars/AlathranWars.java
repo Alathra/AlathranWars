@@ -8,10 +8,10 @@ import com.github.alathra.alathranwars.database.DatabaseQueries;
 import com.github.alathra.alathranwars.database.handler.DatabaseHandler;
 import com.github.alathra.alathranwars.hook.*;
 import com.github.alathra.alathranwars.listener.ListenerHandler;
-import com.github.alathra.alathranwars.translation.TranslationManager;
+import com.github.alathra.alathranwars.translation.TranslationHandler;
 import com.github.alathra.alathranwars.updatechecker.UpdateChecker;
 import com.github.alathra.alathranwars.utility.Logger;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class AlathranWars extends JavaPlugin {
 
     private static AlathranWars instance;
     private ConfigHandler configHandler;
-    private TranslationManager translationManager;
+    private TranslationHandler translationHandler;
     private DatabaseHandler databaseHandler;
     private CommandHandler commandHandler;
     private ListenerHandler listenerHandler;
@@ -43,7 +43,7 @@ public class AlathranWars extends JavaPlugin {
         paperLib = new MorePaperLib(instance);
         WarController.getInstance();
         configHandler = new ConfigHandler(instance);
-        translationManager = new TranslationManager(instance);
+        translationHandler = new TranslationHandler(configHandler);
         databaseHandler = new DatabaseHandler(configHandler, getComponentLogger());
         commandHandler = new CommandHandler(instance);
         listenerHandler = new ListenerHandler(instance);
@@ -53,30 +53,30 @@ public class AlathranWars extends JavaPlugin {
         packetEventsHook = new PacketEventsHook(instance);
         papiHook = new PAPIHook(instance);
 
-        configHandler.onLoad();
-        translationManager.onLoad();
-        databaseHandler.onLoad();
+        configHandler.onLoad(instance);
+        translationHandler.onLoad(instance);
+        databaseHandler.onLoad(instance);
         commandHandler.onLoad();
-        listenerHandler.onLoad();
-        updateChecker.onLoad();
-        bStatsHook.onLoad();
-        vaultHook.onLoad();
-        packetEventsHook.onLoad();
-        papiHook.onLoad();
-        SpawnController.getInstance().onLoad();
+        listenerHandler.onLoad(instance);
+        updateChecker.onLoad(instance);
+        bStatsHook.onLoad(instance);
+        vaultHook.onLoad(instance);
+        packetEventsHook.onLoad(instance);
+        papiHook.onLoad(instance);
+        SpawnController.getInstance().onLoad(instance);
     }
 
     public void onEnable() {
-        configHandler.onEnable();
-        translationManager.onEnable();
-        databaseHandler.onEnable();
+        configHandler.onEnable(instance);
+        translationHandler.onEnable(instance);
+        databaseHandler.onEnable(instance);
         commandHandler.onEnable();
-        listenerHandler.onEnable();
-        updateChecker.onEnable();
-        bStatsHook.onEnable();
-        vaultHook.onEnable();
-        packetEventsHook.onEnable();
-        papiHook.onEnable();
+        listenerHandler.onEnable(instance);
+        updateChecker.onEnable(instance);
+        bStatsHook.onEnable(instance);
+        vaultHook.onEnable(instance);
+        packetEventsHook.onEnable(instance);
+        papiHook.onEnable(instance);
 
         if (!databaseHandler.isRunning()) {
             Logger.get().warn(ColorParser.of("<yellow>Database handler failed to start. Database support has been disabled.").build());
@@ -95,24 +95,24 @@ public class AlathranWars extends JavaPlugin {
         }
 
         WarController.getInstance().loadAll();
-        SpawnController.getInstance().onEnable();
+        SpawnController.getInstance().onEnable(instance);
     }
 
     public void onDisable() {
         getPaperLib().scheduling().cancelGlobalTasks();
         DatabaseQueries.saveAll();
 
-        SpawnController.getInstance().onDisable();
-        configHandler.onDisable();
-        translationManager.onDisable();
-        databaseHandler.onDisable();
+        SpawnController.getInstance().onDisable(instance);
+        configHandler.onDisable(instance);
+        translationHandler.onDisable(instance);
+        databaseHandler.onDisable(instance);
         commandHandler.onDisable();
-        listenerHandler.onDisable();
-        updateChecker.onDisable();
-        bStatsHook.onDisable();
-        vaultHook.onDisable();
-        packetEventsHook.onDisable();
-        papiHook.onDisable();
+        listenerHandler.onDisable(instance);
+        updateChecker.onDisable(instance);
+        bStatsHook.onDisable(instance);
+        vaultHook.onDisable(instance);
+        packetEventsHook.onDisable(instance);
+        papiHook.onDisable(instance);
     }
 
     /**
@@ -161,8 +161,8 @@ public class AlathranWars extends JavaPlugin {
      * @return the translation handler
      */
     @NotNull
-    public TranslationManager getTranslationManager() {
-        return translationManager;
+    public TranslationHandler getTranslationManager() {
+        return translationHandler;
     }
 
     /**

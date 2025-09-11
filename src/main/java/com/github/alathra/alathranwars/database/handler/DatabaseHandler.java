@@ -1,5 +1,6 @@
 package com.github.alathra.alathranwars.database.handler;
 
+import com.github.alathra.alathranwars.AlathranWars;
 import com.zaxxer.hikari.HikariDataSource;
 import com.github.alathra.alathranwars.Reloadable;
 import com.github.alathra.alathranwars.config.ConfigHandler;
@@ -55,7 +56,7 @@ public class DatabaseHandler implements Reloadable {
      * On plugin load.
      */
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
         try {
             // Load database config from file, or use provided databaseConfig from constructor
             if (configHandler != null)
@@ -76,14 +77,14 @@ public class DatabaseHandler implements Reloadable {
      * On plugin enable.
      */
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
     }
 
     /**
      * On plugin disable.
      */
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         if (!isRunning())
             return;
 

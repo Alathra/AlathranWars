@@ -24,9 +24,17 @@ public class PlayerDamageEntityListener implements Listener {
         EntityType.WOLF,
         EntityType.DONKEY,
         EntityType.PIG,
-        EntityType.BOAT,
+        EntityType.ACACIA_BOAT,
+        EntityType.BIRCH_BOAT,
+        EntityType.CHERRY_BOAT,
+        EntityType.DARK_OAK_BOAT,
+        EntityType.BAMBOO_RAFT,
+        EntityType.JUNGLE_BOAT,
+        EntityType.MANGROVE_BOAT,
+        EntityType.PALE_OAK_BOAT,
+        EntityType.SPRUCE_BOAT,
         EntityType.MINECART,
-        EntityType.MINECART_TNT,
+        EntityType.TNT_MINECART,
         EntityType.BEE
     );
 

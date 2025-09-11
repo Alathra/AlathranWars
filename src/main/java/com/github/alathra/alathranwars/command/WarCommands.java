@@ -7,7 +7,7 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.conflict.war.side.SideCreationException;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -256,17 +256,17 @@ public class WarCommands {
                     ColorParser.of(
                             "<prefix>The nation of <nation> joined the war of <war> on the side of <side>."
                         )
-                        .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                        .parseMinimessagePlaceholder("nation", nation.getName())
-                        .parseMinimessagePlaceholder("war", war.getLabel())
-                        .parseMinimessagePlaceholder("side", side.getName())
+                        .with("prefix", UtilsChat.getPrefix())
+                        .with("nation", nation.getName())
+                        .with("war", war.getLabel())
+                        .with("side", side.getName())
                         .build()
                 );
                 final Title warTitle = Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                         .build(),
                     ColorParser.of("<gray><i>You entered the war of <war>!")
-                        .parseMinimessagePlaceholder("war", war.getLabel())
+                        .with("war", war.getLabel())
                         .build(),
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
                 );
@@ -297,17 +297,17 @@ public class WarCommands {
                     ColorParser.of(
                             "<prefix>The town of <town> joined the war of <war> on the side of <side>."
                         )
-                        .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                        .parseMinimessagePlaceholder("town", town.getName())
-                        .parseMinimessagePlaceholder("war", war.getLabel())
-                        .parseMinimessagePlaceholder("side", side.getName())
+                        .with("prefix", UtilsChat.getPrefix())
+                        .with("town", town.getName())
+                        .with("war", war.getLabel())
+                        .with("side", side.getName())
                         .build()
                 );
                 final Title warTitle = Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                         .build(),
                     ColorParser.of("<gray><i>You entered the war of <war>!")
-                        .parseMinimessagePlaceholder("war", war.getLabel())
+                        .with("war", war.getLabel())
                         .build(),
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
                 );
@@ -337,7 +337,7 @@ public class WarCommands {
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                         .build(),
                     ColorParser.of("<gray><i>You entered the war of <war>!")
-                        .parseMinimessagePlaceholder("war", war.getLabel())
+                        .with("war", war.getLabel())
                         .build(),
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
                 );
@@ -383,7 +383,7 @@ public class WarCommands {
                 ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                     .build(),
                 ColorParser.of("<gray><i>You entered the war of <war>!")
-                    .parseMinimessagePlaceholder("war", war.getLabel())
+                    .with("war", war.getLabel())
                     .build(),
                 Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
             );

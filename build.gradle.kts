@@ -4,11 +4,11 @@ import java.time.Instant
 plugins {
     `java-library`
 
-    id("io.github.goooler.shadow") version "8.1.8" // Shades and relocates dependencies, See https://imperceptiblethoughts.com/shadow/introduction/
-    id("xyz.jpenilla.run-paper") version "2.3.1" // Adds runServer and runMojangMappedServer tasks for testing
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0" // Automatic plugin.yml generation
-    id("org.flywaydb.flyway") version "10.17.3" // Database migrations
-    id("org.jooq.jooq-codegen-gradle") version "3.19.11"
+    alias(libs.plugins.shadow) // Shades and relocates dependencies, See https://imperceptiblethoughts.com/shadow/introduction/
+    alias(libs.plugins.run.paper) // Adds runServer and runMojangMappedServer tasks for testing
+    alias(libs.plugins.plugin.yml.bukkit) // Automatic plugin.yml generation
+    alias(libs.plugins.flyway) // Database migrations
+    alias(libs.plugins.jooq)
 
     eclipse
     idea
@@ -18,7 +18,7 @@ val mainPackage = "${project.group}.${project.name.lowercase()}"
 applyCustomVersion()
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17)) // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
     withJavadocJar() // Enable javadoc jar generation
     withSourcesJar() // Enable sources jar generation
 }
@@ -29,8 +29,6 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://mvn-repo.arim.space/lesser-gpl3/")
 
-    maven("https://maven.athyrium.eu/releases")
-
     maven("https://repo.glaremasters.me/repository/towny/") {
         content { includeGroup("com.palmergames.bukkit.towny") }
     }
@@ -40,11 +38,8 @@ repositories {
             includeGroup("com.github.MilkBowl") // VaultAPI
             includeGroup("com.palmergames.bukkit.towny")
             includeGroup("com.github.Gecolay.GSit")
+            includeGroup("com.github.neznamy")
         }
-    }
-
-    maven("https://repo.kryptonmc.org/releases") {
-        content { includeGroup("me.neznamy") }
     }
 
     maven("https://repo.codemc.org/repository/maven-public/") {
@@ -56,84 +51,71 @@ repositories {
         content { includeGroup("me.clip") }
     }
 
-    maven("https://repo.essentialsx.net/releases/")
-    maven("https://repo.essentialsx.net/snapshots/")
     maven("https://repo.dmulloy2.net/repository/public/") // ProtocolLib
     maven("https://maven.evokegames.gg/snapshots/") // EntityLib
 }
 
 dependencies {
-    compileOnly("org.jetbrains:annotations:24.1.0")
-    annotationProcessor("org.jetbrains:annotations:24.1.0")
-
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
-//    paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
-    implementation("space.arim.morepaperlib:morepaperlib:0.4.4")
+    compileOnly(libs.annotations)
+    annotationProcessor(libs.annotations)
+    compileOnly(libs.paper.api)
+    implementation(libs.morepaperlib)
 
     // API
-    implementation("com.github.milkdrinkers:crate-api:2.0.0")
-    implementation("com.github.milkdrinkers:crate-yaml:2.0.0")
-    implementation("com.github.milkdrinkers:colorparser:2.0.3") {
+    implementation(libs.wordweaver) {
+        exclude("com.google.code.gson") // Already ships with Paper
+    }
+    implementation(libs.crate.api)
+    implementation(libs.crate.yaml)
+    implementation(libs.colorparser) {
         exclude("net.kyori")
     }
-    implementation("dev.jorel:commandapi-bukkit-shade:9.3.0")
-    implementation("me.tofaa.entitylib:spigot:2.4.10-SNAPSHOT")
+    implementation(libs.command.api.paper)
+    implementation(libs.entitylib)
 
     // Plugin Dependencies
-    implementation("org.bstats:bstats-bukkit:3.0.3")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    implementation(libs.bstats)
+    compileOnly(libs.vault)
 //    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.6") {
+    compileOnly(libs.placeholderapi) {
         exclude("me.clip.placeholderapi.libs", "kyori")
     }
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    compileOnly("com.palmergames.bukkit.towny:towny:0.100.3.0") {
+    compileOnly(libs.towny) {
         exclude("com.palmergames.adventure")
     }
-    compileOnly("me.neznamy:tab-api:4.0.2")
+    compileOnly(libs.tab.api)
+    compileOnly(libs.gsit)
+    compileOnly(libs.packetevents)
+
     compileOnly(files("lib/Graves-4.9.jar"))
-    compileOnly("com.github.Gecolay.GSit:core:1.9.0")
-    compileOnly(files("lib/HeadsPlus-7.0.14.jar"))
     compileOnly(files("lib/Skulls.jar"))
-    compileOnly("net.essentialsx:EssentialsX:2.20.1")
-    compileOnly("net.essentialsx:EssentialsXSpawn:2.20.1")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.5.0")
+    compileOnly(files("lib/HeadsPlus-7.0.14.jar"))
 
     // Database Dependencies (Core)
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    library("org.flywaydb:flyway-core:10.17.3")
-    library("org.flywaydb:flyway-mysql:10.17.3")
-    library("org.jooq:jooq:3.19.11")
-    jooqCodegen("com.h2database:h2:2.3.232")
+    implementation(libs.hikaricp)
+    library(libs.bundles.flyway)
+    compileOnly(libs.jakarta) // Compiler bug, see: https://github.com/jOOQ/jOOQ/issues/14865#issuecomment-2077182512
+    library(libs.jooq)
+    jooqCodegen(libs.h2)
 
     // Database Dependencies (JDBC Drivers)
-    library("com.h2database:h2:2.3.232")
-    library("org.xerial:sqlite-jdbc:3.46.1.0")
-    library("com.mysql:mysql-connector-j:9.0.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.4.1")
+    library(libs.bundles.jdbcdrivers)
 
     // Testing (Core)
-    testImplementation("org.jetbrains:annotations:24.1.0")
-    testImplementation(platform("org.junit:junit-bom:5.11.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testRuntimeOnly("org.slf4j:slf4j-simple:2.1.0-alpha1")
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.1"))
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:mariadb")
+    testImplementation(libs.annotations)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.junit)
+    testRuntimeOnly(libs.slf4j)
+    testImplementation(platform(libs.testcontainers.bom))
+    testImplementation(libs.bundles.testcontainers)
 
     // Testing (Database Dependencies)
-    testImplementation("com.zaxxer:HikariCP:5.1.0")
-    testImplementation("org.flywaydb:flyway-core:10.17.3")
-    testImplementation("org.flywaydb:flyway-mysql:10.17.3")
-    testImplementation("org.jooq:jooq:3.19.11")
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.bundles.flyway)
+    testImplementation(libs.jooq)
 
     // Testing (JDBC Drivers)
-    testImplementation("com.h2database:h2:2.3.232")
-    testImplementation("org.xerial:sqlite-jdbc:3.46.1.0")
-    testImplementation("com.mysql:mysql-connector-j:9.0.0")
-    testImplementation("org.mariadb.jdbc:mariadb-java-client:3.4.1")
+    testImplementation(libs.bundles.jdbcdrivers)
 }
 
 tasks {
@@ -150,7 +132,7 @@ tasks {
 
         // Set the release flag. This configures what version bytecode the compiler will emit, as well as what JDK APIs are usable.
         // See https://openjdk.java.net/jeps/247 for more information.
-        options.release.set(17)
+        options.release.set(21)
         options.compilerArgs.addAll(arrayListOf("-Xlint:all", "-Xlint:-processing", "-Xdiags:verbose"))
 
         dependsOn(jooqCodegen) // Generate jOOQ sources before compilation
@@ -187,11 +169,7 @@ tasks {
         reloc("org.bstats", "bstats")
         reloc("me.tofaa.entitylib", "entitylib")
 
-        mergeServiceFiles {
-            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin") // Fix Flyway overriding its own files
-        }
-
-        minimize()
+        mergeServiceFiles()
     }
 
     test {
@@ -201,7 +179,7 @@ tasks {
 
     runServer {
         // Configure the Minecraft version for our task.
-        minecraftVersion("1.20.4")
+        minecraftVersion(libs.versions.paper.run.get())
 
         // IntelliJ IDEA debugger setup: https://docs.papermc.io/paper/dev/debugging#using-a-remote-debugger
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true", "-DIReallyKnowWhatIAmDoingISwear", "-Dpaper.playerconnection.keepalive=6000")
@@ -212,7 +190,7 @@ tasks {
         downloadPlugins {
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
             modrinth("tab-was-taken", "4.1.8")
-            github("PlaceholderAPI", "PlaceholderAPI", "2.11.4", "PlaceholderAPI-2.11.4.jar")
+            github("PlaceholderAPI", "PlaceholderAPI", "2.11.6", "PlaceholderAPI-2.11.6.jar")
             url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
             github("retrooper", "packetevents", "v2.5.0", "packetevents-spigot-2.5.0.jar")
 //            url("https://www.spigotmc.org/resources/skulls-the-ultimate-head-database.90098/download?version=520217/Skulls.jar")

@@ -2,7 +2,7 @@ package com.github.alathra.alathranwars.listener.war;
 
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.conflict.war.WarController;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.event.NationSpawnEvent;
 import com.palmergames.bukkit.towny.event.TownSpawnEvent;
 import com.palmergames.bukkit.towny.event.teleport.ResidentSpawnEvent;

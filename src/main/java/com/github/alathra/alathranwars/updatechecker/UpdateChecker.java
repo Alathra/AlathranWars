@@ -1,11 +1,11 @@
 package com.github.alathra.alathranwars.updatechecker;
 
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.Reloadable;
-import com.github.alathra.alathranwars.translation.Translation;
+import io.github.milkdrinkers.wordweaver.Translation;
 import com.github.alathra.alathranwars.utility.Cfg;
 import com.github.alathra.alathranwars.utility.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +40,7 @@ public class UpdateChecker implements Reloadable {
      * On plugin load.
      */
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     /**
@@ -48,7 +48,7 @@ public class UpdateChecker implements Reloadable {
      */
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         setPluginName(AlathranWars.getInstance().getPluginMeta().getName());
         setCurrentVersion(SemanticVersion.of(AlathranWars.getInstance().getPluginMeta().getVersion()));
         performUpdateCheck();
@@ -58,7 +58,7 @@ public class UpdateChecker implements Reloadable {
      * On plugin disable.
      */
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
     }
 
     private void performUpdateCheck() {
@@ -77,7 +77,7 @@ public class UpdateChecker implements Reloadable {
                 .whenComplete((resp, err) -> {
                     if (err != null) {
                         if (shouldLog)
-                            Logger.get().warn(ColorParser.of(Translation.of("update-checker.update-failed")).parseMinimessagePlaceholder("error", err.getMessage()).build());
+                            Logger.get().warn(ColorParser.of(Translation.of("update-checker.update-failed")).with("error", err.getMessage()).build());
                         return;
                     }
                     setLatestVersion(parseLatestVersion(resp.body()));
@@ -85,7 +85,7 @@ public class UpdateChecker implements Reloadable {
                 });
         } catch (Exception err) {
             if (shouldLog)
-                Logger.get().warn(ColorParser.of(Translation.of("update-checker.update-failed")).parseMinimessagePlaceholder("error", err.getMessage()).build());
+                Logger.get().warn(ColorParser.of(Translation.of("update-checker.update-failed")).with("error", err.getMessage()).build());
         }
     }
 
@@ -120,10 +120,10 @@ public class UpdateChecker implements Reloadable {
 
             Logger.get().info(
                 ColorParser.of(Translation.of("update-checker.update-found-console"))
-                    .parseMinimessagePlaceholder("plugin_name", pluginName)
-                    .parseMinimessagePlaceholder("version_current", currentVersion.getVersionFull())
-                    .parseMinimessagePlaceholder("version_latest", latestVersion.getVersionFull())
-                    .parseMinimessagePlaceholder("download_link", LATEST_RELEASE)
+                    .with("plugin_name", pluginName)
+                    .with("version_current", currentVersion.getVersionFull())
+                    .with("version_latest", latestVersion.getVersionFull())
+                    .with("download_link", LATEST_RELEASE)
                     .build()
             );
 
@@ -135,7 +135,7 @@ public class UpdateChecker implements Reloadable {
 
             Logger.get().info(
                 ColorParser.of(Translation.of("update-checker.running-latest"))
-                    .parseMinimessagePlaceholder("plugin_name", pluginName)
+                    .with("plugin_name", pluginName)
                     .build()
             );
         }

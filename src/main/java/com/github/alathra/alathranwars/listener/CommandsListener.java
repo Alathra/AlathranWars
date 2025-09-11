@@ -4,7 +4,7 @@ import com.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.utility.Utils;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -157,7 +157,7 @@ public class CommandsListener implements Listener {
                     for (String cmd : PAYMENT) {
                         //check for each prefix
                         if (parse.equalsIgnoreCase(prefix + (prefix.isEmpty() ? "" : ":") + cmd)) {
-                            p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot withdraw money whilst in a siege!").parseLegacy().build());
+                            p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot withdraw money whilst in a siege!").legacy().build());
                             event.setCancelled(true);
                             return;
                         }
@@ -173,7 +173,7 @@ public class CommandsListener implements Listener {
                         //payment check
                         for (String cmd : BLACKLISTED_X_LONG) {
                             if (parse.equalsIgnoreCase(prefix + (prefix.isEmpty() ? "" : ":") + cmd)) {
-                                p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot modify this property during a siege!").parseLegacy().build());
+                                p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot modify this property during a siege!").legacy().build());
                                 event.setCancelled(true);
                                 return;
                             }
@@ -190,13 +190,13 @@ public class CommandsListener implements Listener {
                             if (parse.equalsIgnoreCase(prefix + (prefix.isEmpty() ? "" : ":") + cmd)) {
                                 //spawn world check
                                 if (p.getWorld().getName().equalsIgnoreCase("world")) {
-                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>You are stuck in spawn and are allowed to teleport to your town or nation.").parseLegacy().build());
-                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>Use /t spawn, or /n spawn").parseLegacy().build());
+                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>You are stuck in spawn and are allowed to teleport to your town or nation.").legacy().build());
+                                    p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<yellow>Use /t spawn, or /n spawn").legacy().build());
                                     event.setCancelled(true);
                                     return;
                                 }
 
-                                p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot teleport whilst in a oldSiege!").parseLegacy().build());
+                                p.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "<red>You cannot teleport whilst in a oldSiege!").legacy().build());
                                 event.setCancelled(true);
                                 return;
                             }

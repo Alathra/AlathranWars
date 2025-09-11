@@ -1,21 +1,22 @@
 package com.github.alathra.alathranwars.command.towny;
 
+import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.Reloadable;
 
 public class TownyCommandHandler implements Reloadable {
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
 
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         new TownAdminCommands();
         new TownCommands();
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
 
     }
 }

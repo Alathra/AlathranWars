@@ -28,11 +28,11 @@ public class VaultHook implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         if (!isVaultLoaded()) return;
 
         setEconomy(plugin.getServer().getServicesManager().getRegistration(Economy.class));
@@ -41,7 +41,7 @@ public class VaultHook implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         if (!isVaultLoaded()) return;
 
         setEconomy(null);

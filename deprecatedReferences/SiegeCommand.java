@@ -6,7 +6,7 @@ import com.github.alathra.AlathranWars.conflict.battle.siege.Siege;
 import com.github.alathra.AlathranWars.enums.BattleTeam;
 import com.github.alathra.AlathranWars.holder.WarManager;
 import com.github.alathra.AlathranWars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import dev.jorel.commandapi.CommandAPIBukkit;
@@ -298,8 +298,8 @@ public class SiegeCommand {
                 ColorParser.of(
                     color + siege.getTown().getName() + "  <gray>- Progress: <progress> - Time: <time>min"
                 )
-                    .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(siege.getSiegeProgressPercentage() * 100))
-                    .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutes()))
+                    .with("progress", "%.0f%%".formatted(siege.getSiegeProgressPercentage() * 100))
+                    .with("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutes()))
                     .build()
             );
 //            sender.sendMessage(ColorParser.of(war.getName() + " - " + color + siege.getTown().getName().toLowerCase()).build()); // TODO Fix info

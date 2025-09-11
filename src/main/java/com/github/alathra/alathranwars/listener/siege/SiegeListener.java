@@ -11,7 +11,7 @@ import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.event.battle.*;
 import com.github.alathra.alathranwars.packet.CustomLaser;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.object.Town;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -52,7 +52,7 @@ public class SiegeListener implements Listener {
 
         final Title defTitle = Title.title(
             ColorParser.of("<red><u><b><town>")
-                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .with("town", siege.getTown().getName())
                 .build(),
             ColorParser.of("<gray><i>Is under siege, defend!")
                 .build(),
@@ -60,7 +60,7 @@ public class SiegeListener implements Listener {
         );
         final Title attTitle = Title.title(
             ColorParser.of("<red><u><b><town>")
-                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .with("town", siege.getTown().getName())
                 .build(),
             ColorParser.of("<gray><i>Has been put to siege, attack!")
                 .build(),
@@ -95,15 +95,15 @@ public class SiegeListener implements Listener {
                 if (e.getBattleVictoryReason().equals(BattleVictoryReason.OPPONENT_RETREAT)) {
                     Bukkit.broadcast(
                         ColorParser.of("<prefix>The town of <town> has surrendered.")
-                            .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                            .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                            .with("prefix", UtilsChat.getPrefix())
+                            .with("town", siege.getTown().getName())
                             .build()
                     );
                 } else {
                     Bukkit.broadcast(ColorParser.of("<prefix>The town of <town> has been sacked and placed under occupation by the armies of <attacker>!")
-                        .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
-                        .parseMinimessagePlaceholder("attacker", siege.getAttackerSide().getName())
+                        .with("prefix", UtilsChat.getPrefix())
+                        .with("town", siege.getTown().getName())
+                        .with("attacker", siege.getAttackerSide().getName())
                         .build());
                 }
 
@@ -111,7 +111,7 @@ public class SiegeListener implements Listener {
                     ColorParser.of("<green><u><b>Victory")
                         .build(),
                     ColorParser.of("<gray><i><town> has been captured!")
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("town", siege.getTown().getName())
                         .build(),
                     TITLE_TIMES
                 );
@@ -119,7 +119,7 @@ public class SiegeListener implements Listener {
                     ColorParser.of("<red><u><b>Defeat")
                         .build(),
                     ColorParser.of("<gray><i><town> has been lost!")
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("town", siege.getTown().getName())
                         .build(),
                     TITLE_TIMES
                 );
@@ -136,15 +136,15 @@ public class SiegeListener implements Listener {
                 if (e.getBattleVictoryReason().equals(BattleVictoryReason.OPPONENT_RETREAT)) {
                     Bukkit.broadcast(
                         ColorParser.of("<prefix>The siege at <town> has been abandoned by the attackers.")
-                            .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                            .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                            .with("prefix", UtilsChat.getPrefix())
+                            .with("town", siege.getTown().getName())
                             .build()
                     );
                 } else {
                     Bukkit.broadcast(
                         ColorParser.of("<prefix>The siege of <town> has been lifted by the defenders!")
-                            .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                            .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                            .with("prefix", UtilsChat.getPrefix())
+                            .with("town", siege.getTown().getName())
                             .build()
                     );
                 }
@@ -153,7 +153,7 @@ public class SiegeListener implements Listener {
                     ColorParser.of("<red><u><b>Defeat")
                         .build(),
                     ColorParser.of("<gray><i>We failed to capture <town>!")
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("town", siege.getTown().getName())
                         .build(),
                     TITLE_TIMES
                 );
@@ -161,7 +161,7 @@ public class SiegeListener implements Listener {
                     ColorParser.of("<green><u><b>Victory")
                         .build(),
                     ColorParser.of("<gray><i><town> has been made safe!")
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("town", siege.getTown().getName())
                         .build(),
                     TITLE_TIMES
                 );
@@ -177,8 +177,8 @@ public class SiegeListener implements Listener {
             case DRAW -> {
                 Bukkit.broadcast(
                     ColorParser.of("<prefix>The siege of <town> has ended in a draw!")
-                        .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("prefix", UtilsChat.getPrefix())
+                        .with("town", siege.getTown().getName())
                         .build()
                 );
 
@@ -186,7 +186,7 @@ public class SiegeListener implements Listener {
                     ColorParser.of("<yellow><u><b>Draw")
                         .build(),
                     ColorParser.of("<gray><i>The siege at <town> has ended!")
-                        .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                        .with("town", siege.getTown().getName())
                         .build(),
                     TITLE_TIMES
                 );
@@ -279,7 +279,7 @@ public class SiegeListener implements Listener {
 
         final Title defTitle = Title.title(
             ColorParser.of("<red><u><b>Battle")
-                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .with("town", siege.getTown().getName())
                 .build(),
             ColorParser.of("<gray><i>You entered a battlefield!")
                 .build(),
@@ -316,7 +316,7 @@ public class SiegeListener implements Listener {
 
         final Title defTitle = Title.title(
             ColorParser.of("<red><u><b>Battle")
-                .parseMinimessagePlaceholder("town", siege.getTown().getName())
+                .with("town", siege.getTown().getName())
                 .build(),
             ColorParser.of("<gray><i>You left the battlefield!")
                 .build(),

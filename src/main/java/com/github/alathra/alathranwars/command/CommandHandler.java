@@ -21,7 +21,7 @@ public class CommandHandler {
 
     public void onLoad() {
         CommandAPI.onLoad(new CommandAPIBukkitConfig(plugin).shouldHookPaperReload(true).silentLogs(true));
-        townyHandler.onLoad();
+        townyHandler.onLoad(plugin);
     }
 
     public void onEnable() {
@@ -31,11 +31,11 @@ public class CommandHandler {
         new WarCommands();
         new SiegeCommands();
         new AdminCommands();
-        townyHandler.onEnable();
+        townyHandler.onEnable(plugin);
     }
 
     public void onDisable() {
         CommandAPI.onDisable();
-        townyHandler.onDisable();
+        townyHandler.onDisable(plugin);
     }
 }

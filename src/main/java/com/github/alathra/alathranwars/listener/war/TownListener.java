@@ -4,7 +4,7 @@ import com.github.alathra.alathranwars.conflict.war.War;
 import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownPreRenameEvent;
@@ -99,7 +99,7 @@ public class TownListener implements Listener {
                 ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                     .build(),
                 ColorParser.of("<gray><i>You entered the war of <war>!")
-                    .parseMinimessagePlaceholder("war", war.getLabel())
+                    .with("war", war.getLabel())
                     .build(),
                 Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
             );

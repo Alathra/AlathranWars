@@ -19,7 +19,7 @@ import com.github.alathra.alathranwars.event.WarCreateEvent;
 import com.github.alathra.alathranwars.event.WarDeleteEvent;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
@@ -741,9 +741,9 @@ public class War extends Conflict {
     @ApiStatus.Internal
     public void start() {
         Bukkit.broadcast(ColorParser.of(UtilsChat.getPrefix() + "The war of <war> has started between <attacker> and <defender>.")
-            .parseMinimessagePlaceholder("war", getLabel())
-            .parseMinimessagePlaceholder("attacker", getAttacker().getName())
-            .parseMinimessagePlaceholder("defender", getDefender().getName())
+            .with("war", getLabel())
+            .with("attacker", getAttacker().getName())
+            .with("defender", getDefender().getName())
             .build()
         );
 
@@ -751,7 +751,7 @@ public class War extends Conflict {
             ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                 .build(),
             ColorParser.of("<gray><i>The war of <war> has begun!")
-                .parseMinimessagePlaceholder("war", getLabel())
+                .with("war", getLabel())
                 .build(),
             Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
         );
@@ -811,9 +811,9 @@ public class War extends Conflict {
         Side winner = loserSide.equals(getSide1()) ? getSide2() : getSide1();
 
         Bukkit.broadcast(ColorParser.of(UtilsChat.getPrefix() + "The war of <war> has ended. <red><winner> <reset>has triumphed against <red><loser><reset>.")
-            .parseMinimessagePlaceholder("war", getLabel())
-            .parseMinimessagePlaceholder("winner", winner.getName())
-            .parseMinimessagePlaceholder("loser", loser.getName())
+            .with("war", getLabel())
+            .with("winner", winner.getName())
+            .with("loser", loser.getName())
             .build()
         );
 
@@ -825,7 +825,7 @@ public class War extends Conflict {
      */
     public void draw() {
         Bukkit.broadcast(ColorParser.of(UtilsChat.getPrefix() + "The war of <war> has ended with a white peace.")
-            .parseMinimessagePlaceholder("war", getLabel())
+            .with("war", getLabel())
             .build()
         );
 

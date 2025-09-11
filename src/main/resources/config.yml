@@ -4,5 +4,5 @@ update-checker:
   console: true # Post message to console
   op: true # Send update notification to opped players on join
 
-# Translation, specify the language file to use, for example `en-US` which will load `/translations/en-US.yml`
+# Translation, specify the language file to use, for example `en-US` which will load `/translations/en-US.json`
 translation: "en-US"

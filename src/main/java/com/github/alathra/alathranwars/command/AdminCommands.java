@@ -3,7 +3,7 @@ package com.github.alathra.alathranwars.command;
 import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.hook.NameColorHandler;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPICommand;
 import org.bukkit.Bukkit;

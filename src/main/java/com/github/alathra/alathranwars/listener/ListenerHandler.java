@@ -25,11 +25,11 @@ public class ListenerHandler implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         // Sieges
         plugin.getServer().getPluginManager().registerEvents(new BlockBreakPlaceListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerDeathListener(), plugin);
@@ -51,8 +51,8 @@ public class ListenerHandler implements Reloadable {
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), plugin);
-        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Essentials"))
-        plugin.getServer().getPluginManager().registerEvents(new EssentialsListener(), plugin);
+//        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Essentials"))
+//        plugin.getServer().getPluginManager().registerEvents(new EssentialsListener(), plugin); // TODO reimplement methods in essentials listener but for sunlight
 
         // Misc
         plugin.getServer().getPluginManager().registerEvents(new UpdateCheckListener(), plugin);
@@ -62,6 +62,6 @@ public class ListenerHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
     }
 }

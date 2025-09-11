@@ -24,11 +24,11 @@ public class BStatsHook implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         // Catch startup errors for bstats
         try {
             setHook(new Metrics(plugin, BSTATS_ID));
@@ -38,7 +38,7 @@ public class BStatsHook implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         getHook().shutdown();
         setHook(null);
     }

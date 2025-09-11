@@ -1,8 +1,8 @@
 package com.github.alathra.alathranwars.listener;
 
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.github.alathra.alathranwars.AlathranWars;
-import com.github.alathra.alathranwars.translation.Translation;
+import io.github.milkdrinkers.wordweaver.Translation;
 import com.github.alathra.alathranwars.updatechecker.SemanticVersion;
 import com.github.alathra.alathranwars.updatechecker.UpdateChecker;
 import com.github.alathra.alathranwars.utility.Cfg;
@@ -35,10 +35,10 @@ public class UpdateCheckListener implements Listener {
 
         e.getPlayer().sendMessage(
             ColorParser.of(Translation.of("update-checker.update-found-player"))
-                .parseMinimessagePlaceholder("plugin_name", pluginName)
-                .parseMinimessagePlaceholder("version_current", currentVersion.getVersionFull())
-                .parseMinimessagePlaceholder("version_latest", latestVersion.getVersionFull())
-                .parseMinimessagePlaceholder("download_link", UpdateChecker.LATEST_RELEASE)
+                .with("plugin_name", pluginName)
+                .with("version_current", currentVersion.getVersionFull())
+                .with("version_latest", latestVersion.getVersionFull())
+                .with("download_link", UpdateChecker.LATEST_RELEASE)
                 .build()
         );
     }

@@ -1,5 +1,6 @@
 package com.github.alathra.alathranwars.hook;
 
+import com.github.alathra.alathranwars.AlathranWars;
 import com.github.alathra.alathranwars.Reloadable;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -13,11 +14,11 @@ public abstract class AbstractPluginHook<T> implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 
@@ -25,7 +26,7 @@ public abstract class AbstractPluginHook<T> implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         setHook(null);
     }
 

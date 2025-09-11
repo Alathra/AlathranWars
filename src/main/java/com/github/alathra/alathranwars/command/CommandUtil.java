@@ -8,7 +8,7 @@ import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.enums.CommandArgsSiege;
 import com.github.alathra.alathranwars.enums.CommandArgsWar;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -57,7 +57,7 @@ public class CommandUtil {
             final String argNationName = info.input();
 
             if (TownyAPI.getInstance().getNation(argNationName) == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").legacy().build());
 
             return TownyAPI.getInstance().getNation(argNationName);
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -76,7 +76,7 @@ public class CommandUtil {
             final String argTownName = info.input();
 
             if (TownyAPI.getInstance().getTown(argTownName) == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").legacy().build());
 
             return TownyAPI.getInstance().getTown(argTownName);
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -95,7 +95,7 @@ public class CommandUtil {
             final String argNationName = info.input();
 
             if (TownyAPI.getInstance().getNation(argNationName) == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").legacy().build());
 
             if (!hideNationsInWar || !(info.previousArgs().get(warNodeName) instanceof War war))
                 return TownyAPI.getInstance().getNation(argNationName);
@@ -105,7 +105,7 @@ public class CommandUtil {
             if (war.getNations().contains(nation) || war.getNationsSurrendered().contains(nation))
                 return nation;
 
-            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation is already at war!").parseLegacy().build());
+            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation is already at war!").legacy().build());
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
             final @NotNull List<String> nationNames = TownyAPI.getInstance().getNations()
                 .stream()
@@ -140,7 +140,7 @@ public class CommandUtil {
             final String argTownName = info.input();
 
             if (TownyAPI.getInstance().getTown(argTownName) == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").legacy().build());
 
             if (!hideTownsInWar || !(info.previousArgs().get(warNodeName) instanceof War war))
                 return TownyAPI.getInstance().getTown(argTownName);
@@ -150,7 +150,7 @@ public class CommandUtil {
             if (war.getTowns().contains(town) || war.getTownsSurrendered().contains(town))
                 return town;
 
-            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is already at war!").parseLegacy().build());
+            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is already at war!").legacy().build());
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
             final @NotNull List<String> townNames = TownyAPI.getInstance().getTowns()
                 .stream()
@@ -176,15 +176,15 @@ public class CommandUtil {
     public static Argument<Nation> customNationInWarArgument(String nodeName, String warNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").legacy().build());
 
             @Nullable Nation nation = TownyAPI.getInstance().getNation(info.input());
 
             if (nation == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation does not exist!").legacy().build());
 
             if (!war.isInWar(nation))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation is not in that war!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The nation is not in that war!").legacy().build());
 
             return nation;
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -201,15 +201,15 @@ public class CommandUtil {
     public static Argument<Town> customTownInWarArgument(String nodeName, String warNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").legacy().build());
 
             @Nullable Town town = TownyAPI.getInstance().getTown(info.input());
 
             if (town == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").legacy().build());
 
             if (!war.isInWar(town))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").legacy().build());
 
             return town;
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -247,7 +247,7 @@ public class CommandUtil {
 
             throw CustomArgument.CustomArgumentException.fromAdventureComponent(
                 ColorParser.of(UtilsChat.getPrefix() + "<red>The town or nation <name> does not exist!")
-                    .parseMinimessagePlaceholder("name", argTownOrNationName)
+                    .with("name", argTownOrNationName)
                     .build()
             );
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -288,20 +288,20 @@ public class CommandUtil {
     public static Argument<Town> customSiegeAttackableTownArgument(String nodeName, String warNodeName, final boolean checkIfIn, final boolean checkIfSieged) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war does not exist!").legacy().build());
 
             @Nullable Town town = TownyAPI.getInstance().getTown(info.input());
 
             if (town == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town does not exist!").legacy().build());
 
             if (!war.isInWar(town))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is not in that war!").legacy().build());
 
             if (checkIfSieged) {
                 for (@NotNull Siege siege : WarController.getInstance().getSieges()) {
                     if (siege.getTown().getUUID() == town.getUUID())
-                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is already under siege!").parseLegacy().build());
+                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The town is already under siege!").legacy().build());
                 }
             }
 
@@ -347,7 +347,7 @@ public class CommandUtil {
 
             final @Nullable Siege siege = WarController.getInstance().getSiege(siegeUUID);
             if (siege == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The siege <siege> does not exist!").parseMinimessagePlaceholder("siege", argSiegeName).build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The siege <siege> does not exist!").with("siege", argSiegeName).build());
 
             switch (checkSiege) {
                 case IN_SIEGE -> {
@@ -432,37 +432,37 @@ public class CommandUtil {
 
             final @Nullable War war = WarController.getInstance().getWar(argWarName);
             if (war == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war <war> does not exist!").parseMinimessagePlaceholder("war", argWarName).build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The war <war> does not exist!").with("war", argWarName).build());
 
             switch (checkWar) {
                 case IN_WAR -> {
                     if (isAdmin) {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").legacy().build());
 
                         if (!war.isInWar(player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already in that war.").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already in that war.").legacy().build());
                     } else {
                         if (!(info.sender() instanceof Player player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").legacy().build());
 
                         if (!war.isInWar(player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already in this war.").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already in this war.").legacy().build());
                     }
                 }
                 case OUT_WAR -> {
                     if (isAdmin) {
                         if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").legacy().build());
 
                         if (war.isInWar(player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is not in that war.").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is not in that war.").legacy().build());
                     } else {
                         if (!(info.sender() instanceof Player player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").legacy().build());
 
                         if (war.isInWar(player))
-                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are not in that war.").parseLegacy().build());
+                            throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are not in that war.").legacy().build());
                     }
                 }
             }
@@ -514,31 +514,31 @@ public class CommandUtil {
     public static Argument<Side> warSideCreateArgument(final String nodeName, final String warNodeName, final boolean isAdmin, final boolean checkIfIn, final String playerNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").legacy().build());
 
             final String argSideName = info.input();
 
             if (!war.isSideValid(argSideName))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side does not exist.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side does not exist.").legacy().build());
 
             final @Nullable Side side = war.getSide(argSideName);
 
             if (side == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side is invalid.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side is invalid.").legacy().build());
 
             if (checkIfIn) {
                 if (isAdmin) {
                     if (!(info.previousArgs().get(playerNodeName) instanceof Player player))
-                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").parseLegacy().build());
+                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player does not exist!").legacy().build());
 
                     if (side.getPlayersOnline().contains(player))
-                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already on that side.").parseLegacy().build());
+                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The player is already on that side.").legacy().build());
                 } else {
                     if (!(info.sender() instanceof Player player))
-                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").parseLegacy().build());
+                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>Only players can execute this command!").legacy().build());
 
                     if (side.getPlayersOnline().contains(player))
-                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already on that side.").parseLegacy().build());
+                        throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You are already on that side.").legacy().build());
                 }
             }
 
@@ -578,17 +578,17 @@ public class CommandUtil {
     public static Argument<Side> warSideArgument(final String nodeName, final String warNodeName, final boolean isAdmin, final boolean checkIfIn, final String playerNodeName) {
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").legacy().build());
 
             final String argSideName = info.input();
 
             if (!war.isSideValid(argSideName))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side does not exist.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side does not exist.").legacy().build());
 
             final @Nullable Side side = war.getSide(argSideName);
 
             if (side == null)
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side is invalid.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>The side is invalid.").legacy().build());
 
             return side;
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {
@@ -609,7 +609,7 @@ public class CommandUtil {
             final String argTargetName = info.input();
 
             if (!(info.previousArgs().get(warNodeName) instanceof War war))
-                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").parseLegacy().build());
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(ColorParser.of(UtilsChat.getPrefix() + "<red>You need to specify a war.").legacy().build());
 
             final boolean isNation = TownyAPI.getInstance().getNation(argTargetName) != null;
             final boolean isTown = TownyAPI.getInstance().getTown(argTargetName) != null;
@@ -753,7 +753,7 @@ public class CommandUtil {
 
             throw CustomArgument.CustomArgumentException.fromAdventureComponent(
                 ColorParser.of(UtilsChat.getPrefix() + "<red>The player, town or nation <name> is not in the war!")
-                    .parseMinimessagePlaceholder("name", argPlayerOrTownOrNationName)
+                    .with("name", argPlayerOrTownOrNationName)
                     .build()
             );
         }).replaceSuggestions(ArgumentSuggestions.stringCollection(info -> {

@@ -7,15 +7,15 @@ public interface Reloadable {
     /**
      * On plugin load.
      */
-    void onLoad();
+    void onLoad(AlathranWars plugin);
 
     /**
      * On plugin enable.
      */
-    void onEnable();
+    void onEnable(AlathranWars plugin);
 
     /**
      * On plugin disable.
      */
-    void onDisable();
+    void onDisable(AlathranWars plugin);
 }

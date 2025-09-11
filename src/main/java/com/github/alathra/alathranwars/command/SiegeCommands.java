@@ -7,7 +7,7 @@ import com.github.alathra.alathranwars.conflict.war.WarController;
 import com.github.alathra.alathranwars.conflict.war.side.Side;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -128,7 +128,7 @@ public class SiegeCommands {
         if (side.isSiegeGraceActive() && !asAdmin)
             throw CommandAPIBukkit.failWithAdventureComponent(
                 ColorParser.of("<red>Your side needs to wait <time> minutes before starting another siege.")
-                    .parseMinimessagePlaceholder("time", String.valueOf(side.getSiegeGraceCooldown().toMinutes()))
+                    .with("time", String.valueOf(side.getSiegeGraceCooldown().toMinutes()))
                     .build()
             );
 
@@ -150,13 +150,13 @@ public class SiegeCommands {
             throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be in the same world as the town you're attacking!").build());
 
         if (location.distance(townLocation) >= Siege.BATTLEFIELD_START_MAX_RANGE && !asAdmin)
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be within <range> blocks of the town to start a siege!").parseMinimessagePlaceholder("range", String.valueOf(Siege.BATTLEFIELD_START_MAX_RANGE)).build());
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be within <range> blocks of the town to start a siege!").with("range", String.valueOf(Siege.BATTLEFIELD_START_MAX_RANGE)).build());
 
         if (location.distance(townLocation) <= Siege.BATTLEFIELD_START_MIN_RANGE && !asAdmin)
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be further than <range> blocks away from the town to start a siege!").parseMinimessagePlaceholder("range", String.valueOf(Siege.BATTLEFIELD_START_MIN_RANGE)).build());
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to be further than <range> blocks away from the town to start a siege!").with("range", String.valueOf(Siege.BATTLEFIELD_START_MIN_RANGE)).build());
 
         if ((AlathranWars.getVaultHook().isEconomyLoaded() && AlathranWars.getVaultHook().getEconomy().getBalance(siegeLeader) < Siege.SIEGE_VICTORY_MONEY) && !asAdmin)
-            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to have $<amount> to start a siege!").parseMinimessagePlaceholder("amount", String.valueOf(Siege.SIEGE_VICTORY_MONEY)).build());
+            throw CommandAPIBukkit.failWithAdventureComponent(ColorParser.of("<red>You need to have $<amount> to start a siege!").with("amount", String.valueOf(Siege.SIEGE_VICTORY_MONEY)).build());
 
         side.setSiegeGrace();
         Siege siege = new Siege(war, town, siegeLeader);
@@ -167,9 +167,9 @@ public class SiegeCommands {
             ColorParser.of(
                     "<prefix>The town of <town> has been put to siege by <side>!"
                 )
-                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                .parseMinimessagePlaceholder("town", town.getName())
-                .parseMinimessagePlaceholder("side", siege.getAttackerSide().getName())
+                .with("prefix", UtilsChat.getPrefix())
+                .with("town", town.getName())
+                .with("side", siege.getAttackerSide().getName())
                 .build()
         );
 

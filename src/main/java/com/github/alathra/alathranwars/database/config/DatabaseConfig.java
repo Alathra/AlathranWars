@@ -1,7 +1,7 @@
 package com.github.alathra.alathranwars.database.config;
 
 import com.github.alathra.alathranwars.database.DatabaseType;
-import com.github.milkdrinkers.crate.Config;
+import io.github.milkdrinkers.crate.Config;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 

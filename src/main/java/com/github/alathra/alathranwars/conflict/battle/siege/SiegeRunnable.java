@@ -8,7 +8,7 @@ import com.github.alathra.alathranwars.enums.battle.BattleSide;
 import com.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
 import com.github.alathra.alathranwars.meta.ControlPoint;
 import com.github.alathra.alathranwars.utility.UtilsChat;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -123,7 +123,7 @@ public class SiegeRunnable extends BattleRunnable {
                 case UP -> {
                     siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                         ColorParser.of("<prefix>The Attackers are capturing the home block.")
-                            .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                            .with("prefix", UtilsChat.getPrefix())
                             .build()
                     ));
                 }
@@ -131,7 +131,7 @@ public class SiegeRunnable extends BattleRunnable {
                     if (oldProgressDirection.equals(UNCONTESTED))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The home block is being contested.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -139,7 +139,7 @@ public class SiegeRunnable extends BattleRunnable {
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED) || oldProgressDirection.equals(DOWN))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The home block is no longer being contested.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -147,7 +147,7 @@ public class SiegeRunnable extends BattleRunnable {
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                             ColorParser.of("<prefix>The Defenders re-secured the home block.")
-                                .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
+                                .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
                 }
@@ -159,8 +159,8 @@ public class SiegeRunnable extends BattleRunnable {
 
             siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
                 ColorParser.of("<prefix>Siege time remaining: <time> minutes.")
-                    .parseMinimessagePlaceholder("prefix", UtilsChat.getPrefix())
-                    .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutesPart()))
+                    .with("prefix", UtilsChat.getPrefix())
+                    .with("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutesPart()))
                     .build()
             ));
         }
@@ -215,8 +215,8 @@ public class SiegeRunnable extends BattleRunnable {
         final Component name;
         if (Instant.now().isBefore(siege.getEndTime())) {
             name = ColorParser.of("<gray>Capture Progress: %s<progress> <gray>Time: %s<time>min".formatted(color, color))
-                .parseMinimessagePlaceholder("progress", "%.0f%%".formatted(siegePrecentage * 100))
-                .parseMinimessagePlaceholder("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutes()))
+                .with("progress", "%.0f%%".formatted(siegePrecentage * 100))
+                .with("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutes()))
                 .build();
         } else {
             name = ColorParser.of("%sOVERTIME".formatted(color)).build();

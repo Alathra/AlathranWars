@@ -26,7 +26,7 @@ public class PacketEventsHook implements Reloadable {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 
@@ -35,7 +35,7 @@ public class PacketEventsHook implements Reloadable {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 
@@ -49,7 +49,7 @@ public class PacketEventsHook implements Reloadable {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(AlathranWars plugin) {
         if (!Bukkit.getPluginManager().isPluginEnabled(pluginName))
             return;
 

@@ -7,7 +7,7 @@ import com.github.alathra.alathranwars.conflict.war.side.spawn.Spawn;
 import com.github.alathra.alathranwars.conflict.war.side.spawn.SpawnBuilder;
 import com.github.alathra.alathranwars.conflict.war.side.spawn.SpawnCreationException;
 import com.github.alathra.alathranwars.conflict.war.side.spawn.SpawnType;
-import com.github.milkdrinkers.colorparser.ColorParser;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Nation;
@@ -289,7 +289,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_FRIENDLY_MIN_TOWN_RANGE) // Check if too close to any spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a friendly town!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_FRIENDLY_MIN_TOWN_RANGE))
+                        .with("range", String.valueOf(SPAWN_FRIENDLY_MIN_TOWN_RANGE))
                         .build()
                 );
         }
@@ -298,7 +298,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_FRIENDLY_MIN_OUTPOST_RANGE) // Check if too close to any spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a friendly outpost!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_FRIENDLY_MIN_OUTPOST_RANGE))
+                        .with("range", String.valueOf(SPAWN_FRIENDLY_MIN_OUTPOST_RANGE))
                         .build()
                 );
         }
@@ -307,7 +307,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_FRIENDLY_MIN_RALLY_RANGE) // Check if too close to any spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a friendly rally!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_FRIENDLY_MIN_RALLY_RANGE))
+                        .with("range", String.valueOf(SPAWN_FRIENDLY_MIN_RALLY_RANGE))
                         .build()
                 );
         }
@@ -319,7 +319,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_HOSTILE_MIN_TOWN_RANGE) // Check if too close to enemy spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a hostile town!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_HOSTILE_MIN_TOWN_RANGE))
+                        .with("range", String.valueOf(SPAWN_HOSTILE_MIN_TOWN_RANGE))
                         .build()
                 );
         }
@@ -328,7 +328,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_HOSTILE_MIN_OUTPOST_RANGE) // Check if too close to enemy spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a hostile outpost!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_HOSTILE_MIN_OUTPOST_RANGE))
+                        .with("range", String.valueOf(SPAWN_HOSTILE_MIN_OUTPOST_RANGE))
                         .build()
                 );
         }
@@ -337,7 +337,7 @@ public abstract class SpawnUtils {
             if (location.distance(spawn.getLocation()) < SPAWN_HOSTILE_MIN_RALLY_RANGE) // Check if too close to enemy spawns
                 throw new SpawnCreationException(
                     ColorParser.of("<red>A rally must be further than <range> blocks away from a friendly rally!")
-                        .parseMinimessagePlaceholder("range", String.valueOf(SPAWN_HOSTILE_MIN_RALLY_RANGE))
+                        .with("range", String.valueOf(SPAWN_HOSTILE_MIN_RALLY_RANGE))
                         .build()
                 );
         }
