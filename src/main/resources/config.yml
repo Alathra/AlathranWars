@@ -4,5 +4,36 @@ update-checker:
   console: true # Post message to console
   op: true # Send update notification to opped players on join
 
-# Translation, specify the language file to use, for example `en-US` which will load `/translations/en-US.yml`
-translation: "en-US"
+# Language, specify the language file to use, for example `en_US` which will load `/lang/en_US.json`
+language: "en_US"
+
+cooldowns:
+  war:
+    government:
+      offensive:
+        default: 14 # Days
+        mercenary: 30 # Days
+
+      defensive:
+        default: 7 # Days
+    resident:
+      offensive:
+        default: 14 # Days
+        mercenary: 30 # Days
+
+      defensive:
+        default: 7 # Days
+
+war:
+  required-playtime: 60 # Minutes (Does not apply to force-joined players)
+  wartime-duration: 120 # Duration of wartime in minutes
+
+battles:
+  sieges:
+    range: 500 # The radius in blocks around the siege point that will be considered the battlefield
+    duration: 60 # The duration of the siege in minutes
+    trigger:
+      range: 250 # The range in blocks around the siege point that a siege can be triggered from
+      # When these items are used in proximity to a town by a war-leader or captain they will trigger a siege for the closest town
+      items:
+        - "minecraft:goat_horn"

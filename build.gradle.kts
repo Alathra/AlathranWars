@@ -4,27 +4,28 @@ import java.time.Instant
 plugins {
     `java-library`
 
-    id("io.github.goooler.shadow") version "8.1.8" // Shades and relocates dependencies, See https://imperceptiblethoughts.com/shadow/introduction/
-    id("xyz.jpenilla.run-paper") version "2.3.1" // Adds runServer and runMojangMappedServer tasks for testing
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0" // Automatic plugin.yml generation
-    id("org.flywaydb.flyway") version "10.17.3" // Database migrations
-    id("org.jooq.jooq-codegen-gradle") version "3.19.11"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.run.paper)
+    alias(libs.plugins.plugin.yml)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.jooq)
+    flywaypatches
+    projectextensions
+    versioner
 
     eclipse
     idea
 }
 
-val mainPackage = "${project.group}.${project.name.lowercase()}"
-applyCustomVersion()
-
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17)) // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
+    toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt())) // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
     withJavadocJar() // Enable javadoc jar generation
     withSourcesJar() // Enable sources jar generation
 }
 
 repositories {
     mavenCentral()
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
 
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://mvn-repo.arim.space/lesser-gpl3/")
@@ -39,12 +40,14 @@ repositories {
         content {
             includeGroup("com.github.MilkBowl") // VaultAPI
             includeGroup("com.palmergames.bukkit.towny")
-            includeGroup("com.github.Gecolay.GSit")
+            includeGroup("com.github.gecolay")
+            includeGroup("com.github.gecolay.GSit")
+            includeGroup("com.github.NEZNAMY")
+            includeGroup("com.github.Tofaa2.EntityLib")
+            includeGroup("com.github.milkdrinkers")
+            includeGroup("ca.tweetzy")
+            includeGroup("com.github.Thatsmusic99")
         }
-    }
-
-    maven("https://repo.kryptonmc.org/releases") {
-        content { includeGroup("me.neznamy") }
     }
 
     maven("https://repo.codemc.org/repository/maven-public/") {
@@ -59,81 +62,88 @@ repositories {
     maven("https://repo.essentialsx.net/releases/")
     maven("https://repo.essentialsx.net/snapshots/")
     maven("https://repo.dmulloy2.net/repository/public/") // ProtocolLib
-    maven("https://maven.evokegames.gg/snapshots/") // EntityLib
+    maven("https://maven.evokegames.gg/snapshots/") {
+        content { includeGroup("me.tofaa.entitylib") }
+    }
+    maven("https://repo.cwhead.dev/repository/maven-public/") {
+        content { includeGroup("com.ranull") }
+    }
 }
 
 dependencies {
-    compileOnly("org.jetbrains:annotations:24.1.0")
-    annotationProcessor("org.jetbrains:annotations:24.1.0")
-
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
-//    paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
-    implementation("space.arim.morepaperlib:morepaperlib:0.4.4")
+    // Core
+    compileOnly(libs.annotations)
+    annotationProcessor(libs.annotations)
+    compileOnly(libs.paper.api)
+    implementation(libs.morepaperlib)
 
     // API
-    implementation("com.github.milkdrinkers:crate-api:2.0.0")
-    implementation("com.github.milkdrinkers:crate-yaml:2.0.0")
-    implementation("com.github.milkdrinkers:colorparser:2.0.3") {
+    implementation(libs.javasemver)
+    implementation(libs.versionwatch)
+    implementation(libs.wordweaver)
+    implementation(libs.crate.yaml)
+    implementation(libs.colorparser) {
         exclude("net.kyori")
     }
-    implementation("dev.jorel:commandapi-bukkit-shade:9.3.0")
-    implementation("me.tofaa.entitylib:spigot:2.4.10-SNAPSHOT")
+    implementation(libs.threadutil.bukkit)
+    implementation(libs.commandapi.shade)
+    implementation(libs.triumph.gui) {
+        exclude("net.kyori")
+    }
+    implementation(libs.itemutils)
 
     // Plugin Dependencies
-    implementation("org.bstats:bstats-bukkit:3.0.3")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-//    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.6") {
+    implementation(libs.bstats)
+    compileOnly(libs.vault)
+    compileOnly(libs.packetevents)
+    implementation(libs.entitylib)
+    compileOnly(libs.placeholderapi) {
         exclude("me.clip.placeholderapi.libs", "kyori")
     }
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    compileOnly("com.palmergames.bukkit.towny:towny:0.100.3.0") {
+    compileOnly(libs.towny) {
         exclude("com.palmergames.adventure")
     }
-    compileOnly("me.neznamy:tab-api:4.0.2")
+    compileOnly(libs.tabapi)
+//    compileOnly(libs.gravesx)
     compileOnly(files("lib/Graves-4.9.jar"))
-    compileOnly("com.github.Gecolay.GSit:core:1.9.0")
-    compileOnly(files("lib/HeadsPlus-7.0.14.jar"))
-    compileOnly(files("lib/Skulls.jar"))
-    compileOnly("net.essentialsx:EssentialsX:2.20.1")
-    compileOnly("net.essentialsx:EssentialsXSpawn:2.20.1")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.5.0")
+//    compileOnly(libs.gsit)
+    compileOnly(files("lib/GSit-2.4.3.jar"))
+    compileOnly(files("lib/HeadDrop.jar"))
+//    compileOnly(libs.skulls)
+    compileOnly(libs.headsplus)
+    compileOnly(libs.essentialsx.core) {
+        exclude("org.spigotmc")
+    }
+    compileOnly(libs.essentialsx.spawn) {
+        exclude("org.spigotmc")
+    }
 
-    // Database Dependencies (Core)
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    library("org.flywaydb:flyway-core:10.17.3")
-    library("org.flywaydb:flyway-mysql:10.17.3")
-    library("org.jooq:jooq:3.19.11")
-    jooqCodegen("com.h2database:h2:2.3.232")
+    // Database dependencies - Core
+    implementation(libs.hikaricp)
+    library(libs.bundles.flyway)
+    compileOnly(libs.jakarta) // Compiler bug, see: https://github.com/jOOQ/jOOQ/issues/14865#issuecomment-2077182512
+    library(libs.jooq)
+    jooqCodegen(libs.h2)
 
-    // Database Dependencies (JDBC Drivers)
-    library("com.h2database:h2:2.3.232")
-    library("org.xerial:sqlite-jdbc:3.46.1.0")
-    library("com.mysql:mysql-connector-j:9.0.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.4.1")
+    // Database dependencies - JDBC drivers
+    library(libs.bundles.jdbcdrivers)
 
-    // Testing (Core)
-    testImplementation("org.jetbrains:annotations:24.1.0")
-    testImplementation(platform("org.junit:junit-bom:5.11.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testRuntimeOnly("org.slf4j:slf4j-simple:2.1.0-alpha1")
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.1"))
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:mariadb")
+    // Testing - Core
+    testImplementation(libs.annotations)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.junit)
+    testRuntimeOnly(libs.slf4j)
+    testImplementation(platform(libs.testcontainers.bom))
+    testImplementation(libs.bundles.testcontainers)
+    testRuntimeOnly(libs.paper.api)
 
-    // Testing (Database Dependencies)
-    testImplementation("com.zaxxer:HikariCP:5.1.0")
-    testImplementation("org.flywaydb:flyway-core:10.17.3")
-    testImplementation("org.flywaydb:flyway-mysql:10.17.3")
-    testImplementation("org.jooq:jooq:3.19.11")
+    // Testing - Database dependencies
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.bundles.flyway)
+    testImplementation(libs.jooq)
 
-    // Testing (JDBC Drivers)
-    testImplementation("com.h2database:h2:2.3.232")
-    testImplementation("org.xerial:sqlite-jdbc:3.46.1.0")
-    testImplementation("com.mysql:mysql-connector-j:9.0.0")
-    testImplementation("org.mariadb.jdbc:mariadb-java-client:3.4.1")
+    // Testing - JDBC drivers
+    testImplementation(libs.bundles.jdbcdrivers)
 }
 
 tasks {
@@ -141,24 +151,17 @@ tasks {
         dependsOn(shadowJar)
     }
 
-    jooqCodegen {
-        dependsOn(flywayMigrate)
-    }
-
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
 
         // Set the release flag. This configures what version bytecode the compiler will emit, as well as what JDK APIs are usable.
         // See https://openjdk.java.net/jeps/247 for more information.
-        options.release.set(17)
+        options.release.set(libs.versions.java.get().toInt())
         options.compilerArgs.addAll(arrayListOf("-Xlint:all", "-Xlint:-processing", "-Xdiags:verbose"))
-
-        dependsOn(jooqCodegen) // Generate jOOQ sources before compilation
     }
 
     javadoc {
         isFailOnError = false
-        exclude("**/database/schema/**") // Exclude generated jOOQ sources from javadocs
         val options = options as StandardJavadocDocletOptions
         options.encoding = Charsets.UTF_8.name()
         options.overview = "src/main/javadoc/overview.html"
@@ -177,7 +180,7 @@ tasks {
         archiveClassifier.set("")
 
         // Shadow classes
-        fun reloc(originPkg: String, targetPkg: String) = relocate(originPkg, "${mainPackage}.lib.${targetPkg}")
+        fun reloc(originPkg: String, targetPkg: String) = relocate(originPkg, "${project.relocationPackage}.${targetPkg}")
 
         reloc("space.arim.morepaperlib", "morepaperlib")
         reloc("com.github.milkdrinkers.crate", "crate")
@@ -187,11 +190,7 @@ tasks {
         reloc("org.bstats", "bstats")
         reloc("me.tofaa.entitylib", "entitylib")
 
-        mergeServiceFiles {
-            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin") // Fix Flyway overriding its own files
-        }
-
-        minimize()
+        mergeServiceFiles()
     }
 
     test {
@@ -201,7 +200,7 @@ tasks {
 
     runServer {
         // Configure the Minecraft version for our task.
-        minecraftVersion("1.20.4")
+        minecraftVersion(libs.versions.paper.run.get())
 
         // IntelliJ IDEA debugger setup: https://docs.papermc.io/paper/dev/debugging#using-a-remote-debugger
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true", "-DIReallyKnowWhatIAmDoingISwear", "-Dpaper.playerconnection.keepalive=6000")
@@ -220,14 +219,9 @@ tasks {
     }
 }
 
-tasks.named<Jar>("sourcesJar") { // Required for sources jar generation with jOOQ
-    dependsOn(tasks.jooqCodegen)
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
 bukkit { // Options: https://github.com/Minecrell/plugin-yml#bukkit
     // Plugin main class (required)
-    main = "${mainPackage}.${project.name}"
+    main = project.entryPointClass
 
     // Plugin Information
     name = project.name
@@ -245,7 +239,7 @@ bukkit { // Options: https://github.com/Minecrell/plugin-yml#bukkit
 }
 
 flyway {
-    url = "jdbc:h2:${project.layout.buildDirectory.get()}/generated/flyway/db;AUTO_SERVER=TRUE;MODE=MYSQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;IGNORECASE=TRUE"
+    url = "jdbc:h2:${project.layout.buildDirectory.get()}/generated/flyway/db;AUTO_SERVER=TRUE;MODE=MySQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;IGNORECASE=TRUE"
     user = "sa"
     password = ""
     schemas = listOf("PUBLIC").toTypedArray()
@@ -256,8 +250,8 @@ flyway {
     baselineOnMigrate = true
     cleanDisabled = false
     locations = arrayOf(
-        "filesystem:src/main/resources/db/migration",
-        "classpath:db/migration"
+        "filesystem:${project.tasks.named<AssimilateMigrationsTask>("assimilateMigrations").get().outputDir.get().dir("h2")}",
+        "classpath:${mainPackage.replace(".", "/")}/database/migration/migrations"
     )
 }
 
@@ -284,12 +278,4 @@ jooq {
             }
         }
     }
-}
-
-fun applyCustomVersion() {
-    // Apply custom version arg or append snapshot version
-    val ver = properties["altVer"]?.toString() ?: "${rootProject.version}-SNAPSHOT-${Instant.now().epochSecond}"
-
-    // Strip prefixed "v" from version tag
-    rootProject.version = (if (ver.first().equals('v', true)) ver.substring(1) else ver.uppercase()).uppercase()
 }

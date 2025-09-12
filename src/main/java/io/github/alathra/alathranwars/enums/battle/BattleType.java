@@ -1,0 +1,6 @@
+package io.github.alathra.alathranwars.enums.battle;
+
+public enum BattleType {
+    SIEGE,
+    RAID,
+}
