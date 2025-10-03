@@ -37,3 +37,43 @@ battles:
       # When these items are used in proximity to a town by a war-leader or captain they will trigger a siege for the closest town
       items:
         - "minecraft:goat_horn"
+    points:
+      attacker-victory: 50 # Given to attackers if they win
+      defender-loss: 5 # Given to defenders if they lose
+      attacker-loss: 1 # Given to attackers if they lose
+      defender-victory: 10 # Given to defenders if they win
+
+respawns:
+  # Seconds a player must wait before respawning
+  time: 15
+  # If users should need the "alathranwars.death.spectate" permission to enable respawns
+  permission: false
+  # Worlds to enable respawning from (Leave empty to disable)
+  whitelisted-worlds: []
+  # Commands allowed to be run while respawning (Leave empty to disable)
+  whitelisted-commands: []
+  # Causes that will not trigger respawning (Leave empty to disable)
+  # (https://jd.papermc.io/paper/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html)
+  blacklisted-damage-causes: []
+
+  proxy:
+    # Time in seconds it takes for a spawn to re-enable after being proxied
+    reenable-time: 10 # Seconds
+    min-players: 1 # Required players to proxy a spawn
+    range: 8 # The range around a spawn point to check for proxying players
+
+  # Settings related to rally points (Placeable spawn points)
+  rallies:
+    # The cooldown a player must wait before being able to place another rally
+    placement-cooldown: 5 # Minutes
+
+    # Time in seconds it takes for a rally to be removed if proxied
+    proxy-delete: 60 # Seconds
+
+    # The ranges in blocks rally points need to be away from other types of spawns
+    min-range-town-friendly: 150
+    min-range-outpost-friendly: 100
+    min-range-rally-friendly: 120
+    min-range-town-hostile: 100
+    min-range-outpost-hostile: 50
+    min-range-rally-hostile: 25
