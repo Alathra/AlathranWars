@@ -31,8 +31,6 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://mvn-repo.arim.space/lesser-gpl3/")
 
-    maven("https://maven.athyrium.eu/releases")
-
     maven("https://repo.glaremasters.me/repository/towny/") {
         content { includeGroup("com.palmergames.bukkit.towny") }
     }
