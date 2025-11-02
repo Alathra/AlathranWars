@@ -26,6 +26,114 @@
   "status-screen": {
     "cooldown": "<hover:show_text:'<dark_green>Offensive: <white><cooldown_attack><br><dark_green>Defensive: <white><cooldown_defense>'><grey>[<green>Cooldowns<grey>]</hover>",
     "cooldown-inactive": "<red>Inactive",
-    "cooldown-active-format": "<white> <days> days, <hours> hours and <minutes> minutes."
+    "cooldown-active-format": "<white><days> days, <hours> hours and <minutes> minutes.",
+    "mercenary": "<hover:show_text:'<white>This town may participate in wars for money.'><grey>[<green>Mercenary<grey>]</hover>"
+  },
+  "respawn-title": {
+    "title": "<red>Dead",
+    "subtitle": "<gray>You died, spawning in <time> second(s)"
+  },
+  "battle": {
+    "siege": {
+      "event": {
+        "started": {
+          "attacker": {
+            "title": "<red><u><b><town>",
+            "subtitle": "<gray><i>Has been put to siege, attack!"
+          },
+          "defender": {
+            "title": "<red><u><b><town>",
+            "subtitle": "<gray><i>Is under siege, defend!"
+          }
+        },
+        "ended": {
+          "attacker-victory": {
+            "global": {
+              "surrender": "<prefix>The town of <town> has surrendered.",
+              "forced": "<prefix>The town of <town> has been sacked and placed under occupation by the armies of <attacker>!"
+            },
+            "attacker": {
+              "title": "<green><u><b>Victory",
+              "subtitle": "<gray><i><town> has been captured!"
+            },
+            "defender": {
+              "title": "<red><u><b>Defeat",
+              "subtitle": "<gray><i><town> has been lost!"
+            }
+          },
+          "defender-victory": {
+            "global": {
+              "surrender": "<prefix>The siege at <town> has been abandoned by the attackers.",
+              "forced": "<prefix>The siege of <town> has been lifted by the defenders!"
+            },
+            "attacker": {
+              "title": "<red><u><b>Defeat",
+              "subtitle": "<gray><i>We failed to capture <town>!"
+            },
+            "defender": {
+              "title": "<green><u><b>Victory",
+              "subtitle": "<gray><i><town> has been made safe!"
+            }
+          },
+          "draw": {
+            "global": "<prefix>The siege of <town> has ended in a draw!",
+            "title": "<yellow><u><b>Draw",
+            "subtitle": "<gray><i>The siege at <town> has ended!"
+          }
+        }
+      },
+      "building": {
+        "destroy": "<red>You can not break blocks at towns under siege. You are <distance>/<range> block(s) from the siege.",
+        "place": "<red>You can not place blocks at towns under siege. You are <distance>/<range> block(s) from the siege."
+      }
+    },
+    "battlefield": {
+      "entered": {
+        "title": "<red><u><b>Battle",
+        "subtitle": "<gray><i>You entered a battlefield!"
+      },
+      "left": {
+        "title": "<red><u><b>Battle",
+        "subtitle": "<gray><i>You left the battlefield!"
+      }
+    }
+  },
+  "rally": {
+    "placement": {
+      "not-captain": "<red>Only war captains can place rallies!",
+      "inside-claim": "<red>Rallies cannot be placed inside of towns or outposts!",
+      "bounding-box": "<red>A rally must have a clear 3x2x3 spawning area around it!",
+      "min-range-town-friendly": "<red>A rally must be further than <range> blocks away from a friendly town!",
+      "min-range-outpost-friendly": "<red>A rally must be further than <range> blocks away from a friendly outpost!",
+      "min-range-rally-friendly": "<red>A rally must be further than <range> blocks away from a friendly rally!",
+      "min-range-town-hostile": "<red>A rally must be further than <range> blocks away from a hostile town!",
+      "min-range-outpost-hostile": "<red>A rally must be further than <range> blocks away from a hostile outpost!",
+      "min-range-rally-hostile": "<red>A rally must be further than <range> blocks away from a friendly rally!",
+      "success-self": "<green>You successfully created a rally point!",
+      "success-others": "<green>A rally point named <name> has been created by <creator>!"
+    }
+  },
+  "gui": {
+    "spawn-menu": {
+      "title": "Choose a Spawn",
+      "next-page": "<!i><green>Next Page",
+      "previous-page": "<!i><green>Previous Page",
+      "spawn-town": "<!i><yellow>Town: <name>",
+      "spawn-outpost": "<!i><yellow>Outpost: <name>",
+      "spawn-rally": "<!i><green>Rally: <name>",
+      "spawn-lore": [
+        "<!i><white>State: <gray><proxied>",
+        "<!i><white>- <gray>Last proxied <last_proxied_minutes> minutes & <last_proxied_seconds> seconds ago",
+        "<!i><white>Coords: <gray><x>, <y>, <z>"
+      ],
+      "spawn-enabled": "<green><i>Working",
+      "spawn-disabled": "<red><i>Proxied",
+      "info": "<!i><white>Info",
+      "info-lore": [
+        "<!i><gray>Select your spawn point. You can only choose spawns available to you.",
+        "<!i><gray>Spawn points can be disabled by hostile players if they get too close,",
+        "<!i><gray>make sure to defend yours!"
+      ]
+    }
   }
 }

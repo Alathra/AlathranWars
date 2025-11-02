@@ -12,7 +12,8 @@ public class BattleRunnableManager implements BattleManager {
     private final List<ScheduledTask> scheduledTasks = new ArrayList<>();
     private boolean isRunning = false;
 
-    public BattleRunnableManager() {}
+    public BattleRunnableManager() {
+    }
 
     public BattleRunnableManager(List<BattleRunnable> initial) {
         battleRunnables.addAll(initial);
@@ -20,6 +21,7 @@ public class BattleRunnableManager implements BattleManager {
 
     /**
      * Add a runnable that runs as long as this battle is active.
+     *
      * @param runnable a battle runnable
      * @implNote Adding runnables after a {@link BattleRunnableManager} has already executed the {@link #start()} method will have no effect, as the new runnables are never scheduled to run.
      */
@@ -30,6 +32,7 @@ public class BattleRunnableManager implements BattleManager {
 
     /**
      * Add a runnable that runs as long as this battle is active.
+     *
      * @param runnables a battle runnable
      * @implNote Adding runnables after a {@link BattleRunnableManager} has already executed the {@link #start()} method will have no effect, as the new runnables are never scheduled to run.
      */
@@ -48,7 +51,7 @@ public class BattleRunnableManager implements BattleManager {
             return;
 
         battleRunnables.forEach(runnable -> scheduledTasks.add(
-            AlathranWars.getPaperLib().scheduling().globalRegionalScheduler().runAtFixedRate(runnable, 0L, runnable.getTickRate())
+            AlathranWars.getInstance().getPaperLib().scheduling().globalRegionalScheduler().runAtFixedRate(runnable, 0L, runnable.getTickRate())
         ));
 
         isRunning = true;

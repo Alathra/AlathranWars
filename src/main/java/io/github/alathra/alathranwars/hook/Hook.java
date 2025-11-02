@@ -1,9 +1,18 @@
 package io.github.alathra.alathranwars.hook;
 
+import io.github.alathra.alathranwars.hook.activeupkeep.ActiveUpkeepHook;
 import io.github.alathra.alathranwars.hook.bstats.BStatsHook;
+import io.github.alathra.alathranwars.hook.essentials.EssentialsXHook;
+import io.github.alathra.alathranwars.hook.gravesx.GravesXHook;
+import io.github.alathra.alathranwars.hook.gsit.GSitHook;
+import io.github.alathra.alathranwars.hook.headdrop.HeadDropHook;
+import io.github.alathra.alathranwars.hook.headsplus.HeadsPlusHook;
 import io.github.alathra.alathranwars.hook.packetevents.PacketEventsHook;
 import io.github.alathra.alathranwars.hook.placeholderapi.PAPIHook;
-import io.github.alathra.alathranwars.hook.unlimitednametags.*;
+import io.github.alathra.alathranwars.hook.ports.PortsHook;
+import io.github.alathra.alathranwars.hook.settlers.SettlersHook;
+import io.github.alathra.alathranwars.hook.skulls.SkullsHook;
+import io.github.alathra.alathranwars.hook.unlimitednametags.UnlimitedNametagsHook;
 import io.github.alathra.alathranwars.hook.vault.VaultHook;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +30,11 @@ public enum Hook {
     Settlers(SettlersHook.class, "Settlers", true),
     GravesX(GravesXHook.class, "Graves", true),
     Skulls(SkullsHook.class, "Skulls", true),
+    Essentials(EssentialsXHook.class, "Essentials", true),
+    HeadDrop(HeadDropHook.class, "HeadDrop", true),
     HeadsPlus(HeadsPlusHook.class, "HeadsPlus", true),
+    Ports(PortsHook.class, "AlathraPorts", true),
+    ActiveUpkeep(ActiveUpkeepHook.class, "ActiveUpkeep", true),
     Vault(VaultHook.class, "Vault", true);
 
     private final @NotNull Class<? extends AbstractHook> hookClass; // The hook class used by this hook
@@ -155,5 +168,31 @@ public enum Hook {
     @NotNull
     public static PacketEventsHook getPacketEventsHook() {
         return (PacketEventsHook) Hook.PacketEvents.get();
+    }
+
+    /**
+     * Gets UnlimitedNametags hook.
+     *
+     * @return the UnlimitedNametags hook
+     */    @NotNull
+    public static UnlimitedNametagsHook getUnlimitedNametagsHook() {
+        return (UnlimitedNametagsHook) Hook.UnlimitedNametags.get();
+    }
+
+    /**
+     * Gets GSit hook.
+     *
+     * @return the GSit hook
+     */    @NotNull
+    public static GSitHook getGSitHook() {
+        return (GSitHook) Hook.GSit.get();
+    }
+
+    public static PortsHook getPortsHook() {
+        return (PortsHook) Hook.Ports.get();
+    }
+
+    public static ActiveUpkeepHook getActiveUpkeepHook() {
+        return (ActiveUpkeepHook) Hook.ActiveUpkeep.get();
     }
 }

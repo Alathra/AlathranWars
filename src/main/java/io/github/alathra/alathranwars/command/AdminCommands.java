@@ -1,15 +1,19 @@
 package io.github.alathra.alathranwars.command;
 
-import io.github.alathra.alathranwars.AlathranWars;
+import dev.jorel.commandapi.CommandAPIBukkit;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import io.github.alathra.alathranwars.conflict.war.War;
+import io.github.alathra.alathranwars.conflict.war.WarController;
+import io.github.alathra.alathranwars.gui.SpawnSelectMenu;
 import io.github.alathra.alathranwars.hook.NameColorHandler;
 import io.github.alathra.alathranwars.utility.UtilsChat;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import dev.jorel.commandapi.CommandAPIBukkit;
-import dev.jorel.commandapi.CommandAPICommand;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
-import java.util.Optional;
+import java.time.Duration;
+import java.time.Instant;
 
 import static io.github.alathra.alathranwars.enums.CommandArgsWar.ALL_WARS;
 
@@ -17,12 +21,13 @@ public class AdminCommands {
     public AdminCommands() {
         new CommandAPICommand("alathranwarsadmin")
             .withAliases("awa", "wa", "waradmin")
-            .withPermission("AlathranWars.admin")
+            .withPermission("alathranwars.admin")
             .withSubcommands(
                 commandWar(),
                 commandSiege(),
                 commandNames(),
-                commandWartime()
+                commandWartime(),
+                commandRespawn()
             )
             .executes((sender, args) -> {
                 if (args.count() == 0)
@@ -31,7 +36,7 @@ public class AdminCommands {
             .register();
     }
 
-    private CommandAPICommand commandWar() {
+    private static CommandAPICommand commandWar() {
         return new CommandAPICommand("war")
             .withSubcommands(
                 WarCommands.commandCreate(true),
@@ -46,7 +51,7 @@ public class AdminCommands {
             );
     }
 
-    private CommandAPICommand commandSiege() {
+    private static CommandAPICommand commandSiege() {
         return new CommandAPICommand("siege")
             .withSubcommands(
                 SiegeCommands.commandStart(true),
@@ -57,32 +62,43 @@ public class AdminCommands {
             );
     }
 
-    private CommandAPICommand commandNames() {
+    private static CommandAPICommand commandNames() {
         return new CommandAPICommand("updatenames")
             .executesPlayer((player, commandArguments) -> {
                 Bukkit.getOnlinePlayers().forEach(p -> NameColorHandler.getInstance().calculatePlayerColors(p));
             });
     }
 
-    private CommandAPICommand commandWartime() {
+    private static CommandAPICommand commandWartime() {
         return new CommandAPICommand("wartime")
             .withArguments(
-                CommandUtil.warWarArgument("war", true, ALL_WARS, "")
+                CommandUtil.warWarArgument("war", true, ALL_WARS, ""),
+                new IntegerArgument("delay_minutes", 0).setOptional(true)
             )
-            .executes((sender, commandArguments) -> {
-                War war = commandArguments.getByClass("war", War.class);
-                // TODO Allow scheduling of war time
-//                AlathranWars.getInstance().setWarTime(!AlathranWars.getInstance().isWarTime());
+            .executes((sender, args) -> {
+                War war = args.getByClass("war", War.class);
+                Duration delayMinutes = args.getOptionalByClass("delay_minutes", Integer.class).map(Duration::ofMinutes).orElse(Duration.ZERO); // The duration to wait in minutes before the war time starts
+                war.setScheduledWarTime(Instant.now().plus(delayMinutes));
+                sender.sendMessage(
+                    ColorParser.of(
+                        "<green>War time for war starting in <time> minutes."
+                    )
+                        .with("time", String.valueOf(delayMinutes.toMinutes()))
+                        .build()
+                );
+            });
+    }
 
-//                if (AlathranWars.getInstance().isWarTime()) {
-//                    sender.sendMessage(
-//                        ColorParser.of("<green>War time has started!").build()
-//                    );
-//                } else {
-//                    sender.sendMessage(
-//                        ColorParser.of("<red>War time has ended!").build()
-//                    );
-//                }
+    protected static CommandAPICommand commandRespawn() {
+        return new CommandAPICommand("respawn")
+            .executes((sender, args) -> {
+                if (sender instanceof Player p && !WarController.getInstance().isInActiveWar(p))
+                    throw CommandAPIBukkit.failWithAdventureComponent(
+                        ColorParser.of("<red>This command can only be used while in an active war.").build()
+                    );
+
+                if (sender instanceof Player p)
+                    SpawnSelectMenu.open(p);
             });
     }
 }

@@ -1,12 +1,13 @@
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 import org.jooq.meta.jaxb.Logging
-import java.time.Instant
 
 plugins {
     `java-library`
 
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
-    alias(libs.plugins.plugin.yml)
+    alias(libs.plugins.plugin.yml.bukkit) // Automatic plugin.yml generation
+    alias(libs.plugins.plugin.yml.paper) // Automatic plugin.yml generation
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
     flywaypatches
@@ -51,8 +52,10 @@ repositories {
     }
 
     maven("https://repo.codemc.org/repository/maven-public/") {
-        content { includeGroup("dev.jorel") }
-        content { includeGroup("com.github.retrooper") }
+        content {
+            includeGroup("dev.jorel")
+            includeGroup("com.github.retrooper")
+        }
     }
 
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
@@ -68,6 +71,25 @@ repositories {
     maven("https://repo.cwhead.dev/repository/maven-public/") {
         content { includeGroup("com.ranull") }
     }
+    maven("https://repo.triumphteam.dev/snapshots/") {
+        content { includeGroup("dev.triumphteam") }
+    }
+}
+
+val cleanAlathraPorts by tasks.registering(Jar::class) {
+    from(zipTree("lib/AlathraPorts-1.0.5.jar")) {
+        exclude("io/github/milkdrinkers/**")
+    }
+    archiveFileName.set("AlathraPorts-1.0.5-cleaned.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("cleaned-libs"))
+}
+
+val cleanActiveUpkeep by tasks.registering(Jar::class) {
+    from(zipTree("lib/ActiveUpkeep-1.0.0-SNAPSHOT-1754074990.jar")) {
+        exclude("io/github/milkdrinkers/**")
+    }
+    archiveFileName.set("ActiveUpkeep-1.0.0-SNAPSHOT-1754074990.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("cleaned-libs"))
 }
 
 dependencies {
@@ -82,21 +104,19 @@ dependencies {
     implementation(libs.versionwatch)
     implementation(libs.wordweaver)
     implementation(libs.crate.yaml)
-    implementation(libs.colorparser) {
-        exclude("net.kyori")
-    }
+    implementation(libs.colorparser)
     implementation(libs.threadutil.bukkit)
     implementation(libs.commandapi.shade)
-    implementation(libs.triumph.gui) {
-        exclude("net.kyori")
-    }
+    implementation(libs.triumph.gui)
     implementation(libs.itemutils)
 
     // Plugin Dependencies
     implementation(libs.bstats)
     compileOnly(libs.vault)
     compileOnly(libs.packetevents)
-    implementation(libs.entitylib)
+    implementation(libs.entitylib) {
+        exclude("org.jetbrains")
+    }
     compileOnly(libs.placeholderapi) {
         exclude("me.clip.placeholderapi.libs", "kyori")
     }
@@ -104,6 +124,10 @@ dependencies {
         exclude("com.palmergames.adventure")
     }
     compileOnly(libs.tabapi)
+//    compileOnly(files("lib/AlathraPorts-1.0.5.jar"))
+//    compileOnly(files("lib/ActiveUpkeep-1.0.0-SNAPSHOT-1754074990.jar"))
+    compileOnly(files(cleanAlathraPorts))
+    compileOnly(files(cleanActiveUpkeep))
 //    compileOnly(libs.gravesx)
     compileOnly(files("lib/Graves-4.9.jar"))
 //    compileOnly(libs.gsit)
@@ -183,12 +207,14 @@ tasks {
         fun reloc(originPkg: String, targetPkg: String) = relocate(originPkg, "${project.relocationPackage}.${targetPkg}")
 
         reloc("space.arim.morepaperlib", "morepaperlib")
-        reloc("com.github.milkdrinkers.crate", "crate")
-        reloc("com.github.milkdrinkers.colorparser", "colorparser")
+        reloc("io.github.milkdrinkers", "milkdrinkers")
+        reloc("org.snakeyaml", "snakeyaml")
+        reloc("org.json", "json")
         reloc("dev.jorel.commandapi", "commandapi")
         reloc("com.zaxxer.hikari", "hikaricp")
         reloc("org.bstats", "bstats")
         reloc("me.tofaa.entitylib", "entitylib")
+        reloc("dev.triumphteam.gui", "triumphgui")
 
         mergeServiceFiles()
     }
@@ -211,9 +237,8 @@ tasks {
         downloadPlugins {
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
             modrinth("tab-was-taken", "4.1.8")
-            github("PlaceholderAPI", "PlaceholderAPI", "2.11.4", "PlaceholderAPI-2.11.4.jar")
-            url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
-            github("retrooper", "packetevents", "v2.5.0", "packetevents-spigot-2.5.0.jar")
+            modrinth("PlaceholderAPI", "2.11.6")
+            github("retrooper", "packetevents", "v2.9.5", "packetevents-spigot-2.9.5.jar")
 //            url("https://www.spigotmc.org/resources/skulls-the-ultimate-head-database.90098/download?version=520217/Skulls.jar")
         }
     }
@@ -230,12 +255,94 @@ bukkit { // Options: https://github.com/Minecrell/plugin-yml#bukkit
     description = "${project.description}"
     authors = listOf("darksaid98", "ShermansWorld", "NinjaMandalorian", "AubriTheHuman")
     contributors = listOf()
-    apiVersion = "1.20"
+    apiVersion = libs.versions.paper.api.get().substringBefore("-R")
 
     // Misc properties
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD // STARTUP or POSTWORLD
-    depend = listOf("Vault", "ProtocolLib", "Towny")
-    softDepend = listOf("PacketEvents", "PlaceholderAPI", "TAB", "Skulls", "HeadsPlus", "Essentials")
+    depend = listOf("Vault", "Towny")
+    softDepend = listOf("PacketEvents", "PlaceholderAPI", "AlathraPorts", "GravesX", "Graves", "TAB", "UnlimitedNametags", "Skulls", "HeadsPlus", "HeadDatabase", "HeadDrop", "Essentials")
+}
+
+paper { // Options: https://github.com/eldoriarpg/plugin-yml/wiki/Paper
+    main = project.entryPointClass
+    loader = project.entryPointClass + "PluginLoader"
+    generateLibrariesJson = true
+    load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD
+
+    // Info
+    name = project.name
+    prefix = project.name
+    version = "${project.version}"
+    description = "${project.description}"
+    authors = listOf("darksaid98", "ShermansWorld", "NinjaMandalorian", "AubriTheHuman")
+    contributors = listOf()
+    apiVersion = libs.versions.paper.api.get().substringBefore("-R")
+    foliaSupported = false
+
+    // Dependencies
+    hasOpenClassloader = true
+    bootstrapDependencies {}
+    serverDependencies {
+        // Hard depends
+        register("Vault") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("Towny") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+
+
+        // Soft depends
+        register("PacketEvents") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("PlaceholderAPI") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("AlathraPorts") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("GravesX") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("Graves") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("TAB") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("UnlimitedNametags") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("Skulls") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("HeadsPlus") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("HeadDatabase") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("HeadDrop") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("Essentials") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+    }
+    provides = listOf()
 }
 
 flyway {

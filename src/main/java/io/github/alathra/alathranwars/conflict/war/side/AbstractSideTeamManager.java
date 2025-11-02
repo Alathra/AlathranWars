@@ -2,14 +2,17 @@ package io.github.alathra.alathranwars.conflict.war.side;
 
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,19 +20,20 @@ import java.util.stream.Stream;
  * Provides methods for handling all members of a side
  */
 public abstract class AbstractSideTeamManager {
-    private final Set<Nation> nations = new HashSet<>(); // Collection of nations in the war (excludes surrendered)
-    private final Set<Town> towns = new HashSet<>(); // Collection of towns in the war (excludes surrendered)
-    private final Set<OfflinePlayer> players = new HashSet<>(); // Collection of players in the war (excludes surrendered)
+    private final Set<Nation> nations = ConcurrentHashMap.newKeySet(); // Collection of nations in the war (excludes surrendered)
+    private final Set<Town> towns = ConcurrentHashMap.newKeySet(); // Collection of towns in the war (excludes surrendered)
+    private final Set<OfflinePlayer> players = ConcurrentHashMap.newKeySet(); // Collection of players in the war (excludes surrendered)
 
-    private final Set<Nation> nationsSurrendered = new HashSet<>(); // Collection surrendered of nations in the war (excludes non-surrendered)
-    private final Set<Town> townsSurrendered = new HashSet<>(); // Collection of surrendered towns in the war (excludes non-surrendered)
-    private final Set<OfflinePlayer> playersSurrendered = new HashSet<>(); // Collection of surrendered players in the war (excludes non-surrendered)
+    private final Set<Nation> nationsSurrendered = ConcurrentHashMap.newKeySet(); // Collection surrendered of nations in the war (excludes non-surrendered)
+    private final Set<Town> townsSurrendered = ConcurrentHashMap.newKeySet(); // Collection of surrendered towns in the war (excludes non-surrendered)
+    private final Set<OfflinePlayer> playersSurrendered = ConcurrentHashMap.newKeySet(); // Collection of surrendered players in the war (excludes non-surrendered)
 
     // These fields only exist during runtime
-    private final Set<Player> playersOnline = new HashSet<>(); // Collection of online players in the war (excludes surrendered)
-    private final Set<Player> playersSurrenderedOnline = new HashSet<>(); // Collection of online surrendered players in the war (excludes non-surrendered)
+    private final Set<Player> playersOnline = ConcurrentHashMap.newKeySet(); // Collection of online players in the war (excludes surrendered)
+    private final Set<Player> playersSurrenderedOnline = ConcurrentHashMap.newKeySet(); // Collection of online surrendered players in the war (excludes non-surrendered)
 
-    public AbstractSideTeamManager() {}
+    public AbstractSideTeamManager() {
+    }
 
     public AbstractSideTeamManager(
         Set<Nation> nations,
@@ -62,6 +66,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a government to the side (Recursively adds subjects AKA towns, players)
+     *
      * @param government a government
      */
     public void add(Government government) {
@@ -80,6 +85,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a government from the side (Recursively removes subjects AKA towns, players)
+     *
      * @param government a government
      */
     public void remove(Government government) {
@@ -97,6 +103,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a surrendered government to the side (Recursively adds subjects AKA towns, players)
+     *
      * @param government a government
      */
     public void addSurrendered(Government government) {
@@ -114,6 +121,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a surrendered government from the side (Recursively removes subjects AKA towns, players)
+     *
      * @param government a government
      */
     public void removeSurrendered(Government government) {
@@ -131,6 +139,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Kick a government from the side (Recursively kicks subjects AKA towns, players)
+     *
      * @param government a government
      */
     public void kick(Government government) {
@@ -142,6 +151,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a player to the side
+     *
      * @param p a player
      */
     public void add(Player p) {
@@ -150,6 +160,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a player to the side
+     *
      * @param uuid a player uuid
      */
     public void add(UUID uuid) {
@@ -158,6 +169,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a player to the side
+     *
      * @param p a player
      */
     public void add(OfflinePlayer p) {
@@ -168,6 +180,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a player from the side
+     *
      * @param p a player
      */
     public void remove(Player p) {
@@ -176,6 +189,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a player from the side
+     *
      * @param uuid a player uuid
      */
     public void remove(UUID uuid) {
@@ -184,6 +198,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a player from the side
+     *
      * @param p a player
      */
     public void remove(OfflinePlayer p) {
@@ -194,6 +209,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a surrendered player to the side
+     *
      * @param p a player
      */
     public void addSurrendered(Player p) {
@@ -202,6 +218,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a surrendered player to the side
+     *
      * @param uuid a player uuid
      */
     public void addSurrendered(UUID uuid) {
@@ -210,6 +227,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a surrendered player to the side
+     *
      * @param p a player
      */
     public void addSurrendered(OfflinePlayer p) {
@@ -220,6 +238,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a surrendered player from the side
+     *
      * @param p a player
      */
     public void removeSurrendered(Player p) {
@@ -228,6 +247,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a surrendered player from the side
+     *
      * @param uuid a player uuid
      */
     public void removeSurrendered(UUID uuid) {
@@ -236,6 +256,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a surrendered player from the side
+     *
      * @param p a player
      */
     public void removeSurrendered(OfflinePlayer p) {
@@ -246,6 +267,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Add a player to the online set
+     *
      * @param p a player
      * @apiNote this is only used internally to manage which players are online or not
      * @hidden
@@ -261,6 +283,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Remove a player from the online set
+     *
      * @param p a player
      * @apiNote this is only used internally to manage which players are online or not
      * @hidden
@@ -274,30 +297,9 @@ public abstract class AbstractSideTeamManager {
         }
     }
 
-//    /**
-//     * Add a player to the online set
-//     * @param p a player
-//     * @apiNote this is only used internally to manage which players are online or not
-//     * @hidden
-//     */
-//    @ApiStatus.Internal
-//    public void addSurrenderedOnline(Player p) {
-//        playersSurrenderedOnline.add(p);
-//    }
-//
-//    /**
-//     * Remove a player from the online set
-//     * @param p a player
-//     * @apiNote this is only used internally to manage which players are online or not
-//     * @hidden
-//     */
-//    @ApiStatus.Internal
-//    public void removeSurrenderedOnline(Player p) {
-//        playersSurrenderedOnline.remove(p);
-//    }
-
     /**
      * Kick a player from the side
+     *
      * @param p a player
      */
     public void kick(Player p) {
@@ -307,6 +309,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Kick a player from the side
+     *
      * @param uuid a player uuid
      */
     public void kick(UUID uuid) {
@@ -316,6 +319,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Kick a player from the side
+     *
      * @param p a player
      */
     public void kick(OfflinePlayer p) {
@@ -327,6 +331,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get nations on this side (excludes surrendered nations)
+     *
      * @return the nations
      */
     public Set<Nation> getNations() {
@@ -335,6 +340,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get nations on this side (excludes non-surrendered nations)
+     *
      * @return the nations
      */
     public Set<Nation> getNationsSurrendered() {
@@ -343,6 +349,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all nations on this side (includes surrendered nations)
+     *
      * @return the nations
      */
     public List<Nation> getNationsAll() {
@@ -351,6 +358,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get towns on this side (excludes surrendered towns)
+     *
      * @return the towns
      */
     public Set<Town> getTowns() {
@@ -359,6 +367,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get towns on this side (excludes non-surrendered towns)
+     *
      * @return the towns
      */
     public Set<Town> getTownsSurrendered() {
@@ -367,6 +376,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all towns on this side (includes surrendered towns)
+     *
      * @return the towns
      */
     public Set<Town> getTownsAll() {
@@ -377,6 +387,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all players on this side (excluding surrendered)
+     *
      * @return player list
      */
     public Set<OfflinePlayer> getPlayers() {
@@ -385,6 +396,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all players on this side (excludes non-surrendered players)
+     *
      * @return player list
      */
     public Set<OfflinePlayer> getPlayersSurrendered() {
@@ -393,6 +405,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all players on this side (includes surrendered players)
+     *
      * @return player list
      */
     public Set<OfflinePlayer> getPlayersAll() {
@@ -401,6 +414,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all online players on this side (excluding surrendered)
+     *
      * @return player list
      */
     public Set<Player> getPlayersOnline() {
@@ -409,6 +423,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all online players on this side (excludes non-surrendered players)
+     *
      * @return player list
      */
     public Set<Player> getPlayersSurrenderedOnline() {
@@ -417,6 +432,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Get all online players on this side (includes surrendered players)
+     *
      * @return player list
      */
     public Set<Player> getPlayersOnlineAll() {
@@ -427,6 +443,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a government is on this side (includes surrendered governments)
+     *
      * @param government the government
      * @return true if on side
      */
@@ -441,6 +458,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is on this side (includes surrendered players)
+     *
      * @param p the player
      * @return true if on side
      */
@@ -450,6 +468,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is on this side (includes surrendered players)
+     *
      * @param uuid the player uuid
      * @return true if on side
      */
@@ -459,6 +478,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is on this side (includes surrendered players)
+     *
      * @param p the player
      * @return true if on side
      */
@@ -468,6 +488,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a government is surrendered on this side
+     *
      * @param government the government
      * @return true if on side and surrendered
      */
@@ -482,6 +503,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is surrendered on this side
+     *
      * @param p the player
      * @return true if on side and surrendered
      */
@@ -491,6 +513,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is surrendered on this side
+     *
      * @param uuid the player uuid
      * @return true if on side and surrendered
      */
@@ -500,6 +523,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if a player is surrendered on this side
+     *
      * @param p the player
      * @return true if on side and surrendered
      */
@@ -511,6 +535,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Makes a government surrender (Recursively surrenders subjects AKA nations, towns, players)
+     *
      * @param government the government
      */
     public void surrender(Government government) {
@@ -528,18 +553,25 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Makes a player surrender
+     *
      * @param p the player
      */
-    public void surrender(Player p) { surrender(p.getUniqueId()); }
+    public void surrender(Player p) {
+        surrender(p.getUniqueId());
+    }
 
     /**
      * Makes a player surrender
+     *
      * @param uuid the player uuid
      */
-    public void surrender(UUID uuid) { surrender(Bukkit.getOfflinePlayer(uuid)); }
+    public void surrender(UUID uuid) {
+        surrender(Bukkit.getOfflinePlayer(uuid));
+    }
 
     /**
      * Makes a player surrender
+     *
      * @param p the player
      */
     public void surrender(OfflinePlayer p) {
@@ -552,6 +584,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Makes a government un-surrender (Recursively un-surrenders subjects AKA nations, towns, players)
+     *
      * @param government the government
      */
     public void unsurrender(Government government) {
@@ -569,18 +602,25 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Makes a player un-surrender
+     *
      * @param p the player
      */
-    public void unsurrender(Player p) { unsurrender(p.getUniqueId()); }
+    public void unsurrender(Player p) {
+        unsurrender(p.getUniqueId());
+    }
 
     /**
      * Makes a player un-surrender
+     *
      * @param uuid the player uuid
      */
-    public void unsurrender(UUID uuid) { unsurrender(Bukkit.getOfflinePlayer(uuid)); }
+    public void unsurrender(UUID uuid) {
+        unsurrender(Bukkit.getOfflinePlayer(uuid));
+    }
 
     /**
      * Makes a player un-surrender
+     *
      * @param p the player
      */
     public void unsurrender(OfflinePlayer p) {
@@ -595,6 +635,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if this side is no longer able to continue fighting a war
+     *
      * @return true if there are no more nations or towns to participate in the war
      */
     public boolean shouldSurrender() {
@@ -603,6 +644,7 @@ public abstract class AbstractSideTeamManager {
 
     /**
      * Check if this nation is no longer able to continue fighting a war
+     *
      * @param nation the nation
      * @return true if there are no more un-surrendered towns from the nation to participate in the war
      */

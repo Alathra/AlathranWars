@@ -3,10 +3,10 @@ package io.github.alathra.alathranwars.conflict.battle.siege;
 import io.github.alathra.alathranwars.conflict.battle.BattleRunnable;
 import io.github.alathra.alathranwars.conflict.battle.bossbar.BossBarManager;
 import io.github.alathra.alathranwars.conflict.battle.bossbar.WrappedBossBar;
+import io.github.alathra.alathranwars.data.ControlPoint;
 import io.github.alathra.alathranwars.enums.CaptureProgressDirection;
 import io.github.alathra.alathranwars.enums.battle.BattleSide;
 import io.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
-import io.github.alathra.alathranwars.meta.ControlPoint;
 import io.github.alathra.alathranwars.utility.UtilsChat;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.kyori.adventure.bossbar.BossBar;
@@ -25,6 +25,7 @@ public class SiegeRunnable extends BattleRunnable {
     // Settings
     private static final Duration ANNOUNCEMENT_COOLDOWN = Duration.ofMinutes(5);
     public final static int CAPTURE_RANGE = 10;
+    public final static double CAPTURE_RANGE_SQUARED = Math.pow(CAPTURE_RANGE, 2);
     private final @NotNull Siege siege;
 
     // Variables
@@ -121,7 +122,7 @@ public class SiegeRunnable extends BattleRunnable {
             switch (progressDirection) {
                 case UP -> {
                     siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
-                        ColorParser.of("<prefix>The Attackers are capturing the home block.")
+                        ColorParser.of("<prefix>The Attackers are capturing the capture point.")
                             .with("prefix", UtilsChat.getPrefix())
                             .build()
                     ));
@@ -129,7 +130,7 @@ public class SiegeRunnable extends BattleRunnable {
                 case CONTESTED -> {
                     if (oldProgressDirection.equals(UNCONTESTED))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
-                            ColorParser.of("<prefix>The home block is being contested.")
+                            ColorParser.of("<prefix>The capture point is being contested.")
                                 .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
@@ -137,7 +138,7 @@ public class SiegeRunnable extends BattleRunnable {
                 case UNCONTESTED -> {
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED) || oldProgressDirection.equals(DOWN))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
-                            ColorParser.of("<prefix>The home block is no longer being contested.")
+                            ColorParser.of("<prefix>The capture point is no longer being contested.")
                                 .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
@@ -145,7 +146,7 @@ public class SiegeRunnable extends BattleRunnable {
                 case DOWN -> {
                     if (oldProgressDirection.equals(UP) || oldProgressDirection.equals(CONTESTED))
                         siege.getPlayersOnBattlefield().forEach(p -> p.sendMessage(
-                            ColorParser.of("<prefix>The Defenders re-secured the home block.")
+                            ColorParser.of("<prefix>The Defenders re-secured the capture point.")
                                 .with("prefix", UtilsChat.getPrefix())
                                 .build()
                         ));
@@ -213,9 +214,10 @@ public class SiegeRunnable extends BattleRunnable {
 
         final Component name;
         if (Instant.now().isBefore(siege.getEndTime())) {
-            name = ColorParser.of("<gray>Capture Progress: %s<progress> <gray>Time: %s<time>min".formatted(color, color))
+            name = ColorParser.of("<gray>Capture Progress: %s<progress> <gray>Time: %s<time>min <gray>Town: %s<town>".formatted(color, color, color))
                 .with("progress", "%.0f%%".formatted(siegePrecentage * 100))
                 .with("time", String.valueOf(Duration.between(Instant.now(), siege.getEndTime()).toMinutes()))
+                .with("town", siege.getName())
                 .build();
         } else {
             name = ColorParser.of("%sOVERTIME".formatted(color)).build();
@@ -252,9 +254,13 @@ public class SiegeRunnable extends BattleRunnable {
             if (!controlPoint.getWorld().equals(p.getLocation().getWorld()))
                 continue;
 
-            if (controlPoint.distance(p.getLocation()) <= CAPTURE_RANGE) {
-                onPoint += 1;
-            }
+            if (controlPoint.distanceSquared(p.getLocation()) > CAPTURE_RANGE_SQUARED)
+                continue;
+
+            if (!p.hasLineOfSight(controlPoint))
+                continue;
+
+            onPoint += 1;
         }
 
         return onPoint;

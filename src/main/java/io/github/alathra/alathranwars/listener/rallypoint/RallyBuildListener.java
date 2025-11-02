@@ -1,14 +1,23 @@
 package io.github.alathra.alathranwars.listener.rallypoint;
 
-import io.github.alathra.alathranwars.AlathranWars;
-import io.github.alathra.alathranwars.conflict.war.WarController;
-import io.github.alathra.alathranwars.conflict.war.side.Side;
-import io.github.alathra.alathranwars.conflict.war.side.spawn.SpawnCreationException;
-import io.github.alathra.alathranwars.utility.SpawnUtils;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.event.actions.TownyBuildEvent;
 import com.palmergames.bukkit.towny.event.actions.TownyDestroyEvent;
 import com.palmergames.bukkit.towny.object.Resident;
+import io.github.alathra.alathranwars.conflict.war.WarController;
+import io.github.alathra.alathranwars.conflict.war.side.Side;
+import io.github.alathra.alathranwars.conflict.war.side.spawn.*;
+import io.github.alathra.alathranwars.event.spawn.RallyPlaceEvent;
+import io.github.alathra.alathranwars.utility.BattleUtils;
+import io.github.alathra.alathranwars.utility.Cfg;
+import io.github.alathra.alathranwars.utility.SideUtils;
+import io.github.alathra.alathranwars.utility.SpawnUtils;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.wordweaver.Translation;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,22 +28,88 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
-public class RallyBuildListener {
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockBreak(TownyDestroyEvent e) {
-        // TODO Prevent building around rally point as people can block spawn blocks/break the rally banner
+public class RallyBuildListener implements Listener {
+    public static Key KEY_WAR_BANNER_COOLDOWN = Key.key("alathra", "war_banner");
+
+    public static boolean hasBannerCooldown(Player player) {
+        return player.getCooldown(KEY_WAR_BANNER_COOLDOWN) != 0;
+    }
+
+    public static Duration getBannerCooldown(Player player) {
+        return Duration.ofSeconds(player.getCooldown(KEY_WAR_BANNER_COOLDOWN) / 50);
+    }
+
+    public static void setBannerCooldown(Player player) {
+        player.setCooldown(KEY_WAR_BANNER_COOLDOWN, ((int) Duration.ofMinutes(Cfg.get().getOrDefault("respawns.rallies.placement-cooldown", 5L)).toSeconds()) * 50);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPlace(TownyBuildEvent e) {
-        // Check if placing rally
-        if (!isValidBanner(e.getBlock())) {
+    public void onRallyGriefDestroy(TownyDestroyEvent e) {
+        if (!isValidBanner(e.getBlock()))
             return;
+
+        final Optional<Spawn> spawnOptional = SpawnUtils.getSpawns().stream()
+            .filter(s -> s.getType().equals(SpawnType.RALLY))
+            .filter(s -> s.getLocation().getWorld().equals(e.getLocation().getWorld()))
+            .reduce((spawn1, spawn2) -> {
+                final Location loc1 = spawn1.getLocation();
+                final double dist1 = loc1.distanceSquared(e.getLocation());
+
+                final Location loc2 = spawn2.getLocation();
+                final double dist2 = loc2.distanceSquared(e.getLocation());
+
+                return dist1 < dist2 ? spawn1 : spawn2;
+            });
+
+        if (spawnOptional.isEmpty())
+            return;
+
+        final Spawn spawn = spawnOptional.get();
+        if (spawn.withinBoundingBox(e.getLocation())) {
+            e.setCancelled(true);
+            e.setCancelMessage("<red>You cannot build around a rally point.");
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onRallyGriefBuild(TownyBuildEvent e) {
+        if (!isValidBanner(e.getBlock()))
+            return;
+
+        final Optional<Spawn> spawnOptional = SpawnUtils.getSpawns().stream()
+            .filter(s -> s.getType().equals(SpawnType.RALLY))
+            .filter(s -> s.getLocation().getWorld().equals(e.getLocation().getWorld()))
+            .reduce((spawn1, spawn2) -> {
+                final Location loc1 = spawn1.getLocation();
+                final double dist1 = loc1.distanceSquared(e.getLocation());
+
+                final Location loc2 = spawn2.getLocation();
+                final double dist2 = loc2.distanceSquared(e.getLocation());
+
+                return dist1 < dist2 ? spawn1 : spawn2;
+            });
+
+        if (spawnOptional.isEmpty())
+            return;
+
+        final Spawn spawn = spawnOptional.get();
+        if (spawn.withinBoundingBox(e.getLocation())) {
+            e.setCancelled(true);
+            e.setCancelMessage("<red>You cannot build around a rally point.");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onRallyPlace(TownyBuildEvent e) {
+        // Check if placing rally
+        if (!isValidBanner(e.getBlock()))
+            return;
 
         final Player p = e.getPlayer();
         final Resident res = TownyAPI.getInstance().getResident(p);
@@ -46,45 +121,72 @@ public class RallyBuildListener {
         if (res == null)
             return;
 
-        if (!res.isMayor() && !res.isKing() && !res.isAdmin()) {
-            e.setCancelled(true);
-            e.setCancelMessage("<red>Only town/nation leaders can place down rallies!");
-            return;
-        }
-
-        // TODO Check for rally cooldown
-
-        // Get side that this rally will be placed for
-        final Optional<Side> sideOptional = SpawnUtils.calculateSpawnSide(location, p);
-        if (sideOptional.isEmpty()) {
-            e.setCancelled(true);
-            e.setCancelMessage("");
-            return;
-        }
-
-        final Side side = sideOptional.get();
-
-        // Check if valid placement position
         try {
+            if (!BattleUtils.isCaptain(p) && !res.isAdmin())
+                throw new SpawnCreationException(Translation.as("rally.placement.not-captain"));
+
+            if (e.hasTownBlock())
+                throw new SpawnCreationException(Translation.as("rally.placement.inside-claim"));
+
+                // Check for item placement cooldown
+            if (hasBannerCooldown(p))
+                throw new SpawnCreationException(Component.empty());
+
+            // Get side that this rally will be placed for
+            final Optional<Side> sideOptional = SpawnUtils.calculateSpawnSide(location, p);
+            if (sideOptional.isEmpty())
+                throw new SpawnCreationException(Component.empty());
+
+            final Side side = SideUtils.getOpponent(sideOptional.get());
+
+            // Check if valid placement position (Throws if invalid)
             SpawnUtils.isValidSpawnPlacement(location, side);
+
+            // Apply cooldown to player
+            setBannerCooldown(p);
+
+            // Rally point
+            final Spawn spawn = new SpawnBuilder()
+                .setName("Rally point ")
+                .setLocation(location)
+                .setType(SpawnType.RALLY)
+                .setSide(side)
+                .setBlock(e.getBlock())
+                .setCreator(p)
+                .build();
+            side.getSpawnManager().add(spawn);
+            new RallyPlaceEvent((RallyPoint) spawn).callEvent();
+            e.setCancelled(false);
+
+            Audience.audience(side.getPlayersOnline())
+                .sendMessage(ColorParser.of(Translation.of("rally.placement.success-others"))
+                    .papi(p)
+                    .mini(p)
+                    .with("name", spawn.getName())
+                    .with("creator", ((RallyPoint) spawn).getCreator().getName())
+                    .build()
+            );
+            p.sendMessage(ColorParser.of(Translation.of("rally.placement.success-self"))
+                .papi(p)
+                .mini(p)
+                .with("name", spawn.getName())
+                .with("creator", ((RallyPoint) spawn).getCreator().getName())
+                .build());
+
         } catch (SpawnCreationException exception) {
             e.setCancelled(true);
-            e.setCancelMessage(exception.getMessage());
-            return;
+            e.setCancelMessage(MiniMessage.miniMessage().serialize(exception.getComponent()));
         }
-
-        // TODO Create rally
-
-        // TODO Message team and play sound
     }
 
     /**
      * Check if this is a valid banner placement
+     *
      * @param block banner block
      * @return boolean
      */
     private static boolean isValidBanner(Block block) {
-        return  isCustomizedBanner(block) && canBuildRally(block);
+        return isCustomizedBanner(block) /*&& canBuildRally(block)*/;
     }
 
     private static final List<Material> VALID_MATERIAL = List.of(
@@ -108,11 +210,12 @@ public class RallyBuildListener {
 
     /**
      * Check if block is a banner and is not a default white one
+     *
      * @param block block
      * @return true if customized
      */
     private static boolean isCustomizedBanner(Block block) {
-        if (!Tag.BANNERS.isTagged(block.getType()))
+        if (!Tag.BANNERS.isTagged(block.getType()) && !Tag.ITEMS_BANNERS.isTagged(block.getType()))
             return false;
 
         // Check if standing banner
@@ -120,14 +223,15 @@ public class RallyBuildListener {
             return false;
 
         // Check if customized
-        if (block instanceof Banner banner)
-            return banner.numberOfPatterns() > 0 || banner.getBaseColor() != DyeColor.WHITE;
+        if (block.getState() instanceof Banner banner)
+            return banner.numberOfPatterns() > 0 || !banner.getBaseColor().equals(DyeColor.WHITE);
 
         return false;
     }
 
     /**
      * Check if this block can be placed on the one under it
+     *
      * @param block the block being placed
      * @return boolean
      */

@@ -4,6 +4,7 @@ public class StartSpectateException extends Exception {
     public StartSpectateException() {
         super();
     }
+
     public StartSpectateException(String message) {
         super(message);
     }

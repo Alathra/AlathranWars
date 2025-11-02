@@ -5,6 +5,9 @@ import io.github.alathra.alathranwars.AlathranWars;
 import io.github.alathra.alathranwars.hook.AbstractHook;
 import io.github.alathra.alathranwars.hook.Hook;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
+import me.tofaa.entitylib.APIConfig;
+import me.tofaa.entitylib.EntityLib;
+import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
 
 /**
  * A hook that enables API for PacketEvents.
@@ -34,6 +37,13 @@ public class PacketEventsHook extends AbstractHook {
             return;
 
         PacketEvents.getAPI().init();
+        EntityLib.init(
+            new SpigotEntityLibPlatform(plugin),
+            new APIConfig(PacketEvents.getAPI())
+                .tickTickables()
+                .forceBundles()
+                .usePlatformLogger()
+        );
     }
 
     @Override

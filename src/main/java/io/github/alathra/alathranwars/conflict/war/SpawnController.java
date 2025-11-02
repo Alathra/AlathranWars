@@ -3,7 +3,6 @@ package io.github.alathra.alathranwars.conflict.war;
 import io.github.alathra.alathranwars.AlathranWars;
 import io.github.alathra.alathranwars.Reloadable;
 import io.github.alathra.alathranwars.conflict.war.side.spawn.Spawn;
-import io.github.alathra.alathranwars.utility.SpawnUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
@@ -42,17 +41,23 @@ public class SpawnController implements Reloadable {
     private ScheduledTask task;
 
     @Override
-    public void onLoad(AlathranWars plugin) {
-
-    }
-
-    @Override
     public void onEnable(AlathranWars plugin) {
-        task = AlathranWars.getPaperLib().scheduling().globalRegionalScheduler().runAtFixedRate(() -> SpawnUtils.getSpawns().forEach(Spawn::update), 0L, 1);
+        task = AlathranWars.getInstance()
+            .getPaperLib()
+            .scheduling()
+            .globalRegionalScheduler()
+            .runAtFixedRate(() -> WarController.getInstance()
+                .getWars()
+                .forEach(war -> {
+                    if (war.isWarTime()) {
+                        war.getSides().forEach(side -> side.getSpawnManager().getSpawns().forEach(Spawn::update));
+                    }
+                }), 1L, 1);
     }
 
     @Override
     public void onDisable(AlathranWars plugin) {
-        task.cancel();
+        if (!task.isCancelled())
+            task.cancel();
     }
 }

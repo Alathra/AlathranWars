@@ -1,12 +1,15 @@
 package io.github.alathra.alathranwars.conflict.war;
 
+import com.palmergames.bukkit.towny.object.Government;
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.AlathranWars;
+import io.github.alathra.alathranwars.Reloadable;
 import io.github.alathra.alathranwars.conflict.battle.raid.Raid;
 import io.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
 import io.github.alathra.alathranwars.database.Queries;
-import com.palmergames.bukkit.towny.object.Government;
-import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.utility.DB;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * The singleton War controller.
  */
-public class WarController {
+public class WarController implements Reloadable {
     private static WarController instance;
     private Set<War> wars = new HashSet<>();
 
@@ -39,12 +42,29 @@ public class WarController {
         return instance;
     }
 
+    @Override
+    public void onLoad(AlathranWars plugin) {
+        getWars().forEach(war -> war.onLoad(plugin));
+    }
+
+    @Override
+    public void onEnable(AlathranWars plugin) {
+        loadAll();
+        getWars().forEach(war -> war.onEnable(plugin));
+    }
+
     /**
      * Load all wars into memory from database.
      */
     @ApiStatus.Internal
     public void loadAll() {
-        wars = Queries.loadAll();
+        if (DB.isStarted())
+            wars = Queries.loadAll();
+    }
+
+    @Override
+    public void onDisable(AlathranWars plugin) {
+        getWars().forEach(war -> war.onDisable(plugin));
     }
 
     /**
@@ -144,7 +164,7 @@ public class WarController {
      */
     public boolean isInActiveWar(Government government) {
         return getWars().stream()
-            .anyMatch(war -> war.isInWar(government) && war.isWarTime());
+            .anyMatch(war -> war.isInWar(government) && (war.isWarTime() || !war.getSieges().isEmpty()));
     }
 
     /**
@@ -165,7 +185,7 @@ public class WarController {
      */
     public boolean isInActiveWar(UUID uuid) {
         return getWars().stream()
-            .anyMatch(war -> war.isInWar(uuid) && war.isWarTime());
+            .anyMatch(war -> war.isInWar(uuid) && (war.isWarTime() || !war.getSieges().isEmpty()));
     }
 
     /**
@@ -446,6 +466,7 @@ public class WarController {
 
     /**
      * Check if two sides are opposing each-other in a war
+     *
      * @param side1 a side
      * @param side2 a side
      * @return true if opposing each-other in a war
@@ -466,6 +487,7 @@ public class WarController {
 
     /**
      * Check if two governments are at war with each-other
+     *
      * @param government1 nation or town
      * @param government2 nation or town
      * @return true if governments are on opposing sides in any war

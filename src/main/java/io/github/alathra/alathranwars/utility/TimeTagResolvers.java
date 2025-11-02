@@ -38,43 +38,43 @@ public final class TimeTagResolvers {
 
     //region Date & Time Tag Resolvers
 
-    private static final Set<String> YEAR_TAGS = Set.of("year", "YYYY");
-    private static final Set<String> YEAR_2DIGIT_TAGS = Set.of("YY");
+    private static final Set<String> YEAR_TAGS = Set.of("year", "yyyy");
+    private static final Set<String> YEAR_2DIGIT_TAGS = Set.of("yy");
 
-    private static final Set<String> MONTH_NUMBER_TAGS = Set.of("month", "mo", "MO");
-    private static final Set<String> MONTH_OF_YEAR_TAGS = Set.of("MM");
-    private static final Set<String> MONTH_SHORT_TAGS = Set.of("MMM", "month_short");
-    private static final Set<String> MONTH_FULL_TAGS = Set.of("MMMM", "month_full");
+    private static final Set<String> MONTH_NUMBER_TAGS = Set.of("month", "mo");
+    private static final Set<String> MONTH_OF_YEAR_TAGS = Set.of("mmo");
+    private static final Set<String> MONTH_SHORT_TAGS = Set.of("mmms", "month_short");
+    private static final Set<String> MONTH_FULL_TAGS = Set.of("mmmm", "month_full");
 
-    private static final Set<String> DAY_TAGS = Set.of("day", "D");
-    private static final Set<String> DAY_OF_MONTH_TAGS = Set.of("day_of_month", "DD");
-    private static final Set<String> DAY_OF_YEAR_TAGS = Set.of("day_of_year", "DDD");
+    private static final Set<String> DAY_TAGS = Set.of("day", "d");
+    private static final Set<String> DAY_OF_MONTH_TAGS = Set.of("day_of_month", "dd");
+    private static final Set<String> DAY_OF_YEAR_TAGS = Set.of("day_of_year", "ddd");
     private static final Set<String> DAY_OF_WEEK_NUM_TAGS = Set.of("day_of_week");
-    private static final Set<String> DAY_OF_WEEK_SHORT_TAGS = Set.of("E", "day_short");
-    private static final Set<String> DAY_OF_WEEK_FULL_TAGS = Set.of("EEEE", "day_full");
+    private static final Set<String> DAY_OF_WEEK_SHORT_TAGS = Set.of("e", "day_short");
+    private static final Set<String> DAY_OF_WEEK_FULL_TAGS = Set.of("eeee", "day_full");
 
-    private static final Set<String> HOUR_24_TAGS = Set.of("hour", "H");
-    private static final Set<String> HOUR_24_ZERO_TAGS = Set.of("HH");
+    private static final Set<String> HOUR_24_TAGS = Set.of("hour", "h24");
+    private static final Set<String> HOUR_24_ZERO_TAGS = Set.of("hh24");
     private static final Set<String> HOUR_12_TAGS = Set.of("h");
     private static final Set<String> HOUR_12_ZERO_TAGS = Set.of("hh");
-    private static final Set<String> AMPM_TAGS = Set.of("ampm", "AMPM");
+    private static final Set<String> AMPM_TAGS = Set.of("ampm");
 
-    private static final Set<String> MINUTE_TAGS = Set.of("minute", "M", "min");
+    private static final Set<String> MINUTE_TAGS = Set.of("minute", "m", "min");
     private static final Set<String> MINUTE_OF_HOUR_TAGS = Set.of("mm");
 
     private static final Set<String> SECOND_TAGS = Set.of("second", "s", "sec");
     private static final Set<String> SECOND_OF_MINUTE_TAGS = Set.of("ss");
 
     private static final Set<String> MILLI_TAGS = Set.of("milli", "ms");
-    private static final Set<String> MILLI_3DIGIT_TAGS = Set.of("SSS", "mmm");
+    private static final Set<String> MILLI_3DIGIT_TAGS = Set.of("sss", "mmm");
     private static final Set<String> NANO_TAGS = Set.of("nano", "ns");
-    private static final Set<String> NANO_9DIGIT_TAGS = Set.of("nnnnnnnnn", "NNNNNNNNN");
+    private static final Set<String> NANO_9DIGIT_TAGS = Set.of("nnnnnnnnn");
 
-    private static final Set<String> TIMEZONE_ID_TAGS = Set.of("timezone", "zone_id", "VV");
+    private static final Set<String> TIMEZONE_ID_TAGS = Set.of("timezone", "zone_id", "vv");
     private static final Set<String> TIMEZONE_SHORT_TAGS = Set.of("z", "zone_short");
     private static final Set<String> TIMEZONE_FULL_TAGS = Set.of("zzzz", "zone_full");
-    private static final Set<String> TIMEZONE_OFFSET_TAGS = Set.of("X", "offset");
-    private static final Set<String> TIMEZONE_OFFSET_COLON_TAGS = Set.of("XXX", "offset_colon");
+    private static final Set<String> TIMEZONE_OFFSET_TAGS = Set.of("x", "offset");
+    private static final Set<String> TIMEZONE_OFFSET_COLON_TAGS = Set.of("xxx", "offset_colon");
 
     private static final Set<String> EPOCH_SECOND_TAGS = Set.of("epoch_second", "epoch_s");
     private static final Set<String> EPOCH_MILLI_TAGS = Set.of("epoch_milli", "epoch_ms");
@@ -285,32 +285,32 @@ public final class TimeTagResolvers {
 
     //region Date & Time Span Tag Resolvers
 
-    private static final Set<String> TAGS_YEARS = Set.of("Y", "years", "year");
-    private static final Set<String> TAGS_MONTHS = Set.of("MO", "months", "month", "mo");
-    private static final Set<String> TAGS_DAYS = Set.of("D", "days", "day");
-    private static final Set<String> TAGS_HOURS = Set.of("H", "hours", "hour", "h");
-    private static final Set<String> TAGS_MINUTES = Set.of("M", "minutes", "minute", "min");
+    private static final Set<String> TAGS_YEARS = Set.of("y", "years", "year");
+    private static final Set<String> TAGS_MONTHS = Set.of("mo", "months", "month");
+    private static final Set<String> TAGS_DAYS = Set.of("d", "days", "day");
+    private static final Set<String> TAGS_HOURS = Set.of("h", "hours", "hour");
+    private static final Set<String> TAGS_MINUTES = Set.of("m", "minutes", "minute", "min");
     private static final Set<String> TAGS_SECONDS = Set.of("s", "seconds", "second", "sec");
     private static final Set<String> TAGS_MILLIS = Set.of("ms", "milliseconds", "millisecond", "milli");
     private static final Set<String> TAGS_NANOS = Set.of("ns", "nanoseconds", "nanosecond", "nano");
 
-    private static final Set<String> TAGS_YEARS_ZERO = Set.of("YY");
-    private static final Set<String> TAGS_MONTHS_ZERO = Set.of("MM");
-    private static final Set<String> TAGS_DAYS_ZERO = Set.of("DD");
-    private static final Set<String> TAGS_HOURS_ZERO = Set.of("HH");
+    private static final Set<String> TAGS_YEARS_ZERO = Set.of("yy");
+    private static final Set<String> TAGS_MONTHS_ZERO = Set.of("mmo");
+    private static final Set<String> TAGS_DAYS_ZERO = Set.of("dd");
+    private static final Set<String> TAGS_HOURS_ZERO = Set.of("hh");
     private static final Set<String> TAGS_MINUTES_ZERO = Set.of("mm");
     private static final Set<String> TAGS_SECONDS_ZERO = Set.of("ss");
-    private static final Set<String> TAGS_MILLI_ZERO = Set.of("MS");
-    private static final Set<String> TAGS_NANO_ZERO = Set.of("NS");
+    private static final Set<String> TAGS_MILLI_ZERO = Set.of("ms");
+    private static final Set<String> TAGS_NANO_ZERO = Set.of("ns");
 
-    private static final Set<String> TAGS_TOTAL_YEARS = Set.of("total_years", "totalYears", "ty");
-    private static final Set<String> TAGS_TOTAL_MONTHS = Set.of("total_months", "totalMonths", "tmo");
-    private static final Set<String> TAGS_TOTAL_DAYS = Set.of("total_days", "totalDays", "td");
-    private static final Set<String> TAGS_TOTAL_HOURS = Set.of("total_hours", "totalHours", "th");
-    private static final Set<String> TAGS_TOTAL_MINUTES = Set.of("total_minutes", "totalMinutes", "tm");
-    private static final Set<String> TAGS_TOTAL_SECONDS = Set.of("total_seconds", "totalSeconds", "ts");
-    private static final Set<String> TAGS_TOTAL_MILLIS = Set.of("total_millis", "totalMillis", "tms");
-    private static final Set<String> TAGS_TOTAL_NANOS = Set.of("total_nanos", "totalNanos", "tns");
+    private static final Set<String> TAGS_TOTAL_YEARS = Set.of("total_years", "ty");
+    private static final Set<String> TAGS_TOTAL_MONTHS = Set.of("total_months", "tmo");
+    private static final Set<String> TAGS_TOTAL_DAYS = Set.of("total_days", "td");
+    private static final Set<String> TAGS_TOTAL_HOURS = Set.of("total_hours", "th");
+    private static final Set<String> TAGS_TOTAL_MINUTES = Set.of("total_minutes", "tm");
+    private static final Set<String> TAGS_TOTAL_SECONDS = Set.of("total_seconds", "ts");
+    private static final Set<String> TAGS_TOTAL_MILLIS = Set.of("total_millis", "tms");
+    private static final Set<String> TAGS_TOTAL_NANOS = Set.of("total_nanos", "tns");
 
     /**
      * Creates a TagResolver for Duration components.

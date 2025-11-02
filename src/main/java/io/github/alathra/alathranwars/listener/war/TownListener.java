@@ -1,15 +1,18 @@
 package io.github.alathra.alathranwars.listener.war;
 
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownPreClaimEvent;
+import com.palmergames.bukkit.towny.event.TownPreRenameEvent;
+import com.palmergames.bukkit.towny.event.economy.TownPreTransactionEvent;
+import com.palmergames.bukkit.towny.event.town.*;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.economy.transaction.TransactionType;
 import io.github.alathra.alathranwars.conflict.war.War;
 import io.github.alathra.alathranwars.conflict.war.WarController;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
 import io.github.alathra.alathranwars.hook.NameColorHandler;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
-import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
-import com.palmergames.bukkit.towny.event.TownPreRenameEvent;
-import com.palmergames.bukkit.towny.event.town.*;
-import com.palmergames.bukkit.towny.object.Town;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
@@ -49,17 +52,6 @@ public class TownListener implements Listener {
         if (WarController.getInstance().isInAnyWars(p)) {
             e.setCancelMessage("You cannot invite this player because they are in a war.");
             e.setCancelled(true);
-            return;
-        }
-    }
-
-    @EventHandler
-    private void onSpawnMove(TownSetSpawnEvent e) {
-        Town town = e.getTown();
-
-        if (WarController.getInstance().isInAnyWars(town)) {
-            e.setCancelMessage("You can't move your town spawn while the town is in a war.");
-            e.setCancelled(true);
         }
     }
 
@@ -80,7 +72,6 @@ public class TownListener implements Listener {
         if (WarController.getInstance().isInAnyWars(p)) {
             e.setCancelMessage("You cannot join this town because you are in a war.");
             e.setCancelled(true);
-            return;
         }
     }
 
@@ -90,16 +81,11 @@ public class TownListener implements Listener {
         Player p = e.getResident().getPlayer();
         if (p == null) return;
 
-        for (War war : WarController.getInstance().getWars(town)) {
-            Side side = war.getSide(town);
-            if (side == null) continue;
-            side.add(p);
-
+        if (WarController.getInstance().isInAnyWars(town)) {
             final Title warTitle = Title.title(
                 ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War")
                     .build(),
-                ColorParser.of("<gray><i>You entered the war of <war>!")
-                    .with("war", war.getLabel())
+                ColorParser.of("<gray><i>Your town is at war!")
                     .build(),
                 Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(500))
             );
@@ -189,6 +175,69 @@ public class TownListener implements Listener {
             war.unsurrender(town);
             side.remove(town);
             side.processSurrenders();
+        }
+    }
+
+    @EventHandler
+    public void onTransaction(TownPreTransactionEvent e) {
+        if (!e.getTransaction().getType().equals(TransactionType.DEPOSIT) && !e.getTransaction().getType().equals(TransactionType.WITHDRAW))
+            return;
+
+        if (e.getTransaction().getType().equals(TransactionType.DEPOSIT)) {
+
+        } else if (e.getTransaction().getType().equals(TransactionType.WITHDRAW)) {
+            if (WarController.getInstance().isInAnyWars(e.getTown())) {
+                e.setCancelMessage("You can't withdraw money from a town while it's in a war.");
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onSpawnMove(TownSetSpawnEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't move a town spawn during battle time.");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onSpawnMove(TownSetOutpostSpawnEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't move a town outpost during battle time.");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onSpawnMove(TownPreSetHomeBlockEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't move a home block during battle time.");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onClaim(TownPreClaimEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't modify claims during battle time.");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onUnClaimCmd(TownPreUnclaimCmdEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't modify claims during battle time.");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onUnClaim(TownPreUnclaimEvent e) {
+        if (WarController.getInstance().isInActiveWar(e.getTown())) {
+            e.setCancelMessage("You can't modify claims during battle time.");
+            e.setCancelled(true);
         }
     }
 }

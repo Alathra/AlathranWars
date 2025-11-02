@@ -16,7 +16,7 @@ public interface ServiceLifecycle extends AutoCloseable {
     /**
      * Starts the service, transitioning it from stopped to started state.
      *
-     * @throws RuntimeException if startup fails
+     * @throws RuntimeException      if startup fails
      * @throws IllegalStateException if the service is already started or in transition
      * @implSpec The service and its components are in an operational state if this method executes successfully.
      */
@@ -25,7 +25,7 @@ public interface ServiceLifecycle extends AutoCloseable {
     /**
      * Shuts down the service, transitioning it from started to stopped state.
      *
-     * @throws RuntimeException if shutdown fails
+     * @throws RuntimeException      if shutdown fails
      * @throws IllegalStateException if the service is already stopped or in transition
      * @implSpec The service and its components are in a non-operational state if this method executes successfully.
      * @implNote This method does not execute if the service is already shut down.

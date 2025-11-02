@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 /**
  * Used to implement common methods in battle phase enums
+ *
  * @param <T> the Enum
  */
 public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
@@ -13,6 +14,7 @@ public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
 
     /**
      * Uses {@link #next(Enum)} to get the next phase
+     *
      * @return a phase enum value
      * @throws BattlePhaseSwitchException Thrown if no next phase can be found
      */
@@ -20,6 +22,7 @@ public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
 
     /**
      * Uses {@link #previous(Enum)} to get the previous phase
+     *
      * @return a phase enum value
      * @throws BattlePhaseSwitchException Thrown if no previous phase can be found
      */
@@ -27,6 +30,7 @@ public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
 
     /**
      * Get the next phase after the provided one
+     *
      * @param phase a phase enum value
      * @return a phase enum value
      * @throws BattlePhaseSwitchException Thrown if no next phase can be found
@@ -52,6 +56,7 @@ public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
 
     /**
      * Get the previous phase to the provided one
+     *
      * @param phase a phase enum value
      * @return a phase enum value
      * @throws BattlePhaseSwitchException Thrown if no previous phase can be found
@@ -79,6 +84,7 @@ public interface IBattlePhase<T extends Enum<T> & IBattlePhase<T>> {
 
     /**
      * Get a phase from the phase identifier
+     *
      * @param identifier the phase identifier
      * @return a phase enum value or null if none was found
      */

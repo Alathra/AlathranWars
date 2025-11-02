@@ -11,20 +11,20 @@ public class UnlimitedNametagsHook extends AbstractHook {
 
     @Override
     public void onLoad(AlathranWars plugin) {
-        if (!isPluginPresent(Hook.UnlimitedNametags.getPluginName()))
-            return;
+        if (!isPluginPresent(Hook.UnlimitedNametags.getPluginName())) {
+        }
     }
 
     @Override
     public void onEnable(AlathranWars plugin) {
-        if (!isPluginEnabled(Hook.UnlimitedNametags.getPluginName()))
-            return;
+        if (!isPluginEnabled(Hook.UnlimitedNametags.getPluginName())) {
+        }
     }
 
     @Override
     public void onDisable(AlathranWars plugin) {
-        if (!isPluginEnabled(Hook.UnlimitedNametags.getPluginName()))
-            return;
+        if (!isPluginEnabled(Hook.UnlimitedNametags.getPluginName())) {
+        }
     }
 
     @Override

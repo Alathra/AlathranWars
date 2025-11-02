@@ -6,12 +6,16 @@ import io.github.alathra.alathranwars.enums.battle.BattleSide;
 import io.github.alathra.alathranwars.event.battle.PlayerEnteredBattlefieldEvent;
 import io.github.alathra.alathranwars.event.battle.PlayerLeftBattlefieldEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +35,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Get all online players eligible to fight in the battle
+     *
      * @param side battle side
      * @return set of players
      * @apiNote This does not mean the players are inside the battle zone, only that they are in the related war
@@ -51,6 +56,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Get which team the player belongs to in the battle
+     *
      * @param p player
      * @return the team, or spectator
      */
@@ -69,6 +75,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player is on the attacking side
+     *
      * @param p player
      * @return boolean
      */
@@ -78,6 +85,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player is on the defending side
+     *
      * @param p player
      * @return boolean
      */
@@ -87,6 +95,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player is on the spectator side
+     *
      * @param p player
      * @return boolean
      */
@@ -96,6 +105,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Checks if the player is considered part of this battle
+     *
      * @param p the player
      * @return yes if they are in the associated war
      * @apiNote This does not mean the player is inside the battle zone, only that they are in the associated war
@@ -109,6 +119,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Checks if the player is considered part of this battle
+     *
      * @param uuid the player uuid
      * @return yes if they have joined the battle
      * @apiNote This does not mean the player is inside the battle zone, only that they are in the associated war
@@ -125,6 +136,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Get all online players inside the battle zone.
+     *
      * @return set of players
      */
     public Set<Player> getPlayersInZone() {
@@ -139,6 +151,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Get all online players inside the battle zone.
+     *
      * @param side battle side
      * @return set of players
      */
@@ -152,6 +165,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Checks if the player is inside the battle zone
+     *
      * @param p the player
      * @return yes if they are inside the battle zone
      */
@@ -164,6 +178,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Checks if the player is inside the battle zone
+     *
      * @param uuid the player uuid
      * @return yes if they are inside the battle zone
      */
@@ -173,6 +188,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player on the attacking side is inside the battle zone
+     *
      * @param p player
      * @return boolean
      */
@@ -182,6 +198,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player on the defending side is inside the battle zone
+     *
      * @param p player
      * @return boolean
      */
@@ -191,6 +208,7 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Check if a player on the spectator side is inside the battle zone
+     *
      * @param p player
      * @return boolean
      */
@@ -200,11 +218,12 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Recalculate which players are within the zone and send events for leaving/entering players
-     * @apiNote Leaving/entering events are only emitted for connected players
+     *
      * @param location location
-     * @param range range
-     * @param war war
-     * @param battle battle
+     * @param range    range
+     * @param war      war
+     * @param battle   battle
+     * @apiNote Leaving/entering events are only emitted for connected players
      */
     public void calculateBattlefieldPlayers(Location location, int range, War war, Battle battle) {
         // Make copied sets of players who were previously inside the zone
@@ -238,35 +257,38 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Get a set of all players on a battle side who are inside the battle zone
+     *
      * @param battleSide battle side
-     * @param location location
-     * @param range range
+     * @param location   location
+     * @param range      range
      * @return set of players in range of zone
      */
     private Set<Player> getPlayersInZone(BattleSide battleSide, Location location, int range) {
         return getPlayersInBattle(battleSide).stream()
-            .filter(p -> AbstractBattleTeamManagement.isInRange(p, location, range))
+            .filter(p -> !p.getGameMode().equals(GameMode.SPECTATOR) && !p.getGameMode().equals(GameMode.CREATIVE) && AbstractBattleTeamManagement.isInRange(p, location, range))
             .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
      * Used to check if a player is within range of a location
-     * @param p player
+     *
+     * @param p        player
      * @param location location
-     * @param range range
+     * @param range    range
      * @return boolean
      */
     private static boolean isInRange(final Player p, final Location location, final int range) {
-        return p.getWorld().equals(location.getWorld()) && p.getLocation().distance(location) < range;
+        return p.getWorld().equals(location.getWorld()) && p.getLocation().distanceSquared(location) < Math.pow(range, 2);
     }
 
     /**
      * Emit battle zone entering events for all current players
-     * @param currentPlayers set of players currently in the zone
-     * @param battleSide battle side
+     *
+     * @param currentPlayers  set of players currently in the zone
+     * @param battleSide      battle side
      * @param previousPlayers set of players previously in the zone
-     * @param war war
-     * @param battle battle
+     * @param war             war
+     * @param battle          battle
      */
     private static void emitEntering(Set<Player> currentPlayers, Set<Player> previousPlayers, BattleSide battleSide, War war, Battle battle) {
         currentPlayers.stream()
@@ -277,11 +299,12 @@ public abstract class AbstractBattleTeamManagement {
 
     /**
      * Emit battle zone leaving events for all previous players
-     * @param currentPlayers set of players currently in the zone
-     * @param battleSide battle side
+     *
+     * @param currentPlayers  set of players currently in the zone
+     * @param battleSide      battle side
      * @param previousPlayers set of players previously in the zone
-     * @param war war
-     * @param battle battle
+     * @param war             war
+     * @param battle          battle
      */
     private static void emitLeaving(Set<Player> currentPlayers, Set<Player> previousPlayers, BattleSide battleSide, War war, Battle battle) {
         previousPlayers.stream()

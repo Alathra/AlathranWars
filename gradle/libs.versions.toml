@@ -2,7 +2,7 @@
 java = "21"
 paper-api = "1.21.7-R0.1-SNAPSHOT"
 paper-run = "1.21.7"
-crate = "4.0.0-RC.2"
+crate = "4.0.0-RC.5"
 commandapi = "10.1.2"
 flyway = "11.1.0"
 jooq = "3.20.5"
@@ -19,21 +19,21 @@ versionwatch = "io.github.milkdrinkers:versionwatch:1.0.2"
 wordweaver = "io.github.milkdrinkers:wordweaver:0.0.7"
 crate-api = { module = "com.github.milkdrinkers:crate-api", version.ref = "crate" }
 crate-yaml = { module = "io.github.milkdrinkers:crate-yaml", version.ref = "crate" }
-colorparser = "io.github.milkdrinkers:colorparser-paper:4.0.0-RC.1"
-threadutil-bukkit = "io.github.milkdrinkers:threadutil-bukkit:1.2.0"
-commandapi-shade = { module = "dev.jorel:commandapi-bukkit-shade", version.ref = "commandapi" }
-triumph-gui = "dev.triumphteam:triumph-gui:3.1.12"
+colorparser = "io.github.milkdrinkers:colorparser-paper:4.1.0"
+threadutil-bukkit = "io.github.milkdrinkers:threadutil-bukkit:1.4.0"
+commandapi-shade = { module = "dev.jorel:commandapi-bukkit-shade-mojang-mapped", version.ref = "commandapi" }
+triumph-gui = "dev.triumphteam:triumph-gui-paper:3.1.13-SNAPSHOT"
 itemutils = "io.github.milkdrinkers:itemutils:1.1.0"
 
 # Plugin dependencies
 bstats = "org.bstats:bstats-bukkit:3.1.0"
 vault = "com.github.MilkBowl:VaultAPI:1.7.1"
-packetevents = "com.github.retrooper:packetevents-spigot:2.9.4"
-entitylib = "com.github.Tofaa2.EntityLib:spigot:d6a3cb72a4"
+packetevents = "com.github.retrooper:packetevents-spigot:2.9.5"
+entitylib = "com.github.Tofaa2.EntityLib:spigot:cef23ea82d"
 placeholderapi = "me.clip:placeholderapi:2.11.6"
-towny = "com.palmergames.bukkit.towny:towny:0.100.3.0"
+towny = "com.palmergames.bukkit.towny:towny:0.101.2.0"
 tabapi = "com.github.NEZNAMY:TAB-API:5.2.5"
-unlimitednametags = "com.github.alexdev03:UnlimitedNametags:1.6.8"
+unlimitednametags = "com.github.alexdev03:UnlimitedNametags:1.6.9"
 gsit = "com.github.gecolay.GSit:GSit:2.4.2"
 essentialsx-core = "net.essentialsx:EssentialsX:2.21.1"
 essentialsx-spawn = "net.essentialsx:EssentialsXSpawn:2.21.1"
@@ -73,8 +73,9 @@ junit = ["junit-jupiter", "junit-platform"]
 testcontainers = ["testcontainers-jupiter", "testcontainers-mysql", "testcontainers-mariadb"]
 
 [plugins]
-shadow = "com.gradleup.shadow:8.3.8"
-run-paper = "xyz.jpenilla.run-paper:2.3.1"
-plugin-yml = "de.eldoria.plugin-yml.bukkit:0.7.1"
+shadow = "com.gradleup.shadow:9.0.2"
+run-paper = "xyz.jpenilla.run-paper:3.0.0"
+plugin-yml-bukkit = "de.eldoria.plugin-yml.bukkit:0.8.0"
+plugin-yml-paper = "de.eldoria.plugin-yml.paper:0.8.0"
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }

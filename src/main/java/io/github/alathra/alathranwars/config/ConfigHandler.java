@@ -3,6 +3,7 @@ package io.github.alathra.alathranwars.config;
 import io.github.alathra.alathranwars.AlathranWars;
 import io.github.alathra.alathranwars.Reloadable;
 import io.github.milkdrinkers.crate.Config;
+import io.github.milkdrinkers.crate.internal.settings.ReloadSetting;
 
 import javax.inject.Singleton;
 
@@ -26,8 +27,16 @@ public class ConfigHandler implements Reloadable {
 
     @Override
     public void onLoad(AlathranWars plugin) {
-        cfg = new Config("config", plugin.getDataFolder().getPath(), plugin.getResource("config.yml")); // Create a config file from the template in our resources folder
-        databaseCfg = new Config("database", plugin.getDataFolder().getPath(), plugin.getResource("database.yml"));
+        cfg = Config.builderConfig()
+            .path(plugin.getDataFolder().toPath().resolve("config.yml"))
+            .defaults(plugin.getResource("config.yml"))
+            .reload(ReloadSetting.MANUALLY)
+            .build();
+        databaseCfg = Config.builderConfig()
+            .path(plugin.getDataFolder().toPath().resolve("database.yml"))
+            .defaults(plugin.getResource("database.yml"))
+            .reload(ReloadSetting.MANUALLY)
+            .build();
     }
 
     @Override

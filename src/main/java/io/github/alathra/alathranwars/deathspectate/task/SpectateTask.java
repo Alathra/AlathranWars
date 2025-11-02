@@ -1,15 +1,18 @@
 package io.github.alathra.alathranwars.deathspectate.task;
 
 import io.github.alathra.alathranwars.AlathranWars;
-import io.github.alathra.alathranwars.deathspectate.DeathConfig;
+import io.github.alathra.alathranwars.conflict.war.WarController;
 import io.github.alathra.alathranwars.deathspectate.DeathUtil;
+import io.github.alathra.alathranwars.gui.SpawnSelectMenu;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.wordweaver.Translation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -17,7 +20,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static io.github.alathra.alathranwars.deathspectate.DeathUtil.META_TELEPORTING;
+import static io.github.alathra.alathranwars.deathspectate.DeathUtil.PDC_RESPAWN_TIMER;
+import static io.github.alathra.alathranwars.deathspectate.DeathUtil.PDC_TELEPORTING;
 
 public class SpectateTask extends BukkitRunnable {
     private final Plugin plugin;
@@ -47,28 +51,20 @@ public class SpectateTask extends BukkitRunnable {
     }
 
     private Component getTitle(long secondsRemaining) {
-        return ColorParser.of(DeathConfig.getDeathTitle())
+        return ColorParser.of(Translation.of("respawn-title.title"))
             .papi(p)
             .with("time", String.valueOf(secondsRemaining))
-            .legacy()
             .build();
     }
 
     private Component getSubTitle(long secondsRemaining) {
-        return ColorParser.of(DeathConfig.getDeathSubTitle())
+        return ColorParser.of(Translation.of("respawn-title.subtitle"))
             .papi(p)
             .with("time", String.valueOf(secondsRemaining))
-            .legacy()
             .build();
     }
 
     public void run() {
-        if (p.isDead() && DeathUtil.isSpectating(p)) {
-            DeathUtil.removeSpectator(p, null);
-            this.cancel();
-            return;
-        }
-
         if (!DeathUtil.isSpectating(p)) {
             this.cancel();
             return;
@@ -80,21 +76,28 @@ public class SpectateTask extends BukkitRunnable {
         p.sendTitlePart(TitlePart.TITLE, getTitle(secondsRemaining));
         p.sendTitlePart(TitlePart.SUBTITLE, getSubTitle(secondsRemaining));
 
+        final PersistentDataContainer pdc = p.getPersistentDataContainer();
+        pdc.set(PDC_RESPAWN_TIMER, PersistentDataType.LONG, secondsRemaining);
+
         if (now.isAfter(respawnEndTime)) {
-            DeathUtil.respawnPlayer(p);
+            if (WarController.getInstance().isInActiveWar(p)) {
+                SpawnSelectMenu.open(p);
+            } else {
+                DeathUtil.respawnPlayerVanilla(p);
+            }
             p.clearTitle();
             this.cancel();
             return;
         }
 
         if (deathLocation.distanceSquared(p.getLocation()) > 0)
-            teleportPlayer(deathLocation.setDirection(p.getLocation().getDirection()));
+            teleportPlayer(deathLocation);
 
         p.setFlySpeed(0F);
     }
 
     public void teleportPlayer(Location location) {
-        p.setMetadata(META_TELEPORTING, new FixedMetadataValue(plugin, true));
+        p.getPersistentDataContainer().set(PDC_TELEPORTING, PersistentDataType.BOOLEAN, true);
         p.teleport(location);
     }
 }

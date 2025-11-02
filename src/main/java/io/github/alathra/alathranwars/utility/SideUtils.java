@@ -15,20 +15,22 @@ import java.util.Objects;
 public final class SideUtils {
     /**
      * Get a list of players at a coordinate that are associated with the specified side
+     *
      * @param location location
-     * @param dist range
-     * @param side side
+     * @param dist     range
+     * @param side     side
      * @return list of players near location
      */
     public static List<Player> getPlayersFromSideAtCoord(Location location, double dist, Side side) {
         return side.getPlayersOnline().stream()
             .filter(p -> location.getWorld().equals(p.getWorld()))
-            .filter(p -> location.distance(p.getLocation()) < dist)
+            .filter(p -> location.distanceSquared(p.getLocation()) < Math.pow(dist, 2))
             .toList();
     }
 
     /**
      * Checks if two sides are opposing each other in the same war
+     *
      * @param side1 side
      * @param side2 side
      * @return true if in same war
@@ -39,6 +41,7 @@ public final class SideUtils {
 
     /**
      * Get the opposing side
+     *
      * @param side side
      * @return The opposing side in the war
      * @throws IllegalStateException If war or opposing side is null
@@ -59,6 +62,7 @@ public final class SideUtils {
 
     /**
      * Get all sides this player is on
+     *
      * @param p player
      * @return list of sides
      */

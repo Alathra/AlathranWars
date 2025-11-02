@@ -24,8 +24,9 @@ public class CustomLaser {
 
     /**
      * Instantiates a new CustomLaser object.
+     *
      * @param from The location of the end crystal and the origin of the laser
-     * @param to The end location of the laser
+     * @param to   The end location of the laser
      * @throws IllegalStateException Thrown if from and to locations are not in the same world
      * @implNote Use {@link #spawn()} to create the crystal on clients and {@link #despawn()} to remove it
      */
@@ -35,8 +36,9 @@ public class CustomLaser {
 
     /**
      * Instantiates a new CustomLaser object.
+     *
      * @param from The location of the end crystal and the origin of the laser
-     * @param to The end location of the laser
+     * @param to   The end location of the laser
      * @throws IllegalStateException Thrown if from and to locations are not in the same world
      * @implNote Use {@link #spawn()} to create the crystal on clients and {@link #despawn()} to remove it
      */
@@ -84,8 +86,9 @@ public class CustomLaser {
 
     /**
      * Updates the entity location for all viewers
+     *
      * @param from The location of the end crystal and the origin of the laser
-     * @param to The end location of the laser
+     * @param to   The end location of the laser
      * @throws IllegalStateException Thrown if from and to locations are not in the same world
      */
     public void move(org.bukkit.Location from, org.bukkit.Location to) throws IllegalStateException {
@@ -106,6 +109,7 @@ public class CustomLaser {
 
     /**
      * Add a viewer
+     *
      * @param p player
      * @implNote The entity is spawned with meta applied for new viewers
      */
@@ -118,6 +122,7 @@ public class CustomLaser {
 
     /**
      * Remove a viewer
+     *
      * @param p player
      */
     public void removeViewer(Player p) {

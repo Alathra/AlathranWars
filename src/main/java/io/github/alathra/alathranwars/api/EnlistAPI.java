@@ -6,6 +6,7 @@ import com.palmergames.bukkit.towny.object.Town;
 import io.github.alathra.alathranwars.conflict.war.War;
 import io.github.alathra.alathranwars.conflict.war.WarController;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
+import io.github.alathra.alathranwars.hook.Hook;
 import io.github.alathra.alathranwars.utility.Cfg;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -38,16 +39,21 @@ public interface EnlistAPI {
 
     /**
      * Checks if a player has enough playtime to enlist in a war.
+     *
      * @param player the player to check
      * @return true if the player has enough playtime, false otherwise
      */
     default boolean checkPlaytime(Player player) {
+        if (Hook.getActiveUpkeepHook().isHookLoaded())
+            return Hook.getActiveUpkeepHook().hasRequiredPlaytime(player);
+
         final Duration requiredPlaytime = Duration.ofMinutes(Cfg.get().getOrDefault("war.required-playtime", 60L));
         return getPlaytime(player).compareTo(requiredPlaytime) > 0;
     }
 
     /**
      * Gets the required playtime for enlisting in a war.
+     *
      * @return the required playtime as a Duration
      */
     default Duration getPlaytimeRequired() {
@@ -56,6 +62,7 @@ public interface EnlistAPI {
 
     /**
      * Gets the playtime of a player.
+     *
      * @param player the player to get the playtime for
      * @return the playtime as a Duration
      */
@@ -75,6 +82,7 @@ public interface EnlistAPI {
 
     /**
      * Enlists a player in all wars they are eligible for.
+     *
      * @param player the player to enlist
      * @return true if the player was enlisted in at least one war, false otherwise
      * @since 4.0.0

@@ -1,24 +1,5 @@
 package io.github.alathra.alathranwars.conflict.battle.raid;
 
-import io.github.alathra.alathranwars.AlathranWars;
-import io.github.alathra.alathranwars.enums.CaptureProgressDirection;
-import io.github.alathra.alathranwars.enums.battle.BattleSide;
-import io.github.alathra.alathranwars.enums.battle.BattleVictoryReason;
-import io.github.alathra.alathranwars.utility.UtilsChat;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import space.arim.morepaperlib.scheduling.ScheduledTask;
-
-import java.time.Duration;
-import java.time.Instant;
-
-import static io.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
-
 /*public class RaidRunnable implements Runnable {
     // Settings
     private static final Duration ANNOUNCEMENT_COOLDOWN = Duration.ofMinutes(5);
@@ -32,10 +13,10 @@ import static io.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
     private @Nullable Laser beam;
 
     *//**
-     * Start a raid
-     *
-     * @param raid the raid
-     *//*
+ * Start a raid
+ *
+ * @param raid the raid
+ *//*
     public RaidRunnable(@NotNull Raid raid) {
         this.raid = raid;
 
@@ -52,11 +33,11 @@ import static io.github.alathra.alathranwars.enums.CaptureProgressDirection.*;
     }
 
     *//**
-     * Resume a raid at tick
-     *
-     * @param raid         the raid
-     * @param raidProgress the raid ticks
-     *//*
+ * Resume a raid at tick
+ *
+ * @param raid         the raid
+ * @param raidProgress the raid ticks
+ *//*
     public RaidRunnable(@NotNull Raid raid, int raidProgress) {
         this.raid = raid;
 

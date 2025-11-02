@@ -28,8 +28,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jooq.*;
+import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 
 import java.sql.Connection;
@@ -221,36 +222,40 @@ public final class Queries {
 
     public static void saveAll() {
         try (
-            Connection con = DB.getConnection();
+            Connection con = DB.getConnection()
         ) {
             DSLContext context = DB.getContext(con);
 
             for (War war : WarController.getInstance().getWars()) {
                 context
-                    .insertInto(LIST, LIST.UUID, LIST.NAME, LIST.LABEL, LIST.SIDE1, LIST.SIDE2, LIST.EVENT)
+                    .insertInto(LIST, LIST.UUID, LIST.NAME, LIST.LABEL, LIST.SIDE1, LIST.SIDE2, LIST.EVENT, LIST.WAR_TIME)
                     .values(
                         QueryUtils.UUIDUtil.toBytes(war.getUUID()),
                         war.getName(),
                         war.getLabel(),
                         QueryUtils.UUIDUtil.toBytes(war.getSide1().getUUID()),
                         QueryUtils.UUIDUtil.toBytes(war.getSide2().getUUID()),
-                        war.isEventWar() ? (byte) 1 : (byte) 0
+                        war.isEventWar() ? (byte) 1 : (byte) 0,
+                        QueryUtils.InstantUtil.toDateTime(war.getScheduledWarTime())
                     )
                     .onDuplicateKeyUpdate()
                     .set(LIST.NAME, war.getName())
                     .set(LIST.LABEL, war.getLabel())
                     .set(LIST.SIDE1, QueryUtils.UUIDUtil.toBytes(war.getSide1().getUUID()))
                     .set(LIST.SIDE2, QueryUtils.UUIDUtil.toBytes(war.getSide2().getUUID()))
+                    .set(LIST.EVENT, war.isEventWar() ? (byte) 1 : (byte) 0)
+                    .set(LIST.WAR_TIME, QueryUtils.InstantUtil.toDateTime(war.getScheduledWarTime()))
                     .execute();
+
 
                 // Save sides
                 for (Side side : war.getSides()) {
-                    saveSide(con, side);
+                    saveSide(context, side);
                 }
 
                 // Save sieges
                 for (Siege siege : war.getSieges()) {
-                    saveSiege(con, siege);
+                    saveSiege(context, siege);
                 }
             }
         } catch (SQLException e) {
@@ -258,14 +263,11 @@ public final class Queries {
         }
     }
 
-    public static void saveSide(Connection con, Side side) {
-        try {
-            DSLContext context = DB.getContext(con);
-
+    private static void saveSide(DSLContext context, Side side) {
             context
                 .insertInto(SIDES, SIDES.WAR, SIDES.UUID, SIDES.SIDE, SIDES.TEAM, SIDES.NAME, SIDES.TOWN, SIDES.SIEGE_GRACE, SIDES.RAID_GRACE)
                 .values(
-                    QueryUtils.UUIDUtil.toBytes(side.getWar().getUUID()),
+                    QueryUtils.UUIDUtil.toBytes(Objects.requireNonNull(side.getWar(), "war is null when saving").getUUID()),
                     QueryUtils.UUIDUtil.toBytes(side.getUUID()),
                     side.getSide().toString(),
                     side.getTeam().toString(),
@@ -283,19 +285,13 @@ public final class Queries {
                 .set(SIDES.RAID_GRACE, LocalDateTime.ofInstant(side.getRaidGrace(), ZoneOffset.UTC))
                 .execute();
 
-            saveSideNations(con, side);
-            saveSideTowns(con, side);
-            saveSidePlayers(con, side);
-            saveSideSpawns(con, side);
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query failed to save side!", e);
-        }
+            saveSideNations(context, side);
+            saveSideTowns(context, side);
+            saveSidePlayers(context, side);
+            saveSideSpawns(context, side);
     }
 
-    public static void saveSideNations(Connection con, Side side) {
-        try {
-            DSLContext context = DB.getContext(con);
-
+    private static void saveSideNations(DSLContext context, Side side) {
             context.transaction(config -> {
                 DSLContext ctx = config.dsl();
 
@@ -320,15 +316,9 @@ public final class Queries {
                     )).toList()
                 ).execute();
             });
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query failed to save side nations!", e);
-        }
     }
 
-    public static void saveSideTowns(Connection con, Side side) {
-        try {
-            DSLContext context = DB.getContext(con);
-
+    private static void saveSideTowns(DSLContext context, Side side) {
             context.transaction(config -> {
                 DSLContext ctx = config.dsl();
 
@@ -353,15 +343,9 @@ public final class Queries {
                     )).toList()
                 ).execute();
             });
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query failed to save side towns!", e);
-        }
     }
 
-    public static void saveSidePlayers(Connection con, Side side) {
-        try {
-            DSLContext context = DB.getContext(con);
-
+    private static void saveSidePlayers(DSLContext context, Side side) {
             context.transaction(config -> {
                 DSLContext ctx = config.dsl();
 
@@ -390,15 +374,9 @@ public final class Queries {
                     ).toList()
                 ).execute();
             });
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query failed to save side players!", e);
-        }
     }
 
-    public static void saveSideSpawns(Connection con, Side side) {
-        try {
-            DSLContext context = DB.getContext(con);
-
+    private static void saveSideSpawns(DSLContext context, Side side) {
             context.transaction(config -> {
                 DSLContext ctx = config.dsl();
 
@@ -414,81 +392,66 @@ public final class Queries {
                         .collect(Collectors.toList())
                 ).execute();
             });
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query failed to save side players!", e);
-        }
     }
 
-    private static void saveSiege(Connection con, Siege siege) {
-        try {
-            DSLContext context = DB.getContext(con);
+    private static void saveSiege(DSLContext context, Siege siege) {
+        context.insertInto(SIEGES, SIEGES.WAR, SIEGES.UUID, SIEGES.TOWN, SIEGES.SIEGE_LEADER, SIEGES.END_TIME, SIEGES.LAST_TOUCHED, SIEGES.SIEGE_PROGRESS, SIEGES.PHASE_CURRENT, SIEGES.PHASE_PROGRESS, SIEGES.PHASE_START_TIME)
+            .values(
+                QueryUtils.UUIDUtil.toBytes(siege.getWar().getUUID()),
+                QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
+                QueryUtils.UUIDUtil.toBytes(siege.getTown().getUUID()),
+                QueryUtils.UUIDUtil.toBytes(siege.getSiegeLeader().getUniqueId()),
+                LocalDateTime.ofInstant(siege.getEndTime(), ZoneOffset.UTC),
+                LocalDateTime.ofInstant(siege.getLastTouched(), ZoneOffset.UTC),
+                siege.getProgressManager().get(),
+                siege.getPhaseManager().get().name(),
+                siege.getPhaseManager().getProgress(),
+                LocalDateTime.ofInstant(siege.getPhaseManager().getStartTime(), ZoneOffset.UTC)
+            )
+            .onDuplicateKeyUpdate()
+            .set(SIEGES.WAR, QueryUtils.UUIDUtil.toBytes(siege.getWar().getUUID()))
+            .set(SIEGES.TOWN, QueryUtils.UUIDUtil.toBytes(siege.getTown().getUUID()))
+            .set(SIEGES.SIEGE_LEADER, QueryUtils.UUIDUtil.toBytes(siege.getSiegeLeader().getUniqueId()))
+            .set(SIEGES.END_TIME, LocalDateTime.ofInstant(siege.getEndTime(), ZoneOffset.UTC))
+            .set(SIEGES.LAST_TOUCHED, LocalDateTime.ofInstant(siege.getLastTouched(), ZoneOffset.UTC))
+            .set(SIEGES.SIEGE_PROGRESS, siege.getProgressManager().get())
+            .set(SIEGES.PHASE_CURRENT, siege.getPhaseManager().get().name())
+            .set(SIEGES.PHASE_PROGRESS, siege.getPhaseManager().getProgress())
+            .set(SIEGES.PHASE_START_TIME, LocalDateTime.ofInstant(siege.getPhaseManager().getStartTime(), ZoneOffset.UTC))
+            .execute();
 
-            context.insertInto(SIEGES, SIEGES.WAR, SIEGES.UUID, SIEGES.TOWN, SIEGES.SIEGE_LEADER, SIEGES.END_TIME, SIEGES.LAST_TOUCHED, SIEGES.SIEGE_PROGRESS, SIEGES.PHASE_CURRENT, SIEGES.PHASE_PROGRESS, SIEGES.PHASE_START_TIME)
-                .values(
-                    QueryUtils.UUIDUtil.toBytes(siege.getWar().getUUID()),
-                    QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
-                    QueryUtils.UUIDUtil.toBytes(siege.getTown().getUUID()),
-                    QueryUtils.UUIDUtil.toBytes(siege.getSiegeLeader().getUniqueId()),
-                    LocalDateTime.ofInstant(siege.getEndTime(), ZoneOffset.UTC),
-                    LocalDateTime.ofInstant(siege.getLastTouched(), ZoneOffset.UTC),
-                    siege.getProgressManager().get(),
-                    siege.getPhaseManager().get().name(),
-                    siege.getPhaseManager().getProgress(),
-                    LocalDateTime.ofInstant(siege.getPhaseManager().getStartTime(), ZoneOffset.UTC)
-                )
-                .onDuplicateKeyUpdate()
-                .set(SIEGES.WAR, QueryUtils.UUIDUtil.toBytes(siege.getWar().getUUID()))
-                .set(SIEGES.TOWN, QueryUtils.UUIDUtil.toBytes(siege.getTown().getUUID()))
-                .set(SIEGES.SIEGE_LEADER, QueryUtils.UUIDUtil.toBytes(siege.getSiegeLeader().getUniqueId()))
-                .set(SIEGES.END_TIME, LocalDateTime.ofInstant(siege.getEndTime(), ZoneOffset.UTC))
-                .set(SIEGES.LAST_TOUCHED, LocalDateTime.ofInstant(siege.getLastTouched(), ZoneOffset.UTC))
-                .set(SIEGES.SIEGE_PROGRESS, siege.getProgressManager().get())
-                .set(SIEGES.PHASE_CURRENT, siege.getPhaseManager().get().name())
-                .set(SIEGES.PHASE_PROGRESS, siege.getPhaseManager().getProgress())
-                .set(SIEGES.PHASE_START_TIME, LocalDateTime.ofInstant(siege.getPhaseManager().getStartTime(), ZoneOffset.UTC))
+        saveSiegePlayers(context, siege);
+    }
+
+    private static void saveSiegePlayers(DSLContext context, Siege siege) { // TODO We no longer save players in battles
+        context.transaction(config -> {
+            DSLContext ctx = config.dsl();
+
+            ctx
+                .deleteFrom(SIEGE_PLAYERS)
+                .where(SIEGE_PLAYERS.SIEGE.equal(QueryUtils.UUIDUtil.toBytes(siege.getUUID())))
                 .execute();
 
-            saveSiegePlayers(con, siege);
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query threw an error!", e);
-        }
-    }
+            ctx.batchInsert(
+                siege.getPlayersInBattle(BattleSide.ATTACKER).stream().map(p ->
+                    new SiegePlayersRecord(
+                        QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
+                        QueryUtils.UUIDUtil.toBytes(p.getUniqueId()),
+                        (byte) 0
+                    )
+                ).toList()
+            ).execute();
 
-    public static void saveSiegePlayers(Connection con, Siege siege) { // TODO We no longer save players in battles
-        try {
-            DSLContext context = DB.getContext(con);
-
-            context.transaction(config -> {
-                DSLContext ctx = config.dsl();
-
-                ctx
-                    .deleteFrom(SIEGE_PLAYERS)
-                    .where(SIEGE_PLAYERS.SIEGE.equal(QueryUtils.UUIDUtil.toBytes(siege.getUUID())))
-                    .execute();
-
-                ctx.batchInsert(
-                    siege.getPlayersInBattle(BattleSide.ATTACKER).stream().map(p ->
-                        new SiegePlayersRecord(
-                            QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
-                            QueryUtils.UUIDUtil.toBytes(p.getUniqueId()),
-                            (byte) 0
-                        )
-                    ).toList()
-                ).execute();
-
-                ctx.batchInsert(
-                    siege.getPlayersInBattle(BattleSide.DEFENDER).stream().map(p ->
-                        new SiegePlayersRecord(
-                            QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
-                            QueryUtils.UUIDUtil.toBytes(p.getUniqueId()),
-                            (byte) 1
-                        )
-                    ).toList()
-                ).execute();
-            });
-        } catch (DataAccessException e) {
-            Logger.get().error("SQL Query threw an error!", e);
-        }
+            ctx.batchInsert(
+                siege.getPlayersInBattle(BattleSide.DEFENDER).stream().map(p ->
+                    new SiegePlayersRecord(
+                        QueryUtils.UUIDUtil.toBytes(siege.getUUID()),
+                        QueryUtils.UUIDUtil.toBytes(p.getUniqueId()),
+                        (byte) 1
+                    )
+                ).toList()
+            ).execute();
+        });
     }
 
     // Getters
@@ -496,7 +459,7 @@ public final class Queries {
         Set<War> wars = new HashSet<>();
 
         try (
-            Connection con = DB.getConnection();
+            Connection con = DB.getConnection()
         ) {
             DSLContext context = DB.getContext(con);
 
@@ -564,26 +527,24 @@ public final class Queries {
             // Load players
             Set<UUID> players = new HashSet<>();
             Set<UUID> playersSurrendered = new HashSet<>();
-            Result<SidesPlayersRecord> resultPlayers = context.selectFrom(SIDES_PLAYERS)
+            context.selectFrom(SIDES_PLAYERS)
                 .where(SIDES_PLAYERS.SIDE.equal(QueryUtils.UUIDUtil.toBytes(uuid)))
-                .fetch();
-            resultPlayers.forEach(
-                record -> {
+                .fetch()
+                .forEach(record -> {
                     if (record.get(SIDES_PLAYERS.SURRENDERED).equals((byte) 0)) {
                         players.add(QueryUtils.UUIDUtil.fromBytes(record.getPlayer()));
                     } else {
                         playersSurrendered.add(QueryUtils.UUIDUtil.fromBytes(record.getPlayer()));
                     }
-                }
-            );
+                });
 
             // Load nations
             Set<Nation> nations = new HashSet<>();
             Set<Nation> nationsSurrendered = new HashSet<>();
-            Result<SidesNationsRecord> resultNations = context.selectFrom(SIDES_NATIONS)
+            context.selectFrom(SIDES_NATIONS)
                 .where(SIDES_NATIONS.SIDE.equal(QueryUtils.UUIDUtil.toBytes(uuid)))
-                .fetch();
-            resultNations.forEach(
+                .fetch()
+                .forEach(
                 record -> {
                     final UUID identifier = QueryUtils.UUIDUtil.fromBytes(record.getNation());
                     if (record.getSurrendered().equals((byte) 0)) {
@@ -595,17 +556,15 @@ public final class Queries {
                         if (nation != null)
                             nationsSurrendered.add(nation);
                     }
-                }
-            );
+                });
 
             // Load towns
             Set<Town> towns = new HashSet<>();
             Set<Town> townsSurrendered = new HashSet<>();
-            Result<SidesTownsRecord> resultTowns = context.selectFrom(SIDES_TOWNS)
+            context.selectFrom(SIDES_TOWNS)
                 .where(SIDES_TOWNS.SIDE.equal(QueryUtils.UUIDUtil.toBytes(uuid)))
-                .fetch();
-            resultTowns.forEach(
-                record -> {
+                .fetch()
+                .forEach(record -> {
                     final UUID identifier = QueryUtils.UUIDUtil.fromBytes(record.getTown());
                     if (record.getSurrendered().equals((byte) 0)) {
                         @Nullable Town town2 = TownyAPI.getInstance().getTown(identifier);
@@ -616,11 +575,10 @@ public final class Queries {
                         if (town2 != null)
                             townsSurrendered.add(town2);
                     }
-                }
-            );
+                });
 
             // Load rallies
-            List<RallyPoint> rallies = context.selectFrom(SIDES_SPAWNS)
+            Set<RallyPoint> rallies = context.selectFrom(SIDES_SPAWNS)
                 .where(SIDES_SPAWNS.SIDE.endsWith(QueryUtils.UUIDUtil.toBytes(uuid)))
                 .fetch()
                 .stream()
@@ -648,12 +606,13 @@ public final class Queries {
                         spawn.get_Name(),
                         location,
                         SpawnType.RALLY,
+                        null,
                         block,
                         Bukkit.getOfflinePlayer(UUIDUtil.fromBytes(spawn.getCreator()))
                     );
                 })
                 .filter(Objects::nonNull)
-                .toList();
+                .collect(Collectors.toSet());
 
             return Side.builder() // TODO IllegalStateException
                 .setWarUUID(warUUID)
@@ -699,19 +658,17 @@ public final class Queries {
                 Set<UUID> attackersIncludingOffline = new HashSet<>();
                 Set<UUID> defendersIncludingOffline = new HashSet<>();
 
-                Result<Record> resultPlayers = context.select()
+                context.select()
                     .from(SIEGE_PLAYERS)
                     .where(SIEGE_PLAYERS.SIEGE.equal(QueryUtils.UUIDUtil.toBytes(uuid)))
-                    .fetch();
-                resultPlayers.forEach(
-                    record -> {
+                    .fetch()
+                    .forEach(record -> {
                         if (record.get(SIEGE_PLAYERS.TEAM).equals((byte) 0)) {
                             attackersIncludingOffline.add(QueryUtils.UUIDUtil.fromBytes(record.get(SIEGE_PLAYERS.PLAYER)));
                         } else {
                             defendersIncludingOffline.add(QueryUtils.UUIDUtil.fromBytes(record.get(SIEGE_PLAYERS.PLAYER)));
                         }
-                    }
-                );
+                    });
 
                 SiegePhase phase;
                 try {
@@ -721,7 +678,6 @@ public final class Queries {
                 }
                 int phaseProgress = r.get(SIEGES.PHASE_PROGRESS);
                 Instant phaseStartTime = r.get(SIEGES.PHASE_START_TIME).toInstant(ZoneOffset.UTC);
-
 
 
                 sieges.add(new Siege(
@@ -750,7 +706,7 @@ public final class Queries {
 
     public static void deleteWar(War war) {
         try (
-            Connection con = DB.getConnection();
+            Connection con = DB.getConnection()
         ) {
             DSLContext context = DB.getContext(con);
 
@@ -765,7 +721,7 @@ public final class Queries {
 
     public static void deleteSiege(Siege siege) {
         try (
-            Connection con = DB.getConnection();
+            Connection con = DB.getConnection()
         ) {
             DSLContext context = DB.getContext(con);
 

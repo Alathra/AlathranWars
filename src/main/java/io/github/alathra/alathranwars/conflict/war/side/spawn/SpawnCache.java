@@ -1,39 +1,44 @@
 package io.github.alathra.alathranwars.conflict.war.side.spawn;
 
+import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.AlathranWars;
+import io.github.alathra.alathranwars.Reloadable;
 import io.github.alathra.alathranwars.conflict.IUpdateable;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
+import io.github.alathra.alathranwars.utility.SpawnUtils;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Contains a cached list of all spawns related to a {@link Side}.
  */
-public class SpawnCache implements IUpdateable {
+public class SpawnCache implements Reloadable, IUpdateable {
     private final Side side;
-    private final List<Spawn> spawns;
-    private final List<SoftReference<RallyPoint>> rallies;
+    private final Set<Spawn> spawns;
 
     public SpawnCache(Side side) {
-        this(side, new ArrayList<>());
+        this(side, ConcurrentHashMap.newKeySet());
     }
 
-    public SpawnCache(Side side, List<RallyPoint> rallyPoints) {
+    public SpawnCache(Side side, Set<RallyPoint> rallyPoints) {
         this.side = side;
-        this.spawns = new ArrayList<>();
-        this.rallies = new ArrayList<>();
+        this.spawns = ConcurrentHashMap.newKeySet();
         spawns.addAll(rallyPoints);
         getSpawns().forEach(spawn -> {
-            if (spawn instanceof RallyPoint rally)
-                this.rallies.add(new SoftReference<>(rally));
-            spawn.setSide(side);
+            spawn.setSide(side); // Ugly hack to apply side for all spawn objects as Side is not available when constructing them before constructing side object
         });
+    }
+
+    @Override
+    public void onEnable(AlathranWars plugin) {
+        spawns.addAll(SpawnUtils.computeSpawnPoints(side));
     }
 
     /**
      * Get the {@link Side} associated with this spawn cache
+     *
      * @return side
      */
     public Side getSide() {
@@ -42,23 +47,36 @@ public class SpawnCache implements IUpdateable {
 
     /**
      * Get a list of all spawns
+     *
      * @return list
      */
-    public List<Spawn> getSpawns() {
-        return spawns;
+    public Set<Spawn> getSpawns() {
+        return spawns.stream().collect(Collectors.toUnmodifiableSet());
     }
 
+    /**
+     * Get a list of all spawns associated with a town (Only outposts and town spawn)
+     *
+     * @param town town
+     * @return list
+     */
+    public Set<Spawn> getSpawns(Town town) {
+        return getSpawns().stream()
+            .filter(spawn -> spawn.getTown().isPresent() && spawn.getTown().get().equals(town))
+            .collect(Collectors.toUnmodifiableSet());
+    }
 
     /**
      * Get a list of all rallies
      * Convenience method for getting a cached list of rallies so the user doesn't have to loop
+     *
      * @return list
      */
-    public List<RallyPoint> getRallies() {
-        return rallies.stream()
-            .map(SoftReference::get)
-            .filter(Objects::nonNull)
-            .toList();
+    public Set<RallyPoint> getRallies() {
+        return spawns.stream()
+            .filter(spawn -> spawn instanceof RallyPoint)
+            .map(spawn -> (RallyPoint) spawn)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -71,24 +89,25 @@ public class SpawnCache implements IUpdateable {
 
     /**
      * Add a spawn
+     *
      * @param spawn spawn
      * @return whether successful or not
      */
     public boolean add(Spawn spawn) {
-        final boolean res = spawns.add(spawn);
-        if (spawn instanceof RallyPoint rally)
-            rallies.add(new SoftReference<>(rally));
-        return res;
+        return spawns.add(spawn);
     }
 
     /**
      * Remove a spawn
+     *
      * @param spawn spawn
      * @return whether successful or not
      */
     public boolean remove(Spawn spawn) {
-        if (spawn instanceof RallyPoint rally)
-            rallies.remove(new SoftReference<>(rally));
         return spawns.remove(spawn);
+    }
+
+    public int incrementRallyId() {
+        return getRallies().size() + 1;
     }
 }

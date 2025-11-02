@@ -1,0 +1,31 @@
+package io.github.alathra.alathranwars.event;
+
+import io.github.alathra.alathranwars.conflict.war.War;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Triggered when war time starts for a war.
+ */
+public class WarTimeStartedEvent extends Event {
+    private static final HandlerList HANDLER_LIST = new HandlerList();
+    private final War war;
+
+    public WarTimeStartedEvent(War war) {
+        this.war = war;
+    }
+
+    @Override
+    public @NotNull HandlerList getHandlers() {
+        return HANDLER_LIST;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
+    public War getWar() {
+        return war;
+    }
+}

@@ -1,14 +1,14 @@
 package io.github.alathra.alathranwars.command.towny;
 
-import io.github.alathra.alathranwars.event.battle.PreSetControlPointEvent;
-import io.github.alathra.alathranwars.event.battle.SetControlPointEvent;
-import io.github.alathra.alathranwars.meta.ControlPoint;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyCommandAddonAPI;
 import com.palmergames.bukkit.towny.command.BaseCommand;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.AddonCommand;
 import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.data.ControlPoint;
+import io.github.alathra.alathranwars.event.battle.PreSetControlPointEvent;
+import io.github.alathra.alathranwars.event.battle.SetControlPointEvent;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

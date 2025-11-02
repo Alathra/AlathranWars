@@ -1,14 +1,5 @@
 package io.github.alathra.alathranwars.command;
 
-import io.github.alathra.alathranwars.AlathranWars;
-import io.github.alathra.alathranwars.conflict.battle.siege.Siege;
-import io.github.alathra.alathranwars.conflict.war.War;
-import io.github.alathra.alathranwars.conflict.war.WarController;
-import io.github.alathra.alathranwars.conflict.war.side.Side;
-import io.github.alathra.alathranwars.enums.CommandArgsSiege;
-import io.github.alathra.alathranwars.enums.CommandArgsWar;
-import io.github.alathra.alathranwars.utility.UtilsChat;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -19,6 +10,15 @@ import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import io.github.alathra.alathranwars.AlathranWars;
+import io.github.alathra.alathranwars.conflict.battle.siege.Siege;
+import io.github.alathra.alathranwars.conflict.war.War;
+import io.github.alathra.alathranwars.conflict.war.WarController;
+import io.github.alathra.alathranwars.conflict.war.side.Side;
+import io.github.alathra.alathranwars.enums.CommandArgsSiege;
+import io.github.alathra.alathranwars.enums.CommandArgsWar;
+import io.github.alathra.alathranwars.utility.UtilsChat;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
@@ -29,7 +29,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

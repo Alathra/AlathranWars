@@ -1,9 +1,9 @@
 package io.github.alathra.alathranwars.conflict.war;
 
 import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.data.ControlPoint;
 import io.github.alathra.alathranwars.event.battle.SetControlPointEvent;
 import io.github.alathra.alathranwars.hook.Hook;
-import io.github.alathra.alathranwars.meta.ControlPoint;
 import io.github.alathra.alathranwars.packet.CustomLaser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,6 +17,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WarCapturePointManager implements Listener {
     private final War war;
@@ -30,16 +32,7 @@ public class WarCapturePointManager implements Listener {
         if (!Hook.PacketEvents.isLoaded())
             return;
 
-        for (Town town : war.getAttacker().getTowns()) {
-            final Location cp = ControlPoint.get(town);
-
-            lasers.put(town, CustomLaser.of(
-                CustomLaser.getLaserFromLocation(cp),
-                CustomLaser.getLaserToLocation(cp)
-            ));
-        }
-
-        for (Town town : war.getAttacker().getTowns()) {
+        for (Town town : Stream.concat(war.getAttacker().getTowns().stream(), war.getDefender().getTowns().stream()).collect(Collectors.toUnmodifiableSet())) {
             final Location cp = ControlPoint.get(town);
 
             lasers.put(town, CustomLaser.of(

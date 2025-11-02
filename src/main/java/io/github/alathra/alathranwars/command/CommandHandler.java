@@ -43,10 +43,12 @@ public class CommandHandler implements Reloadable {
         CommandAPI.onEnable();
 
         // Register commands here
-        new ExampleCommand();
+        new AlathranWarsCommand();
         new WarCommands();
         new SiegeCommands();
         new AdminCommands();
+        AdminCommands.commandRespawn().register();
+
         townyHandler.onEnable(plugin);
     }
 

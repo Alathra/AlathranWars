@@ -3,55 +3,55 @@ package io.github.alathra.alathranwars.api;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Resident;
-import io.github.alathra.alathranwars.data.CooldownMeta;
-import io.github.alathra.alathranwars.data.CooldownResidentMeta;
+import io.github.alathra.alathranwars.data.cooldown.CooldownMetaGovernment;
+import io.github.alathra.alathranwars.data.cooldown.CooldownMetaResident;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.time.Instant;
 
 public interface WarCooldownAPI {
-    default CooldownMeta.CooldownType getCooldown(Government government) {
-        return CooldownMeta.getInstance().getCooldown(government);
+    default CooldownMetaGovernment.CooldownType getCooldown(Government government) {
+        return CooldownMetaGovernment.getInstance().getCooldown(government);
     }
 
     default boolean hasCooldown(Government government) {
-        return CooldownMeta.getInstance().hasCooldown(government);
+        return CooldownMetaGovernment.getInstance().hasCooldown(government);
     }
 
     default boolean hasAttackCooldown(Government government) {
-        return CooldownMeta.getInstance().hasAttackCooldown(government);
+        return CooldownMetaGovernment.getInstance().hasAttackCooldown(government);
     }
 
     default Duration getAttackCooldown(Government government) {
-        return Duration.between(Instant.now(), CooldownMeta.getInstance().getOffensiveCooldown(government));
+        return Duration.between(Instant.now(), CooldownMetaGovernment.getInstance().getOffensiveCooldownEnd(government)).abs();
     }
 
     default void setAttackCooldown(Government government) {
-        CooldownMeta.getInstance().setOffensiveCooldown(government);
+        CooldownMetaGovernment.getInstance().setOffensiveCooldown(government);
     }
 
     default boolean hasDefenseCooldown(Government government) {
-        return CooldownMeta.getInstance().hasDefenseCooldown(government);
+        return CooldownMetaGovernment.getInstance().hasDefenseCooldown(government);
     }
 
     default Duration getDefenseCooldown(Government government) {
-        return Duration.between(Instant.now(), CooldownMeta.getInstance().getDefensiveCooldown(government));
+        return Duration.between(Instant.now(), CooldownMetaGovernment.getInstance().getDefensiveCooldownEnd(government)).abs();
     }
 
     default void setDefenseCooldown(Government government) {
-        CooldownMeta.getInstance().setDefensiveCooldown(government);
+        CooldownMetaGovernment.getInstance().setDefensiveCooldown(government);
     }
 
-    default CooldownResidentMeta.CooldownType getCooldown(Player player) {
+    default CooldownMetaResident.CooldownType getCooldown(Player player) {
         final Resident resident = TownyAPI.getInstance().getResident(player);
         if (resident == null)
-            return CooldownResidentMeta.CooldownType.NONE;
+            return CooldownMetaResident.CooldownType.NONE;
         return getCooldown(resident);
     }
 
-    default CooldownResidentMeta.CooldownType getCooldown(Resident resident) {
-        return CooldownResidentMeta.getInstance().getCooldown(resident);
+    default CooldownMetaResident.CooldownType getCooldown(Resident resident) {
+        return CooldownMetaResident.getInstance().getCooldown(resident);
     }
 
     default boolean hasCooldown(Player player) {
@@ -62,7 +62,7 @@ public interface WarCooldownAPI {
     }
 
     default boolean hasCooldown(Resident resident) {
-        return CooldownResidentMeta.getInstance().hasCooldown(resident);
+        return CooldownMetaResident.getInstance().hasCooldown(resident);
     }
 
     default boolean hasAttackCooldown(Player player) {
@@ -71,8 +71,9 @@ public interface WarCooldownAPI {
             return false;
         return hasAttackCooldown(resident);
     }
+
     default boolean hasAttackCooldown(Resident resident) {
-        return CooldownResidentMeta.getInstance().hasAttackCooldown(resident);
+        return CooldownMetaResident.getInstance().hasAttackCooldown(resident);
     }
 
     default boolean hasDefenseCooldown(Player player) {
@@ -83,7 +84,7 @@ public interface WarCooldownAPI {
     }
 
     default boolean hasDefenseCooldown(Resident resident) {
-        return CooldownResidentMeta.getInstance().hasDefenseCooldown(resident);
+        return CooldownMetaResident.getInstance().hasDefenseCooldown(resident);
     }
 
     default Duration getAttackCooldown(Player player) {
@@ -94,7 +95,7 @@ public interface WarCooldownAPI {
     }
 
     default Duration getAttackCooldown(Resident resident) {
-        return Duration.between(Instant.now(), CooldownResidentMeta.getInstance().getOffensiveCooldown(resident));
+        return Duration.between(Instant.now(), CooldownMetaResident.getInstance().getOffensiveCooldownEnd(resident)).abs();
     }
 
     default Duration getDefenseCooldown(Player player) {
@@ -105,7 +106,7 @@ public interface WarCooldownAPI {
     }
 
     default Duration getDefenseCooldown(Resident resident) {
-        return Duration.between(Instant.now(), CooldownResidentMeta.getInstance().getDefensiveCooldown(resident));
+        return Duration.between(Instant.now(), CooldownMetaResident.getInstance().getDefensiveCooldownEnd(resident)).abs();
     }
 
     default void setAttackCooldown(Player player) {
@@ -116,7 +117,7 @@ public interface WarCooldownAPI {
     }
 
     default void setAttackCooldown(Resident resident) {
-        CooldownResidentMeta.getInstance().setOffensiveCooldown(resident);
+        CooldownMetaResident.getInstance().setOffensiveCooldown(resident);
     }
 
     default void setDefenseCooldown(Player player) {
@@ -127,6 +128,6 @@ public interface WarCooldownAPI {
     }
 
     default void setDefenseCooldown(Resident resident) {
-        CooldownResidentMeta.getInstance().setDefensiveCooldown(resident);
+        CooldownMetaResident.getInstance().setDefensiveCooldown(resident);
     }
 }

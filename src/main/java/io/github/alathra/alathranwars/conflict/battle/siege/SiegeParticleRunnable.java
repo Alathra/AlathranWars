@@ -1,8 +1,9 @@
 package io.github.alathra.alathranwars.conflict.battle.siege;
 
+import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.api.AlathranWarsAPI;
 import io.github.alathra.alathranwars.conflict.battle.BattleRunnable;
 import io.github.alathra.alathranwars.packet.ParticleCircle;
-import com.github.retrooper.packetevents.protocol.color.Color;
 import org.bukkit.Location;
 
 /**
@@ -23,7 +24,10 @@ public class SiegeParticleRunnable extends BattleRunnable {
         if (controlPoint == null)
             return;
 
-        // TODO Fade between side colors depending on who has more people on point
-        ParticleCircle.sendCircle(siege.getPlayersOnBattlefield(), controlPoint.clone().add(0, 0.4, 0), SiegeRunnable.CAPTURE_RANGE, 90, new Color(255, 255, 255));
+        final Location loc = controlPoint.clone().add(0, 0.4, 0);
+        final Town t = siege.getTown();
+        siege.getPlayersOnBattlefield().forEach(player -> {
+            ParticleCircle.sendCircle(player, loc, SiegeRunnable.CAPTURE_RANGE, 90, AlathranWarsAPI.getInstance().getColor(player, t));
+        });
     }
 }

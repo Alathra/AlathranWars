@@ -4,7 +4,6 @@ package io.github.alathra.alathranwars.conflict.battle.raid;
  * Credits to the original authors for their implementation which greatly inspired the new one.
  *
  * @author darksaid98
- *
  * @author AubriTheHuman
  * @author NinjaMandalorian
  * @author ShermansWorld

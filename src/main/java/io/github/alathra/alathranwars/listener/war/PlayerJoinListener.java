@@ -44,6 +44,7 @@ public class PlayerJoinListener implements Listener {
 
     /**
      * Check if the only war the player is in is a event war
+     *
      * @param wars wars
      * @return boolean
      */

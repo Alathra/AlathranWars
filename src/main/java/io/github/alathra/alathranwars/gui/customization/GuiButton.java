@@ -28,6 +28,7 @@ public class GuiButton implements CrateSerializable<GuiButton> {
 
     /**
      * Get a new gui item with the following coordinates
+     *
      * @param position position of the item
      * @param material the base item material to use
      * @return gui item
@@ -38,8 +39,9 @@ public class GuiButton implements CrateSerializable<GuiButton> {
 
     /**
      * Get a new gui item with the following coordinates
+     *
      * @param position position of the item
-     * @param item the base item to use
+     * @param item     the base item to use
      * @return gui item
      */
     public static GuiButton of(GuiPosition position, ItemStack item) {
@@ -48,6 +50,7 @@ public class GuiButton implements CrateSerializable<GuiButton> {
 
     /**
      * Returns the gui position object for this item
+     *
      * @return gui position
      */
     public GuiPosition getPosition() {
@@ -56,6 +59,7 @@ public class GuiButton implements CrateSerializable<GuiButton> {
 
     /**
      * Returns the material of this item
+     *
      * @return material
      */
     public Material getMaterial() {
@@ -64,6 +68,7 @@ public class GuiButton implements CrateSerializable<GuiButton> {
 
     /**
      * Returns a clone of the item stack
+     *
      * @return item stack
      */
     public ItemStack getItem() {

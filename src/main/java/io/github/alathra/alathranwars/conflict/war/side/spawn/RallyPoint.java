@@ -1,9 +1,12 @@
 package io.github.alathra.alathranwars.conflict.war.side.spawn;
 
+import io.github.alathra.alathranwars.api.AlathranWarsAPI;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
 import io.github.alathra.alathranwars.database.QueryUtils;
 import io.github.alathra.alathranwars.database.Storable;
 import io.github.alathra.alathranwars.database.schema.tables.records.SidesSpawnsRecord;
+import io.github.alathra.alathranwars.packet.ParticleCircle;
+import io.github.alathra.alathranwars.utility.Cfg;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,14 +15,15 @@ import org.bukkit.block.Block;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 public class RallyPoint extends Spawn implements Storable<SidesSpawnsRecord> {
-    public static final Duration PLAYER_PROXY_REENABLE = Duration.ofSeconds(60);
+    public static final Duration PLAYER_PROXY_DELETE = Duration.ofSeconds(Cfg.get().getOrDefault("respawns.rallies.proxy-reenable", 60L));
     private final Block rallyBanner;
     private final OfflinePlayer creator;
 
-    public RallyPoint(String name, Location location, SpawnType type, Block rallyBanner, OfflinePlayer creator) {
-        super(name, location, type);
+    public RallyPoint(String name, Location location, SpawnType type, Side side, Block rallyBanner, OfflinePlayer creator) {
+        super(name, location, type, side, null);
         this.rallyBanner = rallyBanner;
         this.creator = creator;
     }
@@ -35,9 +39,16 @@ public class RallyPoint extends Spawn implements Storable<SidesSpawnsRecord> {
     @Override
     public void update() {
         super.update();
-        if (getStartProxied().plus(PLAYER_PROXY_REENABLE).isBefore(Instant.now()) && isProxied()) {
+        if (getStartProxied().plus(PLAYER_PROXY_DELETE).isBefore(Instant.now()) && isProxied()) {
             delete();
         }
+
+        final Location loc = getLocation().clone().add(0, 0.4, 0);
+        final Side side = getSide();
+        Objects.requireNonNull(side, "Side for rally point was null while ticking");
+        getLocation().getNearbyPlayers(50).forEach(player -> {
+            ParticleCircle.sendCircle(player, loc, PLAYER_PROXY_RANGE, 45, AlathranWarsAPI.getInstance().getColor(player, side));
+        });
     }
 
     /**
@@ -46,15 +57,13 @@ public class RallyPoint extends Spawn implements Storable<SidesSpawnsRecord> {
     public void delete() {
         final Chunk chunk = getRallyBanner().getChunk();
         final boolean wasLoaded = chunk.isLoaded();
-        if (!wasLoaded) {
+        if (!wasLoaded)
             chunk.load();
-        }
 
         getRallyBanner().setType(Material.AIR);
 
-        if (!wasLoaded) {
+        if (!wasLoaded)
             chunk.unload();
-        }
     }
 
     @Override

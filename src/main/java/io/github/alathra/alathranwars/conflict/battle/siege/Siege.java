@@ -1,5 +1,6 @@
 package io.github.alathra.alathranwars.conflict.battle.siege;
 
+import com.palmergames.bukkit.towny.object.Town;
 import io.github.alathra.alathranwars.conflict.battle.AbstractBattleTeamManagement;
 import io.github.alathra.alathranwars.conflict.battle.Battle;
 import io.github.alathra.alathranwars.conflict.battle.BattleRunnableManager;
@@ -10,9 +11,11 @@ import io.github.alathra.alathranwars.conflict.war.War;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
 import io.github.alathra.alathranwars.database.Queries;
 import io.github.alathra.alathranwars.enums.battle.*;
-import io.github.alathra.alathranwars.event.battle.*;
+import io.github.alathra.alathranwars.event.battle.BattleResultEvent;
+import io.github.alathra.alathranwars.event.battle.BattleStartEvent;
+import io.github.alathra.alathranwars.event.battle.PreBattleResultEvent;
+import io.github.alathra.alathranwars.event.battle.PreBattleStartEvent;
 import io.github.alathra.alathranwars.hook.Hook;
-import com.palmergames.bukkit.towny.object.Town;
 import io.github.alathra.alathranwars.utility.Cfg;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -40,6 +43,9 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     public static final int BATTLEFIELD_RANGE = Cfg.get().getOrDefault("battles.sieges.range", 500);
     public static final int BATTLEFIELD_START_MAX_RANGE = BATTLEFIELD_RANGE * 2;
     public static final int BATTLEFIELD_START_MIN_RANGE = 75;
+    public static final double BATTLEFIELD_RANGE_SQUARED = Math.pow(BATTLEFIELD_RANGE, 2);
+    public static final double BATTLEFIELD_START_MAX_RANGE_SQUARED = Math.pow(BATTLEFIELD_START_MAX_RANGE, 2);
+    public static final double BATTLEFIELD_START_MIN_RANGE_SQUARED = Math.pow(BATTLEFIELD_START_MIN_RANGE, 2);
     public final double SIEGE_VICTORY_MONEY = 2500.0;
 
     // Battle fields
@@ -79,11 +85,11 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     ) {
         super(
             isSide1Attackers(war, town) ? // Pass attackers side
-            war.getSide1() :
-            war.getSide2(),
+                war.getSide1() :
+                war.getSide2(),
             isSide1Attackers(war, town) ? // Pass defenders side
-            war.getSide2() :
-            war.getSide1()
+                war.getSide2() :
+                war.getSide1()
         );
         this.uuid = UUID.randomUUID();
 
@@ -102,15 +108,15 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
     /**
      * Instantiates a new Siege. Used when loading existing Siege from Database.
      *
-     * @param war                             the war
-     * @param uuid                            the uuid
-     * @param town                            the town
-     * @param siegeLeader                     the siege leader
-     * @param endTime                         the end time
-     * @param lastTouched                     the last touched
-     * @param siegeProgress                   the siege progress
-     * @param attackers the attacker players including offline
-     * @param defenders the defender players including offline
+     * @param war           the war
+     * @param uuid          the uuid
+     * @param town          the town
+     * @param siegeLeader   the siege leader
+     * @param endTime       the end time
+     * @param lastTouched   the last touched
+     * @param siegeProgress the siege progress
+     * @param attackers     the attacker players including offline
+     * @param defenders     the defender players including offline
      */
     public Siege(
         War war,
@@ -171,6 +177,9 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
             if (Hook.getVaultHook().isHookLoaded() && Hook.getVaultHook().isEconomyLoaded())
                 Hook.getVaultHook().getEconomy().withdrawPlayer(siegeLeader, SIEGE_VICTORY_MONEY);
 
+        if (Hook.getPortsHook().isHookLoaded())
+            Hook.getPortsHook().blockade(town);
+
         new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
 
@@ -190,6 +199,9 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         stopped = false;
         bossBarManager.start();
 
+        if (Hook.getPortsHook().isHookLoaded())
+            Hook.getPortsHook().blockade(town);
+
         new BattleStartEvent(war, this, BattleType.SIEGE).callEvent();
     }
 
@@ -204,6 +216,8 @@ public class Siege extends AbstractBattleTeamManagement implements Battle {
         stopped = true;
         runnableController.stop();
         bossBarManager.stop();
+        if (Hook.getPortsHook().isHookLoaded())
+            Hook.getPortsHook().unblockade(town);
         Queries.deleteSiege(this); // TODO Run as latent event?
         war.removeSiege(this); // TODO Run as latent event?
     }

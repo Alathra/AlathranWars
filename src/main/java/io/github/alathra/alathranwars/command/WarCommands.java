@@ -1,16 +1,5 @@
 package io.github.alathra.alathranwars.command;
 
-import io.github.alathra.alathranwars.api.AlathranWarsAPI;
-import io.github.alathra.alathranwars.conflict.war.War;
-import io.github.alathra.alathranwars.conflict.war.WarController;
-import io.github.alathra.alathranwars.conflict.war.side.Side;
-import io.github.alathra.alathranwars.conflict.war.side.SideCreationException;
-import io.github.alathra.alathranwars.cooldown.CooldownType;
-import io.github.alathra.alathranwars.data.CooldownMeta;
-import io.github.alathra.alathranwars.data.CooldownResidentMeta;
-import io.github.alathra.alathranwars.hook.NameColorHandler;
-import io.github.alathra.alathranwars.utility.UtilsChat;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -23,6 +12,14 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
+import io.github.alathra.alathranwars.api.AlathranWarsAPI;
+import io.github.alathra.alathranwars.conflict.war.War;
+import io.github.alathra.alathranwars.conflict.war.WarController;
+import io.github.alathra.alathranwars.conflict.war.side.Side;
+import io.github.alathra.alathranwars.conflict.war.side.SideCreationException;
+import io.github.alathra.alathranwars.hook.NameColorHandler;
+import io.github.alathra.alathranwars.utility.UtilsChat;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
@@ -263,6 +260,13 @@ public class WarCommands {
                     }
                 }
 
+                if (!war.isEventWar()) {
+                    if (side.isAttacker()) {
+                        AlathranWarsAPI.getInstance().setAttackCooldown(nation);
+                    } else {
+                        AlathranWarsAPI.getInstance().setDefenseCooldown(nation);
+                    }
+                }
                 side.add(nation);
                 nation.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().calculatePlayerColors(player));
                 Bukkit.broadcast(
@@ -312,6 +316,13 @@ public class WarCommands {
                     }
                 }
 
+                if (!war.isEventWar()) {
+                    if (side.isAttacker()) {
+                        AlathranWarsAPI.getInstance().setAttackCooldown(town);
+                    } else {
+                        AlathranWarsAPI.getInstance().setDefenseCooldown(town);
+                    }
+                }
                 side.add(town);
                 town.getResidents().stream().filter(Resident::isOnline).map(Resident::getPlayer).toList().forEach(player -> NameColorHandler.getInstance().getPlayerNameColor(player));
                 Bukkit.broadcast(
@@ -359,6 +370,13 @@ public class WarCommands {
                     }
                 }
 
+                if (!war.isEventWar()) {
+                    if (side.isAttacker()) {
+                        AlathranWarsAPI.getInstance().setAttackCooldown(player);
+                    } else {
+                        AlathranWarsAPI.getInstance().setDefenseCooldown(player);
+                    }
+                }
                 player.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
                 side.add(player);
                 NameColorHandler.getInstance().calculatePlayerColors(player);
@@ -402,8 +420,28 @@ public class WarCommands {
             if (p.equals(targetPlayer)) continue;
             final Location targetLocation = targetPlayer.getLocation();
             if (!location.getWorld().equals(targetLocation.getWorld())) continue;
-            if (location.distance(targetLocation) > 25D) continue;
+            if (location.distance(targetLocation) > 25) continue;
             if (war.isInWar(targetPlayer)) continue;
+
+            if (!war.isEventWar()) {
+                if (side.isAttacker() && AlathranWarsAPI.getInstance().hasAttackCooldown(targetPlayer)) {
+                    targetPlayer.sendMessage(ColorParser.of("<red>You have a offensive cooldown and cannot join this war.").build());
+                    p.sendMessage(ColorParser.of("<red>Player <target> has attacking cooldown and cannot join the war.").with("player", targetPlayer.name()).build());
+                    continue;
+                } else if (side.isDefender() && AlathranWarsAPI.getInstance().hasDefenseCooldown(targetPlayer)) {
+                    targetPlayer.sendMessage(ColorParser.of("<red>You have a defensive cooldown and cannot join this war.").build());
+                    p.sendMessage(ColorParser.of("<red>Player <target> has attacking cooldown and cannot join the war.").with("player", targetPlayer.name()).build());
+                    continue;
+                }
+            }
+
+            if (!war.isEventWar()) {
+                if (side.isAttacker()) {
+                    AlathranWarsAPI.getInstance().setAttackCooldown(targetPlayer);
+                } else {
+                    AlathranWarsAPI.getInstance().setDefenseCooldown(targetPlayer);
+                }
+            }
 
             targetPlayer.sendMessage(ColorParser.of(UtilsChat.getPrefix() + "You have joined the war.").build());
             side.add(targetPlayer);

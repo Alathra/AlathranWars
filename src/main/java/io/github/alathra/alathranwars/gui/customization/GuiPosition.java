@@ -14,6 +14,7 @@ public class GuiPosition {
 
     /**
      * Get the horizontal position
+     *
      * @return int
      * @implNote Positions start at 1
      */
@@ -24,6 +25,7 @@ public class GuiPosition {
     /**
      * Get the horizontal position,
      * Internally calls {@link #x()}
+     *
      * @return int
      * @implNote Positions start at 1
      */
@@ -34,6 +36,7 @@ public class GuiPosition {
     /**
      * Get the column,
      * Internally calls {@link #x()}
+     *
      * @return int
      * @implNote Columns start at 1
      */
@@ -43,6 +46,7 @@ public class GuiPosition {
 
     /**
      * Get the vertical position
+     *
      * @return int
      * @implNote Positions start at 1
      */
@@ -53,6 +57,7 @@ public class GuiPosition {
     /**
      * Get the vertical position,
      * Internally calls {@link #y()}
+     *
      * @return int
      * @implNote Positions start at 1
      */
@@ -63,6 +68,7 @@ public class GuiPosition {
     /**
      * Get the row,
      * Internally calls {@link #y()}
+     *
      * @return int
      * @implNote Rows start at 1
      */
@@ -72,6 +78,7 @@ public class GuiPosition {
 
     /**
      * Get a new gui position with the following coordinates
+     *
      * @param x horizontal position
      * @param y vertical position
      * @return gui position

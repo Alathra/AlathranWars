@@ -1,12 +1,5 @@
 package io.github.alathra.alathranwars.api;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
-import io.github.alathra.alathranwars.conflict.war.War;
-import io.github.alathra.alathranwars.conflict.war.WarController;
-import io.github.alathra.alathranwars.conflict.war.side.Side;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -16,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @see #getInstance()
  * @since 4.0.0
  */
-public class AlathranWarsAPI implements MercenaryAPI, WarCooldownAPI, EnlistAPI {
+public class AlathranWarsAPI implements WarAPI, MercenaryAPI, WarCooldownAPI, EnlistAPI, DeathAPI, ColorAPI {
     private static AlathranWarsAPI INSTANCE = null;
 
     /**
@@ -45,6 +38,7 @@ public class AlathranWarsAPI implements MercenaryAPI, WarCooldownAPI, EnlistAPI 
 
     /**
      * Checks if the AlathranWarsAPI is available
+     *
      * @return true if API is loaded and available
      * @since 4.0.0
      */

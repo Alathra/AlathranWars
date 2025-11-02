@@ -1,10 +1,11 @@
 package io.github.alathra.alathranwars.conflict;
 
+import io.github.alathra.alathranwars.Reloadable;
 import io.github.alathra.alathranwars.enums.ConflictType;
 
 import java.util.UUID;
 
-public abstract class Conflict implements IUnique<Conflict> {
+public abstract class Conflict implements IUnique<Conflict>, Reloadable {
     private ConflictType conflictType;
     private final UUID uuid;
 

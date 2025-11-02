@@ -1,12 +1,12 @@
 package io.github.alathra.alathranwars.listener.war;
 
-import io.github.alathra.alathranwars.AlathranWars;
-import io.github.alathra.alathranwars.conflict.war.WarController;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import com.palmergames.bukkit.towny.event.NationSpawnEvent;
 import com.palmergames.bukkit.towny.event.TownSpawnEvent;
 import com.palmergames.bukkit.towny.event.teleport.ResidentSpawnEvent;
 import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.conflict.war.WarController;
+import io.github.alathra.alathranwars.utility.Cfg;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -59,7 +59,7 @@ public class PlayerTeleportListener implements Listener {
             p.showTitle(
                 Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War").build(),
-                    ColorParser.of("<gray><i>You cannot teleport a town that's besieged!").build(),
+                    ColorParser.of("<gray><i>You cannot teleport to a town that's besieged!").build(),
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(5500), Duration.ofMillis(500))
                 )
             );
@@ -94,7 +94,7 @@ public class PlayerTeleportListener implements Listener {
             p.showTitle(
                 Title.title(
                     ColorParser.of("<gradient:#D72A09:#B01F03><u><b>War").build(),
-                    ColorParser.of("<gray><i>You cannot teleport a town that's besieged!").build(),
+                    ColorParser.of("<gray><i>You cannot teleport to a town that's besieged!").build(),
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(5500), Duration.ofMillis(500))
                 )
             );
@@ -104,6 +104,8 @@ public class PlayerTeleportListener implements Listener {
     }
 
     private boolean isInSpawn(Player p) {
-        return p.getWorld().getName().equalsIgnoreCase("world");
+        return Cfg.get().getStringList("battles.teleport-world-whitelist")
+            .stream()
+            .anyMatch(name -> p.getWorld().getName().equals(name));
     }
 }

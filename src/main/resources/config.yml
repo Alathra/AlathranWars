@@ -29,6 +29,8 @@ war:
   wartime-duration: 120 # Duration of wartime in minutes
 
 battles:
+  teleport-world-whitelist: # Worlds players may teleport from (prevents getting stuck in lobby worlds) (usage of t spawn etc)
+    - "spawn"
   sieges:
     range: 500 # The radius in blocks around the siege point that will be considered the battlefield
     duration: 60 # The duration of the siege in minutes
@@ -77,3 +79,18 @@ respawns:
     min-range-town-hostile: 100
     min-range-outpost-hostile: 50
     min-range-rally-hostile: 25
+
+colors:
+  particles:
+    friendly: "#5555FF"
+    neutral: "#FFFF55"
+    hostile: "#FF5555"
+  nametags:
+    prefix:
+      friendly: "<blue>"
+      neutral: "<yellow>"
+    hostile: "<red>"
+    suffix:
+      friendly: "</blue>"
+      neutral: "</yellow>"
+      hostile: "</red>"

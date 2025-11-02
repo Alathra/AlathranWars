@@ -1,18 +1,24 @@
 package io.github.alathra.alathranwars.conflict.war.side;
 
+import com.palmergames.bukkit.towny.object.Government;
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.AlathranWars;
+import io.github.alathra.alathranwars.Reloadable;
 import io.github.alathra.alathranwars.conflict.IAssociatedWar;
 import io.github.alathra.alathranwars.conflict.IUnique;
 import io.github.alathra.alathranwars.conflict.IUpdateable;
 import io.github.alathra.alathranwars.conflict.war.War;
 import io.github.alathra.alathranwars.conflict.war.WarController;
 import io.github.alathra.alathranwars.conflict.war.side.spawn.RallyPoint;
+import io.github.alathra.alathranwars.conflict.war.side.spawn.Spawn;
 import io.github.alathra.alathranwars.conflict.war.side.spawn.SpawnCache;
+import io.github.alathra.alathranwars.conflict.war.side.spawn.SpawnType;
 import io.github.alathra.alathranwars.enums.battle.BattleSide;
 import io.github.alathra.alathranwars.enums.battle.BattleTeam;
 import io.github.alathra.alathranwars.hook.NameColorHandler;
-import com.palmergames.bukkit.towny.object.Government;
-import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.utility.SideUtils;
+import io.github.alathra.alathranwars.utility.SpawnUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.ApiStatus;
@@ -21,12 +27,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAssociatedWar, IUpdateable {
+public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAssociatedWar, Reloadable, IUpdateable {
     private static final Duration SIEGE_COOLDOWN = Duration.ofMinutes(15);
     private static final Duration RAID_COOLDOWN = Duration.ofMinutes(15);
     private final UUID warUUID;
@@ -44,6 +50,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
 
     /**
      * Instantiates a existing Side.
+     *
      * @throws SideCreationException exception
      */
     @ApiStatus.Internal
@@ -62,7 +69,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         Set<OfflinePlayer> playersSurrendered,
         Instant siegeGrace,
         Instant raidGrace,
-        List<RallyPoint> spawns
+        Set<RallyPoint> spawns
     ) throws SideCreationException {
         super(nations, towns, players, nationsSurrendered, townsSurrendered, playersSurrendered);
         this.warUUID = warUUID;
@@ -72,6 +79,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         this.name = name;
         this.siegeGrace = siegeGrace;
         this.raidGrace = raidGrace;
+        this.spawnCache = new SpawnCache(this, spawns);
 
         if (government instanceof Nation nation) {
             this.town = nation.getCapital();
@@ -80,12 +88,11 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         } else {
             throw new SideCreationException("No town or nation specified!");
         }
-
-        this.spawnCache = new SpawnCache(this, spawns);
     }
 
     /**
      * Instantiates a new Side.
+     *
      * @throws SideCreationException exception
      */
     @ApiStatus.Internal
@@ -101,6 +108,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         this.uuid = uuid;
         this.side = side;
         this.team = team;
+        this.spawnCache = new SpawnCache(this);
 
         if (government instanceof Nation nation) {
             this.town = nation.getCapital();
@@ -113,7 +121,21 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         }
 
         this.name = this.town.getName();
-        this.spawnCache = new SpawnCache(this);
+    }
+
+    @Override
+    public void onLoad(AlathranWars plugin) {
+        spawnCache.onLoad(plugin);
+    }
+
+    @Override
+    public void onEnable(AlathranWars plugin) {
+        spawnCache.onEnable(plugin);
+    }
+
+    @Override
+    public void onDisable(AlathranWars plugin) {
+        spawnCache.onDisable(plugin);
     }
 
     public BattleSide getSide() {
@@ -129,6 +151,56 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
     }
 
     // Participant management
+
+    public Set<Spawn> getSpawns() {
+        final Side opponent = SideUtils.getOpponent(this);
+
+        // Get all town related spawns (occupied towns & outposts)
+        final Stream<Spawn> occupiedSpawns = opponent.getSpawnManager()
+            .getSpawns()
+            .stream()
+            .filter(s -> (s.getType().equals(SpawnType.TOWN) || s.getType().equals(SpawnType.OUTPOST)) && s.getTown().isPresent() && opponent.isSurrendered(s.getTown().get()));
+
+
+        // Get all spawns from this side (Excludes occupied towns/outposts)
+        final Stream<Spawn> spawns = getSpawnManager()
+            .getSpawns()
+            .stream()
+            .filter(s -> s.getType().equals(SpawnType.RALLY) || (s.getTown().isPresent() && !isSurrendered(s.getTown().get()))); // Exclude our occupied towns
+        return Stream.concat(spawns, occupiedSpawns).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void add(Government government) {
+        super.add(government);
+        if (government instanceof Town t) { // Add spawns owned by town
+            SpawnUtils.computeTownSpawns(t, this).forEach(spawn -> getSpawnManager().add(spawn));
+        }
+    }
+
+    @Override
+    public void remove(Government government) {
+        super.remove(government);
+        if (government instanceof Town t) { // Remove spawns owned by town
+            getSpawnManager().getSpawns(t).forEach(spawn -> getSpawnManager().remove(spawn));
+        }
+    }
+
+    @Override
+    public void surrender(Government government) {
+        super.surrender(government);
+        if (government instanceof Town t) { // Add spawns owned by town
+            SpawnUtils.computeTownSpawns(t, this).forEach(spawn -> getSpawnManager().add(spawn));
+        }
+    }
+
+    @Override
+    public void unsurrender(Government government) {
+        super.unsurrender(government);
+        if (government instanceof Town t) { // Remove spawns owned by town
+            getSpawnManager().getSpawns(t).forEach(spawn -> getSpawnManager().remove(spawn));
+        }
+    }
 
     public void applyNameTags() {
         getPlayersOnlineAll().forEach(
@@ -336,13 +408,14 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
         private @Nullable Instant siegeGrace;
         private @Nullable Instant raidGrace;
 
-        private @Nullable List<RallyPoint> rallyPoints;
+        private @Nullable Set<RallyPoint> rallyPoints;
 
         private Builder() {
         }
 
         /**
          * Build a new side from save data
+         *
          * @return a new side
          * @throws SideCreationException exception
          */
@@ -413,6 +486,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
 
         /**
          * Build a new Side
+         *
          * @return a new side
          * @throws SideCreationException exception
          */
@@ -511,7 +585,7 @@ public class Side extends AbstractSideTeamManager implements IUnique<Side>, IAss
             return this;
         }
 
-        public Builder setRallies(@Nullable List<RallyPoint> spawns) {
+        public Builder setRallies(@Nullable Set<RallyPoint> spawns) {
             this.rallyPoints = spawns;
             return this;
         }

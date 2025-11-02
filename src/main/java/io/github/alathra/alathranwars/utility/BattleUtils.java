@@ -3,17 +3,22 @@ package io.github.alathra.alathranwars.utility;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
+import io.github.alathra.alathranwars.api.AlathranWarsAPI;
+import io.github.alathra.alathranwars.conflict.battle.Battle;
 import io.github.alathra.alathranwars.conflict.battle.siege.Siege;
 import io.github.alathra.alathranwars.conflict.war.War;
 import io.github.alathra.alathranwars.conflict.war.WarController;
 import io.github.alathra.alathranwars.conflict.war.side.Side;
-import io.github.alathra.alathranwars.meta.ControlPoint;
+import io.github.alathra.alathranwars.data.ControlPoint;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public final class BattleUtils {
     public record SidedTown(War war, Side side, Town town) {
@@ -22,8 +27,8 @@ public final class BattleUtils {
     /**
      * Finds the nearest siegable town for a player, excluding allies and active sieges.
      *
-     * @param player The player to find the nearest siegable town for.
-     * @param ignoreAllies Whether to ignore allied towns.
+     * @param player             The player to find the nearest siegable town for.
+     * @param ignoreAllies       Whether to ignore allied towns.
      * @param ignoreActiveSieges Whether to ignore towns under active sieges.
      * @return An Optional containing the nearest SidedTown, or empty if none found.
      */
@@ -50,8 +55,10 @@ public final class BattleUtils {
                 if (!l.getWorld().equals(playerLoc.getWorld()))
                     return false;
 
+                final double maxDistance = Math.pow(Cfg.get().getOrDefault("battles.sieges.trigger.range", 250L), 2);
+
                 // Excludes towns that are too far away
-                return l.distanceSquared(playerLoc) <= Cfg.get().getOrDefault("battles.sieges.trigger.range", 250L);
+                return l.distanceSquared(playerLoc) <= maxDistance;
             })
             .reduce((t1, t2) -> { // Returns the nearest town
                 final Location loc1 = ControlPoint.get(t1.town);
@@ -67,11 +74,13 @@ public final class BattleUtils {
     /**
      * Checks if a player is a captain of their side in the current war.
      * A captain is a mayor, co-mayor, king, co-king or war leader in a war.
+     *
      * @param player The player to check.
      * @return True if the player is a captain, false otherwise.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isCaptain(final Player player) {
-         final Resident res = TownyAPI.getInstance().getResident(player);
+        final Resident res = TownyAPI.getInstance().getResident(player);
         if (res == null)
             return false;
 
@@ -87,11 +96,22 @@ public final class BattleUtils {
 
     /**
      * Attempts to dynamically start a siege at the player's current location.
+     *
      * @param player The player attempting to start the siege.
      */
     public static void attemptSiegeAtLocation(
         final Player player
     ) {
+        if (!BattleUtils.isCaptain(player)) {
+            player.sendRichMessage("<red>You cannot start a siege as you are not a war captain.");
+            return;
+        }
+
+        if (!AlathranWarsAPI.getInstance().hasActiveWarTime(player)) {
+            player.sendRichMessage("<red>You cannot start a siege as war time is not active.");
+            return;
+        }
+
         final Optional<SidedTown> nearestSiegableTown = getNearestSiegableTown(player, true, true);
         if (nearestSiegableTown.isEmpty()) {
             player.sendRichMessage("<red>You cannot start a siege as there are no attackable towns near you.");
@@ -117,9 +137,9 @@ public final class BattleUtils {
         Player siegeLeader,
         Town town,
         War war,
-        Side side
+        Side defendingSide
     ) {
-        side.setSiegeGrace();
+        defendingSide.setSiegeGrace();
         Siege siege = new Siege(war, town, siegeLeader);
 
         war.addSiege(siege);
@@ -130,10 +150,47 @@ public final class BattleUtils {
                 )
                 .with("prefix", UtilsChat.getPrefix())
                 .with("town", town.getName())
-                .with("side", side.getName())
+                .with("side", SideUtils.getOpponent(defendingSide).getName())
                 .build()
         );
 
         siege.start();
+    }
+
+    public static Stream<? extends Battle> getClosestBattles(Location location, double range) {
+        final double rangeSquared = range * range;
+        return WarController.getInstance().getWars().stream()
+            .filter(war -> war.isWarTime() || !war.getSieges().isEmpty())
+            .flatMap(war -> war.getSieges().stream())
+            .filter(battle -> battle.getControlPoint().getWorld().equals(location.getWorld()))
+            .filter(battle -> battle.getControlPoint().distanceSquared(location) <= rangeSquared);
+    }
+
+    public static Optional<? extends Battle> getClosestBattle(Location location, double range) {
+        return getClosestBattle(location, range, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Battle> Optional<? extends Battle> getClosestBattle(Location location, double range, @Nullable Predicate<T> filter) {
+        return getClosestBattles(location, range)
+            .filter(battle -> filter == null || filter.test((T) battle))
+            .reduce((battle1, battle2) -> {
+                if (battle1 instanceof Siege siege1 && battle2 instanceof Siege siege2) {
+                    final double dist1 = siege1.getControlPoint().distanceSquared(location);
+                    final double dist2 = siege2.getControlPoint().distanceSquared(location);
+                    return dist1 < dist2 ? battle1 : battle2;
+                }
+                return battle1;
+            });
+    }
+
+    public static boolean isOnBattlefield(Player p, Battle battle) {
+        if (!(battle instanceof Siege siege))
+            return false;
+
+        if (!siege.getControlPoint().getWorld().equals(p.getWorld()))
+            return false;
+
+        return siege.getControlPoint().distanceSquared(p.getLocation()) <= Siege.BATTLEFIELD_RANGE_SQUARED;
     }
 }

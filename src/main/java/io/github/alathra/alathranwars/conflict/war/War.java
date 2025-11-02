@@ -1,5 +1,11 @@
 package io.github.alathra.alathranwars.conflict.war;
 
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Government;
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Town;
+import dev.jorel.commandapi.CommandAPIBukkit;
+import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import io.github.alathra.alathranwars.AlathranWars;
 import io.github.alathra.alathranwars.api.AlathranWarsAPI;
 import io.github.alathra.alathranwars.conflict.Conflict;
@@ -23,11 +29,6 @@ import io.github.alathra.alathranwars.hook.NameColorHandler;
 import io.github.alathra.alathranwars.utility.Cfg;
 import io.github.alathra.alathranwars.utility.UtilsChat;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import com.palmergames.bukkit.towny.object.Government;
-import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Town;
-import dev.jorel.commandapi.CommandAPIBukkit;
-import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
@@ -40,10 +41,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,7 +53,6 @@ public class War extends Conflict {
     private final String label;
     private final ConflictType conflictType = ConflictType.WAR;
     private boolean event;
-    private @Nullable Instant scheduledWarTime = null; // The time that this war is scheduled to start, null if not scheduled
 
     private final Side side1;
     private final Side side2;
@@ -66,6 +63,7 @@ public class War extends Conflict {
     private Set<Raid> raids = new HashSet<>();
 
     private final WarCapturePointManager capturePointManager;
+    private final WarTimeManager warTimeManager;
 
     /**
      * Instantiates a existing War.
@@ -104,7 +102,9 @@ public class War extends Conflict {
         this.sieges = sieges;
         this.raids = raids;
         this.event = event;
+
         this.capturePointManager = new WarCapturePointManager(this);
+        this.warTimeManager = new WarTimeManager(this, scheduledWarTime); // The time that this war is scheduled to start, null if not scheduled
 
         resume();
     }
@@ -155,6 +155,7 @@ public class War extends Conflict {
         this.defender = side1.getSide().equals(BattleSide.DEFENDER) ? this.side1 : this.side2;
         this.event = event;
         this.capturePointManager = new WarCapturePointManager(this);
+        this.warTimeManager = new WarTimeManager(this, scheduledWarTime);
 
         if (!new PreWarCreateEvent(this).callEvent())
             return;
@@ -163,8 +164,34 @@ public class War extends Conflict {
         WarController.getInstance().addWar(this);
 
         start();
+        if (!isEventWar()) {
+            attacker.getNations().forEach(n -> AlathranWarsAPI.getInstance().setAttackCooldown(n));
+            attacker.getTowns().forEach(t -> AlathranWarsAPI.getInstance().setAttackCooldown(t));
+            attacker.getPlayers().forEach(p -> AlathranWarsAPI.getInstance().setAttackCooldown(TownyAPI.getInstance().getResident(p.getUniqueId())));
+            defender.getNations().forEach(n -> AlathranWarsAPI.getInstance().setDefenseCooldown(n));
+            defender.getTowns().forEach(t -> AlathranWarsAPI.getInstance().setDefenseCooldown(t));
+            defender.getPlayers().forEach(p -> AlathranWarsAPI.getInstance().setDefenseCooldown(TownyAPI.getInstance().getResident(p.getUniqueId())));
+        }
 
         new WarCreateEvent(this).callEvent();
+    }
+
+    @Override
+    public void onLoad(AlathranWars plugin) {
+        attacker.onLoad(plugin);
+        defender.onLoad(plugin);
+    }
+
+    @Override
+    public void onEnable(AlathranWars plugin) {
+        attacker.onEnable(plugin);
+        defender.onEnable(plugin);
+    }
+
+    @Override
+    public void onDisable(AlathranWars plugin) {
+        attacker.onDisable(plugin);
+        defender.onDisable(plugin);
     }
 
     /**
@@ -508,6 +535,7 @@ public class War extends Conflict {
 
     /**
      * Get all players in the war (excluding surrendered)
+     *
      * @return player list
      */
     public List<OfflinePlayer> getPlayers() {
@@ -519,6 +547,7 @@ public class War extends Conflict {
 
     /**
      * Get all players in the war (excludes non-surrendered players)
+     *
      * @return player list
      */
     public List<OfflinePlayer> getPlayersSurrendered() {
@@ -530,6 +559,7 @@ public class War extends Conflict {
 
     /**
      * Get all players in the war (includes surrendered players)
+     *
      * @return player list
      */
     public List<OfflinePlayer> getPlayersAll() {
@@ -538,6 +568,7 @@ public class War extends Conflict {
 
     /**
      * Get all online players in the war (excluding surrendered)
+     *
      * @return player list
      */
     public List<Player> getPlayersOnline() {
@@ -549,6 +580,7 @@ public class War extends Conflict {
 
     /**
      * Get all online players in the war (excludes non-surrendered players)
+     *
      * @return player list
      */
     public List<Player> getPlayersSurrenderedOnline() {
@@ -560,6 +592,7 @@ public class War extends Conflict {
 
     /**
      * Get all online players in the war (includes surrendered players)
+     *
      * @return player list
      */
     public List<Player> getPlayersOnlineAll() {
@@ -695,8 +728,8 @@ public class War extends Conflict {
      */
     public void surrender(Government government) {
         if (government instanceof Nation nation) {
-            Side nationSide = getSide(nation);
-            if (nationSide == null) return;
+            final Side nationSide = getSide(nation);
+            Objects.requireNonNull(nationSide, "Nation side is null");
 
             final @Nullable Nation occupier = nationSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
             Occupation.setOccupied(nation, occupier);
@@ -705,18 +738,16 @@ public class War extends Conflict {
             // TODO Cancel in progress sieges for towns?
             nationSide.processSurrenders();
         } else if (government instanceof Town town) {
-            Side townSide = getSide(town);
-            if (townSide == null) return;
+            final Side townSide = getSide(town);
+            Objects.requireNonNull(townSide, "Town side is null");
 
             final @Nullable Nation townNation = town.getNationOrNull();
             final @Nullable Nation occupier = townSide.equals(getSide1()) ? getSide2().getTown().getNationOrNull() : getSide1().getTown().getNationOrNull();
             Occupation.setOccupied(town, occupier);
             townSide.surrender(town);
 
-            if (townNation != null) {
-                if (townSide.shouldSurrender(townNation)) {
-                    surrender(townNation);
-                }
+            if (townNation != null && townSide.shouldSurrender(townNation)) {
+                surrender(townNation);
             }
 
             // TODO Cancel in progress sieges for towns?
@@ -869,18 +900,18 @@ public class War extends Conflict {
     }
 
     public boolean isWarTime() {
-        return getScheduledWarTime() != null &&
+        return isEventWar() || (getScheduledWarTime() != null &&
             Instant.now().isAfter(getScheduledWarTime()) &&
-            Instant.now().isBefore(getScheduledWarTime().plus(Duration.ofMinutes(Cfg.get().getOrDefault("war.wartime-duration", 60L))));
+            Instant.now().isBefore(getScheduledWarTime().plus(Duration.ofMinutes(Cfg.get().getOrDefault("war.wartime-duration", 60L)))));
     }
 
     @Nullable
     public Instant getScheduledWarTime() {
-        return scheduledWarTime;
+        return warTimeManager.getScheduledWarTime();
     }
 
     public void setScheduledWarTime(@Nullable Instant scheduledWarTime) {
-        this.scheduledWarTime = scheduledWarTime;
+        warTimeManager.setScheduledWarTime(scheduledWarTime);
     }
 
     public static Builder builder() {
@@ -907,6 +938,7 @@ public class War extends Conflict {
 
         /**
          * Build a new war from save data
+         *
          * @return a new war
          * @throws WarCreationException exception
          */
@@ -947,9 +979,10 @@ public class War extends Conflict {
 
         /**
          * Build a new War
+         *
          * @return a new war
          * @throws WrapperCommandSyntaxException exception
-         * @throws SideCreationException exception
+         * @throws SideCreationException         exception
          */
         public War create() throws WrapperCommandSyntaxException, SideCreationException {
             this.setUuid(UUID.randomUUID());
@@ -1041,6 +1074,7 @@ public class War extends Conflict {
 
         /**
          * Checks cooldowns for starting a war.
+         *
          * @return true if war can be started, false otherwise
          */
         private boolean canStartWar() {
