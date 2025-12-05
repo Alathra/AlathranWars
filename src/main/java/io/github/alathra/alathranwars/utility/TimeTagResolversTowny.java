@@ -1,8 +1,8 @@
 package io.github.alathra.alathranwars.utility;
 
-import com.palmergames.adventure.text.minimessage.tag.Tag;
-import com.palmergames.adventure.text.minimessage.tag.TagPattern;
-import com.palmergames.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;

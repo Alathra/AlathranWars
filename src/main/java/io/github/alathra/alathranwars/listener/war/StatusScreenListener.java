@@ -1,15 +1,15 @@
 package io.github.alathra.alathranwars.listener.war;
 
-import com.palmergames.adventure.text.Component;
-import com.palmergames.adventure.text.minimessage.MiniMessage;
-import com.palmergames.adventure.text.minimessage.tag.Tag;
-import com.palmergames.adventure.text.minimessage.tag.resolver.TagResolver;
 import com.palmergames.bukkit.towny.event.statusscreen.NationStatusScreenEvent;
 import com.palmergames.bukkit.towny.event.statusscreen.ResidentStatusScreenEvent;
 import com.palmergames.bukkit.towny.event.statusscreen.TownStatusScreenEvent;
 import io.github.alathra.alathranwars.api.AlathranWarsAPI;
 import io.github.alathra.alathranwars.utility.TimeTagResolversTowny;
 import io.github.milkdrinkers.wordweaver.Translation;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
